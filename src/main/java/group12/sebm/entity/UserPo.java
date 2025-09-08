@@ -3,19 +3,19 @@ import lombok.Data;
 
 @Data
 public class UserPo {
-    private Long id;
+    private Integer id;
     private String username;
     private String password;
-    public UserPo(Long id, String username, String password) {
+    public UserPo(Integer id, String username, String password) {
         this.id = id;
         this.username = username;
         this.password = password;
     }
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
-    public void setId(Long id) {
+    public void setId(Integer id) {
         this.id = id;
     }
     public String getUsername() {

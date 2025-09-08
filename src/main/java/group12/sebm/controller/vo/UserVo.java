@@ -1,16 +1,16 @@
 package group12.sebm.controller.vo;
 
 public class UserVo {
-    private Long id;
+    private Integer id;
     private String username;
-    public UserVo(Long id, String username) {
+    public UserVo(Integer id, String username) {
         this.id = id;
         this.username = username;
     }
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
-    public void setId(Long id) {
+    public void setId(Integer id) {
         this.id = id;
     }
     public String getUsername() {

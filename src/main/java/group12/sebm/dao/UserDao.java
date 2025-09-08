@@ -14,9 +14,9 @@ public class UserDao {
 
     public UserDao() {
         // 初始化模拟数据
-        userMap.put(1, new UserPo(1L, "Tom", "tom@example.com"));
-        userMap.put(2, new UserPo(2L, "Alice", "alice@example.com"));
-        userMap.put(3, new UserPo(3L, "Bob", "bob@example.com"));
+        userMap.put(1, new UserPo(1, "Tom", "tom@example.com"));
+        userMap.put(2, new UserPo(2, "Alice", "alice@example.com"));
+        userMap.put(3, new UserPo(3, "Bob", "bob@example.com"));
     }
 
     // 根据ID查询

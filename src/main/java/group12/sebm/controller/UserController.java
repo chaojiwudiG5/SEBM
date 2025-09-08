@@ -2,6 +2,7 @@ package group12.sebm.controller;
 import group12.sebm.service.UserService;
 import group12.sebm.controller.dto.UserDto;
 import group12.sebm.controller.vo.UserVo;
+import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collection;
@@ -24,9 +25,9 @@ public class UserController {
     }
 
     // 根据ID查询用户
-    @GetMapping("/id")
-    public UserVo getUserById(@PathVariable Integer id) {
-        UserDto dto = userService.getUserById(id);
+    @PostMapping("/id")
+    public UserVo getUserById(@RequestBody UserVo request) {
+        UserDto dto = userService.getUserById(request.getId());
         if (dto == null) return null;
         return new UserVo(dto.getId(), "用户: " + dto.getUsername());
     }
