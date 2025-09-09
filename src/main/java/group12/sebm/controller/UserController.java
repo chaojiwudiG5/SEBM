@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
@@ -16,20 +17,15 @@ public class UserController {
         this.userService = userService;
     }
 
-    @GetMapping("/all")
-    public Collection<UserVo> getAllUsers() {
-        Collection<UserDto> dtos = userService.getAllUsers();
-        return dtos.stream()
-                .map(dto -> new UserVo(dto.getId(), "用户: " + dto.getUsername(),dto.getAge()))
-                .collect(Collectors.toList());
+    @GetMapping("/users")
+    public List<UserVo> getAllUsers() {
+        return userService.getAllUsers(); // 直接返回VO
     }
 
 
     @PostMapping("/id")
     public UserVo getUserById(@RequestBody UserVo request) {
-        UserVo vo = userService.getDiscountUserById(request.getId());
-        if (vo == null) return null;
-        return new UserVo(vo.getId(), "用户: " + vo.getUsername(), vo.getAge());
+        return userService.getDiscountUserById(request.getId());
     }
 
 }

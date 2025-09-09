@@ -28,10 +28,14 @@ public class UserService {
         return new UserVo(bo.getId(), bo.getUsername(), bo.getAge());
     }
 
-    public List<UserDto> getAllUsers() {
+    private UserVo poToVo(UserPo po) {
+        return new UserVo(po.getId(), po.getUsername(), po.getAge());
+    }
+
+    public List<UserVo> getAllUsers() {
         Collection<UserPo> pos = userDao.findAll();
         return pos.stream()
-                .map(po -> new UserDto(po.getId(), po.getUsername(), null, po.getAge()))
+                .map(this::poToVo) // 在Service层完成转换
                 .collect(Collectors.toList());
     }
 
