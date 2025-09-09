@@ -15,21 +15,21 @@ public class UserController {
     public UserController(UserService userService) {
         this.userService = userService;
     }
-    // 查询所有用户
+
     @GetMapping("/all")
     public Collection<UserVo> getAllUsers() {
         Collection<UserDto> dtos = userService.getAllUsers();
         return dtos.stream()
-                .map(dto -> new UserVo(dto.getId(), "用户: " + dto.getUsername()))
+                .map(dto -> new UserVo(dto.getId(), "用户: " + dto.getUsername(),dto.getAge()))
                 .collect(Collectors.toList());
     }
 
-    // 根据ID查询用户
+
     @PostMapping("/id")
     public UserVo getUserById(@RequestBody UserVo request) {
-        UserDto dto = userService.getUserById(request.getId());
-        if (dto == null) return null;
-        return new UserVo(dto.getId(), "用户: " + dto.getUsername());
+        UserVo vo = userService.getDiscountUserById(request.getId());
+        if (vo == null) return null;
+        return new UserVo(vo.getId(), "用户: " + vo.getUsername(), vo.getAge());
     }
 
 }
