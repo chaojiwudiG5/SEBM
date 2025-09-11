@@ -1,13 +1,9 @@
 package group12.sebm.controller;
 import group12.sebm.service.UserService;
-import group12.sebm.controller.dto.UserDto;
 import group12.sebm.controller.vo.UserVo;
-import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/users")
