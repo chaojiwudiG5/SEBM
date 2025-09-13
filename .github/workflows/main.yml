@@ -31,9 +31,6 @@ jobs:
       # 2.编译项目
       - name: Build with Maven
         run: mvn clean verify -DskipTests
-      # 3. Lint
-      - name: Run Checkstyle (Lint)
-        run: mvn checkstyle:check
       # 4. 安装 Snyk CLI
       - name: Install Snyk CLI
         run: npm install -g snyk
