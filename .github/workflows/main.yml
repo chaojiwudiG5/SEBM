@@ -1,8 +1,9 @@
-name: Java CI with SonarQube & Railway
+name: Java CI with SYNK
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "main","feature/*" ]
+
   pull_request:
 
 jobs:
@@ -19,7 +20,7 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '17'
-
+      # 1.缓存maven依赖
       - name: Cache Maven repository
         uses: actions/cache@v3
         with:
@@ -27,16 +28,33 @@ jobs:
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
             ${{ runner.os }}-maven-
-
+      # 2.编译项目
       - name: Build with Maven
         run: mvn clean verify -DskipTests
+      # 3. Lint
+      - name: Run Checkstyle (Lint)
+        run: mvn checkstyle:check
+      # 4. 安装 Snyk CLI
+      - name: Install Snyk CLI
+        run: npm install -g snyk
 
-      - name: SonarQube Scan
+      # 5. 使用 Snyk 进行依赖漏洞扫描 (SCA)
+      - name: Run Snyk SCA scan
+        run: snyk test --all-projects --severity-threshold=medium
         env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: |
-          mvn sonar:sonar \
-            -Dsonar.projectKey=chaojiwudiG5_SEBM \
-            -Dsonar.organization=chaojiwudig5 \
-            -Dsonar.host.url=https://sonarcloud.io \
-            -Dsonar.login=$SONAR_TOKEN
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+
+      # 6. 使用 Snyk 进行源代码漏洞扫描 (SAST)
+      - name: Run Snyk Code (SAST) scan
+        run: snyk code test --severity-threshold=medium
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+
+      - name: Run Unit Tests
+        run: mvn test
+
+      # 7. 可选：上传结果到 Snyk 平台，生成报告
+      - name: Monitor project in Snyk
+        run: snyk monitor --all-projects
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
