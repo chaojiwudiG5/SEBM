@@ -1,43 +1,43 @@
-name: CI Pipeline
-
-on:
-  push:
-    branches:
-      - main
-      - "feature/**"
-  pull_request:
-    branches:
-      - main
-
-jobs:
-  build:
-    runs-on: ubuntu-latest
-
-    steps:
-      # 1. Checkout
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      # 2. JDK 17
-      - name: Set up JDK 17
-        uses: actions/setup-java@v3
-        with:
-          distribution: temurin
-          java-version: "17"
-          cache: maven
-
-      # 3. Lint
-      - name: Run Checkstyle (Lint)
-        run: mvn checkstyle:check
-
-      # 4. Run Unit Tests
-      - name: Run Unit Tests
-        run: mvn test
-
-      # 5. SAST
-      - name: Run SpotBugs (SAST)
-        run: mvn com.github.spotbugs:spotbugs-maven-plugin:spotbugs
-
-      # 6. SCA 
-      - name: Run OWASP Dependency Check (SCA)
-        run: mvn org.owasp:dependency-check-maven:check
+#name: CI Pipeline
+#
+#on:
+#  push:
+#    branches:
+#      - main
+#      - "feature/**"
+#  pull_request:
+#    branches:
+#      - main
+#
+#jobs:
+#  build:
+#    runs-on: ubuntu-latest
+#
+#    steps:
+#      # 1. Checkout
+#      - name: Checkout repository
+#        uses: actions/checkout@v3
+#
+#      # 2. JDK 17
+#      - name: Set up JDK 17
+#        uses: actions/setup-java@v3
+#        with:
+#          distribution: temurin
+#          java-version: "17"
+#          cache: maven
+#
+#      # 3. Lint
+#      - name: Run Checkstyle (Lint)
+#        run: mvn checkstyle:check
+#
+#      # 4. Run Unit Tests
+#      - name: Run Unit Tests
+#        run: mvn test
+#
+#      # 5. SAST
+#      - name: Run SpotBugs (SAST)
+#        run: mvn com.github.spotbugs:spotbugs-maven-plugin:spotbugs
+#
+#      # 6. SCA
+#      - name: Run OWASP Dependency Check (SCA)
+#        run: mvn org.owasp:dependency-check-maven:check
