@@ -1,4 +1,4 @@
-package group12.sebm.exception;
+package group5.sebm.exception;
 
 /**
  * 全局统一返回码枚举

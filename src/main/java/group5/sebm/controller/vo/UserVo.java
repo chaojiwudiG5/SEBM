@@ -1,20 +1,17 @@
-package group12.sebm.controller.dto;
+package group5.sebm.controller.vo;
 
 import lombok.Getter;
 import lombok.Setter;
 
 @Setter
 @Getter
-public class UserDto {
+public class UserVo {
     private Integer id;
     private String username;
-    private String password;
     private Integer age;
-
-    public UserDto(Integer id, String username, String password, Integer age) {
+    public UserVo(Integer id, String username, Integer age) {
         this.id = id;
         this.username = username;
-        this.password = password;
         this.age = age;
     }
 

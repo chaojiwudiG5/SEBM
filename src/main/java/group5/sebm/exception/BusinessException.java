@@ -1,4 +1,4 @@
-package group12.sebm.exception;
+package group5.sebm.exception;
 
 public class BusinessException extends Exception {
     private final int code;
