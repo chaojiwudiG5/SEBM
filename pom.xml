@@ -162,7 +162,7 @@
                     <effort>Max</effort>
                     <threshold>Low</threshold>
                     <xmlOutput>true</xmlOutput>
-                    <xmlOutputDirectory>${project.build.directory}/reports</xmlOutputDirectory>
+                    <xmlOutputDirectory>target/spotbugs</xmlOutputDirectory> <!-- 修改这里 -->
                 </configuration>
                 <executions>
                     <execution>
