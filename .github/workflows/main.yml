@@ -53,7 +53,7 @@ jobs:
       - name: Run Unit Tests
         run: mvn test
 
-      # 7. 可选：上传结果到 Snyk 平台，生成报告
+      # 7. 可选：上传结果到 Snyk 平台
       - name: Monitor project in Snyk
         run: snyk monitor --all-projects
         env:
