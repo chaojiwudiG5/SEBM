@@ -125,6 +125,7 @@
                     <consoleOutput>true</consoleOutput>
                     <failsOnError>true</failsOnError>
                     <linkXRef>false</linkXRef>
+                    <outputFile>${project.build.directory}/reports/checkstyle-result.xml</outputFile>
                 </configuration>
                 <executions>
                     <execution>
@@ -140,12 +141,13 @@
                 <artifactId>dependency-check-maven</artifactId>
                 <version>12.1.0</version>
                 <configuration>
-                    <format>HTML</format>
-                    <outputDirectory>${project.build.directory}/dependency-check-report</outputDirectory>
+                    <format>XML</format>
+                    <outputDirectory>${project.build.directory}/reports</outputDirectory>
                     <failBuildOnCVSS>7</failBuildOnCVSS>
                 </configuration>
                 <executions>
                     <execution>
+                        <phase>verify</phase>
                         <goals>
                             <goal>check</goal>
                         </goals>
@@ -160,16 +162,18 @@
                     <effort>Max</effort>
                     <threshold>Low</threshold>
                     <xmlOutput>true</xmlOutput>
-                    <xmlOutputDirectory>target/spotbugs</xmlOutputDirectory>
+                    <xmlOutputDirectory>${project.build.directory}/reports</xmlOutputDirectory>
                 </configuration>
                 <executions>
                     <execution>
+                        <phase>verify</phase>
                         <goals>
                             <goal>spotbugs</goal>
                         </goals>
                     </execution>
                 </executions>
             </plugin>
+
         </plugins>
     </build>
 
