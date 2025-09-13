@@ -1,4 +1,4 @@
-package group12.sebm.common;
+package group5.sebm.common;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

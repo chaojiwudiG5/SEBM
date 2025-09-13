@@ -1,6 +1,6 @@
-package group12.sebm.exception;
+package group5.sebm.exception;
 
-import group12.sebm.common.Result;
+import group5.sebm.common.Result;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.MethodArgumentNotValidException;

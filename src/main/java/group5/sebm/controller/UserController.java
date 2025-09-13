@@ -1,12 +1,11 @@
-package group12.sebm.controller;
-import group12.sebm.service.UserService;
-import group12.sebm.controller.vo.UserVo;
+package group5.sebm.controller;
+import group5.sebm.service.UserService;
+import group5.sebm.controller.vo.UserVo;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/users")
 public class UserController {
     private final UserService userService;
     public UserController(UserService userService) {
