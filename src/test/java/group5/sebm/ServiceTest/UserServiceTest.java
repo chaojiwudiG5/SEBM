@@ -206,14 +206,11 @@ class UserServiceTest {
 
     @Test
     void updateUser_WhenUserDoesNotExist_ShouldNotAttemptUpdate() {
-        // 准备
         UserVo nonExistentUser = new UserVo(999, "nonexistent", 30);
         when(userRepository.existsById(999)).thenReturn(false);
 
-        // 执行
         userService.updateUser(nonExistentUser, "newpassword");
 
-        // 验证
         verify(userRepository, times(1)).existsById(999);
         verify(userRepository, never()).findById(anyInt());
         verify(userRepository, never()).save(any(UserPo.class));
