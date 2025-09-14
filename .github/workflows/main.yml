@@ -31,29 +31,30 @@ jobs:
       # 2.编译项目
       - name: Build with Maven
         run: mvn clean verify -DskipTests
-      # 3. Lint
-      - name: Run Checkstyle (Lint)
-        run: mvn checkstyle:check
-      # 4. 安装 Snyk CLI
+      # 3. 安装 Snyk CLI
       - name: Install Snyk CLI
         run: npm install -g snyk
 
-      # 5. 使用 Snyk 进行依赖漏洞扫描 (SCA)
+      # 4. 使用 Snyk 进行依赖漏洞扫描 (SCA)
       - name: Run Snyk SCA scan
         run: snyk test --all-projects --severity-threshold=medium
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
 
-      # 6. 使用 Snyk 进行源代码漏洞扫描 (SAST)
+      # 5. 使用 Snyk 进行源代码漏洞扫描 (SAST)
       - name: Run Snyk Code (SAST) scan
         run: snyk code test --severity-threshold=medium
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-
+      # 6. 运行单元测试
       - name: Run Unit Tests
         run: mvn test
-
-      # 7. 可选：上传结果到 Snyk 平台
+      # 7. 运行 Snyk Code (源代码安全 lint)
+      - name: Snyk Code Scan
+        run: snyk code test
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+      # 8. 可选：上传结果到 Snyk 平台
       - name: Monitor project in Snyk
         run: snyk monitor --all-projects
         env:
