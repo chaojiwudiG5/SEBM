@@ -1,8 +1,9 @@
 package group5.sebm.exception;
 
+
 import cn.hutool.json.JSONUtil;
-import com.ashley.codefreeway.common.BaseResponse;
-import com.ashley.codefreeway.common.ResultUtils;
+import group5.sebm.common.BaseResponse;
+import group5.sebm.common.ResultUtils;
 import io.swagger.v3.oas.annotations.Hidden;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
