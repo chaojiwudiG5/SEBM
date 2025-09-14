@@ -1,29 +1,33 @@
 package group5.sebm.exception;
 
-/**
- * 全局统一返回码枚举
- */
+import lombok.Getter;
+
+@Getter
 public enum ErrorCode {
-  INVALID_PARAM(100, "参数错误"),
-  VALIDATE_FAILED(400, "参数校验失败"),
-  UNAUTHORIZED(401, "未授权或登录过期"),
-  FORBIDDEN(403, "没有权限"),
-  NOT_FOUND(404, "资源未找到"),
-  SYSTEM_ERROR(500, "系统错误");
 
-  private final int code;
-  private final String message;
+    SUCCESS(0, "ok"),
+    PARAMS_ERROR(40000, "请求参数错误"),
+    NOT_LOGIN_ERROR(40100, "未登录"),
+    NO_AUTH_ERROR(40101, "无权限"),
+    TOO_MANY_REQUEST(42900, "请求过于频繁"),
+    NOT_FOUND_ERROR(40400, "请求数据不存在"),
+    FORBIDDEN_ERROR(40300, "禁止访问"),
+    SYSTEM_ERROR(50000, "系统内部异常"),
+    OPERATION_ERROR(50001, "操作失败");
 
-  ErrorCode(int code, String message) {
-    this.code = code;
-    this.message = message;
-  }
+    /**
+     * 状态码
+     */
+    private final int code;
 
-  public int getCode() {
-    return code;
-  }
+    /**
+     * 信息
+     */
+    private final String message;
 
-  public String getMessage() {
-    return message;
-  }
+    ErrorCode(int code, String message) {
+        this.code = code;
+        this.message = message;
+    }
+
 }

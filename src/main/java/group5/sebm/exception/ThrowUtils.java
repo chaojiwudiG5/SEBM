@@ -1,4 +1,4 @@
-package com.ashley.codefreeway.exception;
+package group5.sebm.exception;
 
 public class ThrowUtils {
 
