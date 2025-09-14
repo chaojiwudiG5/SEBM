@@ -8,7 +8,7 @@ on:
 
 jobs:
   build-and-scan:
-    name: Build & Sonar Scan
+    name: Build & SNYK scan
     runs-on: ubuntu-latest
 
     steps:
