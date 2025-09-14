@@ -2,7 +2,7 @@ name: Java CI with SYNK
 
 on:
   push:
-    branches: [ "main","feature/*" ]
+    branches: [ "main" ]
 
   pull_request:
 
@@ -49,11 +49,11 @@ jobs:
       # 6. 运行单元测试
       - name: Run Unit Tests
         run: mvn test
-#      # 7. 运行 Snyk Code (源代码安全 lint)，过于严格，建议注释掉
-#      - name: Snyk Code Scan
-#        run: snyk code test
-#        env:
-#          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+      #      # 7. 运行 Snyk Code (源代码安全 lint)，过于严格，建议注释掉
+      #      - name: Snyk Code Scan
+      #        run: snyk code test
+      #        env:
+      #          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
       # 8. 可选：上传结果到 Snyk 平台
       - name: Monitor project in Snyk
         run: snyk monitor --all-projects

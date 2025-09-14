@@ -6,5 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface UserRepository extends JpaRepository<UserPo, Integer> {
-    // save() / findById() / findAll() / deleteById() / existsById()
+  // save() / findById() / findAll() / deleteById() / existsById()
 }
