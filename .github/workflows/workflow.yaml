@@ -28,7 +28,7 @@ jobs:
 
       - name: Run full Maven build
         run: |
-          mvn clean verify 
-          org.apache.maven.plugins:maven-checkstyle-plugin:check 
-          com.github.spotbugs:spotbugs-maven-plugin:spotbugs 
-          org.owasp:dependency-check-maven:check
+          mvn clean verify
+          mvn org.apache.maven.plugins:maven-checkstyle-plugin:check
+          mvn com.github.spotbugs:spotbugs-maven-plugin:spotbugs
+          mvn org.owasp:dependency-check-maven:check
