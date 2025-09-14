@@ -5,7 +5,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
 public class SebmApplication {
-    public static void main(String[] args) {
-        SpringApplication.run(SebmApplication.class, args);
-    }
+
+  public static void main(String[] args) {
+    SpringApplication.run(SebmApplication.class, args);
+  }
 }
