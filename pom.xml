@@ -164,6 +164,14 @@
                     <xmlOutput>true</xmlOutput>
                     <xmlOutputDirectory>target/spotbugs</xmlOutputDirectory> <!-- 修改这里 -->
                 </configuration>
+                <executions>
+                    <execution>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
