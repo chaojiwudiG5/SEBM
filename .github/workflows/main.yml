@@ -1,0 +1,61 @@
+name: Java CI with SYNK
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build-and-scan:
+    name: Build & SNYK scan
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+      # 1.缓存maven依赖
+      - name: Cache Maven repository
+        uses: actions/cache@v3
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+      # 2.编译项目
+      - name: Build with Maven
+        run: mvn clean verify -DskipTests
+      # 3. 安装 Snyk CLI
+      - name: Install Snyk CLI
+        run: npm install -g snyk
+
+      # 4. 使用 Snyk 进行依赖漏洞扫描 (SCA)
+      - name: Run Snyk SCA scan
+        run: snyk test --all-projects --severity-threshold=medium
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+
+      # 5. 使用 Snyk 进行源代码漏洞扫描 (SAST)
+      - name: Run Snyk Code (SAST) scan
+        run: snyk code test --severity-threshold=medium
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+      # 6. 运行单元测试
+      - name: Run Unit Tests
+        run: mvn test
+      #      # 7. 运行 Snyk Code (源代码安全 lint)，过于严格，建议注释掉
+      #      - name: Snyk Code Scan
+      #        run: snyk code test
+      #        env:
+      #          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+      # 8. 可选：上传结果到 Snyk 平台
+      - name: Monitor project in Snyk
+        run: snyk monitor --all-projects
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}

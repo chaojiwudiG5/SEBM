@@ -1,0 +1,31 @@
+spring:
+  application:
+    name: SEBM
+
+  datasource:
+    url: jdbc:mysql://trolley.proxy.rlwy.net:29578/railway?useSSL=false&serverTimezone=UTC
+    username: root
+    password: RxAHOOQJjTtBblTpadijgyIWmArpvibI
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate.format_sql: true
+
+server:
+  port: 29578
+
+# springdoc-openapi
+springdoc:
+  group-configs:
+    - group: 'api'
+      paths-to-match: /**
+# knife4j
+knife4j:
+  enable: true
+  setting:
+    language: zh_cn
+
