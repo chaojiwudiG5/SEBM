@@ -33,9 +33,9 @@ public class UserController {
   }
 
   @PostMapping("/id")
-  public UserVo getUserById(@RequestBody UserDto userDto) {
+  public BaseResponse<UserVo> getUserById(@RequestBody UserDto userDto) {
     Long id = userDto.getId();
-    return userService.getDiscountUserById(id); // 直接返回VO
+    return ResultUtils.success(userService.getDiscountUserById(id)); // 直接返回VO
   }
 
 
