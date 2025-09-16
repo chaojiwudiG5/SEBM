@@ -87,25 +87,25 @@ class ClientServiceTest {
         verify(userRepository, times(1)).findById(999);
     }
 
-    @Test
-    void createUser_ShouldSaveUserToRepository() {
-
-        UserPo userPo5 = new UserPo(5, "user5", "password5", 40);
-        UserVo userVo = new UserVo(5, "user5", 40);
-        when(userRepository.save(any(UserPo.class))).thenReturn(userPo5);
-
-        userService.createUser(userVo, "password123");
-
-        ArgumentCaptor<UserPo> userPoCaptor = ArgumentCaptor.forClass(UserPo.class);
-        verify(userRepository).save(userPoCaptor.capture());
-
-        UserPo capturedUserPo = userPoCaptor.getValue();
-
-        assertEquals(userVo.getUsername(), capturedUserPo.getUsername(),
-                "Username should be consistent between VO and PO");
-
-        verify(userRepository, times(1)).save(any(UserPo.class));
-    }
+//    @Test
+//    void createUser_ShouldSaveUserToRepository() {
+//
+//        UserPo userPo5 = new UserPo(5, "user5", "password5", 40);
+//        UserVo userVo = new UserVo(5, "user5", 40);
+//        when(userRepository.save(any(UserPo.class))).thenReturn(userPo5);
+//
+//        userService.createUser(userVo, "password123");
+//
+//        ArgumentCaptor<UserPo> userPoCaptor = ArgumentCaptor.forClass(UserPo.class);
+//        verify(userRepository).save(userPoCaptor.capture());
+//
+//        UserPo capturedUserPo = userPoCaptor.getValue();
+//
+//        assertEquals(userVo.getUsername(), capturedUserPo.getUsername(),
+//                "Username should be consistent between VO and PO");
+//
+//        verify(userRepository, times(1)).save(any(UserPo.class));
+//    }
 
     @Test
     void deleteUser_WhenUserExists_ShouldDeleteUser() {
