@@ -1,5 +1,6 @@
 package group5.sebm.controller;
 
+import group5.sebm.annotation.AuthCheck;
 import group5.sebm.common.BaseResponse;
 import group5.sebm.common.ResultUtils;
 import group5.sebm.controller.dto.UserDto;
@@ -23,6 +24,7 @@ public class UserController {
 
   //TODO只有管理员能查看所有用户，需编写AOP进行权限控制
   @GetMapping("/getUserList")
+  @AuthCheck(mustRole = "admin")
   public BaseResponse<List<UserVo>> getAllUsers() {
     return ResultUtils.success(userService.getAllUsers()); // 直接返回VO
   }
