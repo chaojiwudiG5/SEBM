@@ -16,4 +16,11 @@ public class UserPo {
   private String password;
   private Integer age;
   private Integer role;
+
+  public UserPo(Integer id, String username, String password, int age) {
+    this.id = id;
+    this.username = username;
+    this.password = password;
+    this.age = age;
+  }
 }

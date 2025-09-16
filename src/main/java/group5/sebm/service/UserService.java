@@ -49,7 +49,6 @@ public class UserService {
     UserPo po = userRepository.findByid(dto.getId())
             .orElseThrow(() -> new IllegalArgumentException("用户不存在"));
 
-    po.setActive(true);
     if (!po.getPassword().equals(dto.getPassword())) {
       throw new IllegalArgumentException("密码错误");
     }
@@ -59,7 +58,6 @@ public class UserService {
     UserPo po = userRepository.findByid(dto.getId())
             .orElseThrow(() -> new IllegalArgumentException("用户不存在"));
 
-    po.setActive(false);
     // 这里可以扩展为清理 session/token
     System.out.println("用户 " + po.getUsername() + " 已登出");
   }
