@@ -10,6 +10,7 @@ public class UserVo {
   private Integer id;
   private String username;
   private Integer age;
+  private boolean isActive;
 
   public UserVo(Integer id, String username, Integer age) {
     this.id = id;

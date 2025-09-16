@@ -11,6 +11,7 @@ public class UserDto {
   private String username;
   private String password;
   private Integer age;
+  private boolean isActive;
 
   public UserDto(Integer id, String username, String password, Integer age) {
     this.id = id;

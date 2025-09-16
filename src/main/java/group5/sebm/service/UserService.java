@@ -1,8 +1,9 @@
 package group5.sebm.service;
 
+import group5.sebm.controller.dto.UserDto;
 import group5.sebm.controller.vo.UserVo;
 import group5.sebm.dao.UserRepository;
-import group5.sebm.service.bo.User;
+import group5.sebm.service.bo.Client;
 import group5.sebm.entity.UserPo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -22,11 +23,11 @@ public class UserService {
     this.userRepository = userRepository;
   }
 
-  private User poToBo(UserPo po) {
-    return new User(po.getId(), po.getUsername(), po.getPassword(), po.getAge());
+  private Client poToBo(UserPo po) {
+    return new Client(po.getId(), po.getUsername(), po.getPassword(), po.getAge());
   }
 
-  private UserVo boToVo(User bo) {
+  private UserVo boToVo(Client bo) {
     return new UserVo(bo.getId(), bo.getUsername(), bo.getAge());
   }
 
@@ -34,9 +35,33 @@ public class UserService {
     return new UserVo(po.getId(), po.getUsername(), po.getAge());
   }
 
-  public void createUser(UserVo vo, String password) {
-    UserPo po = new UserPo(vo.getId(), vo.getUsername(), password, vo.getAge());
+//  public void createUser(UserVo vo, String password) {
+//    UserPo po = new UserPo(vo.getId(), vo.getUsername(), password, vo.getAge());
+//    userRepository.save(po);
+//  }
+  public void UserRegister(UserDto userDto) {
+    Client bo = new Client(null, userDto.getUsername(), userDto.getPassword(), userDto.getAge());
+    UserPo po = new UserPo(bo.getId(), bo.getUsername(), bo.getPassword(), bo.getAge());
     userRepository.save(po);
+  }
+
+  public void login(UserDto dto) {
+    UserPo po = userRepository.findByid(dto.getId())
+            .orElseThrow(() -> new IllegalArgumentException("用户不存在"));
+
+    po.setActive(true);
+    if (!po.getPassword().equals(dto.getPassword())) {
+      throw new IllegalArgumentException("密码错误");
+    }
+  }
+
+  public void logout(UserDto dto) {
+    UserPo po = userRepository.findByid(dto.getId())
+            .orElseThrow(() -> new IllegalArgumentException("用户不存在"));
+
+    po.setActive(false);
+    // 这里可以扩展为清理 session/token
+    System.out.println("用户 " + po.getUsername() + " 已登出");
   }
 
   public void deleteUser(int id) {
@@ -68,7 +93,7 @@ public class UserService {
   public UserVo getDiscountUserById(Integer id) {
     return userRepository.findById(id)
         .map(po -> {
-          User bo = poToBo(po);
+          Client bo = poToBo(po);
           return bo.isokforDiscount() ? boToVo(bo) : null;
         })
         .orElse(null);
