@@ -1,9 +1,11 @@
 package group5.sebm;
 
+import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
+@MapperScan("group5.sebm.dao")
 public class SebmApplication {
 
   public static void main(String[] args) {

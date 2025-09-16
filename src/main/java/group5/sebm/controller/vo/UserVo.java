@@ -7,11 +7,11 @@ import lombok.Setter;
 @Getter
 public class UserVo {
 
-  private Integer id;
+  private Long id;
   private String username;
   private Integer age;
 
-  public UserVo(Integer id, String username, Integer age) {
+  public UserVo(Long id, String username, Integer age) {
     this.id = id;
     this.username = username;
     this.age = age;
