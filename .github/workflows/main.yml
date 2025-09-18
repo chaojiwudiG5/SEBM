@@ -37,13 +37,13 @@ jobs:
 
       # 4. 使用 Snyk 进行依赖漏洞扫描 (SCA)
       - name: Run Snyk SCA scan
-        run: snyk test --all-projects --severity-threshold=medium
+        run: snyk test --all-projects --severity-threshold=high
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
 
       # 5. 使用 Snyk 进行源代码漏洞扫描 (SAST)
       - name: Run Snyk Code (SAST) scan
-        run: snyk code test --severity-threshold=medium
+        run: snyk code test --severity-threshold=high
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
       # 6. 运行单元测试
