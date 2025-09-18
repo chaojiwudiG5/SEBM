@@ -1,40 +1,49 @@
 package group5.sebm.exception;
 
-import group5.sebm.common.Result;
-import jakarta.validation.ConstraintViolationException;
+
+import cn.hutool.json.JSONUtil;
+import group5.sebm.common.BaseResponse;
+import group5.sebm.common.ResultUtils;
+import io.swagger.v3.oas.annotations.Hidden;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.Map;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
-@Slf4j
+@Hidden
 @RestControllerAdvice
+@Slf4j
 public class GlobalExceptionHandler {
 
-    // 业务异常
     @ExceptionHandler(BusinessException.class)
-    public Result<?> handleBusinessException(BusinessException e) {
-        log.error("业务异常: " + e.getCode(), e.getMessage());
-        return Result.failure(e.getCode(),e.getMessage());
+    public BaseResponse<?> businessExceptionHandler(BusinessException e) {
+        log.error("BusinessException", e);
+        // 对于普通请求，返回标准 JSON 响应
+        return ResultUtils.error(e.getCode(), e.getMessage());
     }
 
-    // DTO 校验异常
+    /**
+     * 处理 @Valid 或 @Validated 校验失败异常
+     */
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public Result<?> handleValidationException(MethodArgumentNotValidException e) {
-        String errorMsg = e.getBindingResult().getFieldError().getDefaultMessage();
-        return Result.failure(ErrorCode.INVALID_PARAM.getCode(), errorMsg);
+    @ResponseBody
+    public BaseResponse<?> handleValidationException(MethodArgumentNotValidException ex) {
+        // 收集所有字段错误信息
+        String errorMsg = ex.getBindingResult().getFieldErrors()
+            .stream()
+            .map(err -> err.getField() + ": " + err.getDefaultMessage())
+            .collect(Collectors.joining("; "));
+
+        return ResultUtils.error(ErrorCode.PARAMS_ERROR, errorMsg);
     }
 
-    // RequestParam / PathVariable 校验异常
-    @ExceptionHandler(ConstraintViolationException.class)
-    public Result<?> handleConstraintViolation(ConstraintViolationException e) {
-        String errorMsg = e.getConstraintViolations().iterator().next().getMessage();
-        return Result.failure(ErrorCode.INVALID_PARAM.getCode(), errorMsg);
-    }
-
-    // 其他异常
-    @ExceptionHandler(Exception.class)
-    public Result<?> handleException(Exception e) {
-        return Result.failure(ErrorCode.SYSTEM_ERROR.getCode(), "系统异常: " + e.getMessage());
-    }
 }

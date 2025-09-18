@@ -1,30 +1,21 @@
-package group5.sebm.entity;
+package group5.sebm.service.bo;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import group5.sebm.exception.ErrorCode;
+import group5.sebm.exception.ThrowUtils;
 import java.util.Date;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
-/**
- * 用户
- *
- * @TableName user
- */
-@TableName(value = "user")
-@Data
-@Builder
-@NoArgsConstructor
+
+@Getter
+@Setter
 @AllArgsConstructor
-public class UserPo {
+@NoArgsConstructor
+public class UserBo {
 
-  /**
-   * id
-   */
-  @TableId(type = IdType.AUTO)
   private Long id;
 
   /**
@@ -86,4 +77,18 @@ public class UserPo {
    *
    */
   private Integer age;
+
+  public boolean isokforDiscount() {
+    return this.age <= 18;
+  }
+
+  public boolean validateTwicePassword(String password, String checkPassword) {
+    Boolean isSame = password.equals(checkPassword);
+    return isSame;
+  }
+
+  public boolean validatePassword(String input, String dbPassword, BCryptPasswordEncoder encoder) {
+    Boolean isMatch = encoder.matches(input, dbPassword);
+    return isMatch;
+  }
 }
