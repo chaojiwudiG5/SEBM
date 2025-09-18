@@ -3,4 +3,8 @@ ignore:
   SNYK-JAVA-ORGSPRINGFRAMEWORK-12817817:
     - '*':
         reason: "Test dependency only, not used in production"
-        expires: 2025-12-31T00:00:00.000Z
+version: v1
+ignore:
+  bbeb500f-19a5-4b38-966d-24630cf41452:
+    - "*": # 忽略所有路径中这个问题
+        reason: "Comparing two input passwords, safe to ignore"
