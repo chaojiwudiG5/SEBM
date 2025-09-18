@@ -2,10 +2,12 @@ package group5.sebm.aop;
 
 
 import group5.sebm.annotation.AuthCheck;
+import group5.sebm.controller.vo.UserVo;
 import group5.sebm.enums.UserRoleEnum;
 import group5.sebm.exception.BusinessException;
 import group5.sebm.exception.ErrorCode;
-import group5.sebm.service.bo.User;
+import group5.sebm.exception.ThrowUtils;
+import group5.sebm.service.bo.UserBo;
 import group5.sebm.service.services.UserService;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
@@ -36,7 +38,8 @@ public class AuthInterceptor {
     RequestAttributes requestAttributes = RequestContextHolder.currentRequestAttributes();
     HttpServletRequest request = ((ServletRequestAttributes) requestAttributes).getRequest();
     // 当前登录用户
-    User loginUser = userService.getLoginUser(request);
+    UserVo loginUser = userService.getLoginUser(request);
+    ThrowUtils.throwIf(loginUser == null, ErrorCode.NOT_LOGIN_ERROR);
     UserRoleEnum mustRoleEnum = UserRoleEnum.getEnumByValue(mustRole);
     // 不需要权限，放行
     if (mustRoleEnum == null) {
