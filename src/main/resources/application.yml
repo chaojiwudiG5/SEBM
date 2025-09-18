@@ -29,3 +29,7 @@ knife4j:
   setting:
     language: zh_cn
 
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: false
+

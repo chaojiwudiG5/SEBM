@@ -2,7 +2,11 @@ package group5.sebm.service.bo;
 
 import lombok.Getter;
 import lombok.Setter;
-
+/**
+ * Borrower class representing a user who borrows items.
+ * Inherits from the User class and includes additional attributes
+ * such as age and active status.
+ */
 
 @Getter
 @Setter
