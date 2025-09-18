@@ -6,12 +6,12 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class Client extends User{
+public class Borrower extends User{
 
   private int age;
   private boolean isActive;
 
-  public Client(Integer id, String username, String password, Integer age) {
+  public Borrower(Integer id, String username, String password, Integer age) {
     this.id = id;
     this.username = username;
     this.password = password;

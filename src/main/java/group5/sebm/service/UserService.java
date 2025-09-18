@@ -4,8 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import group5.sebm.controller.dto.UserDto;
 import group5.sebm.controller.vo.UserVo;
 import group5.sebm.dao.UserMapper;
-import group5.sebm.service.bo.Client;
-import group5.sebm.entity.UserPo;
+import group5.sebm.service.bo.Borrower;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -27,11 +26,11 @@ public class UserService {
     this.userMapper = userMapper;
   }
 
-  private Client poToBo(UserPo po) {
-    return new Client(po.getId(), po.getUsername(), po.getPassword(), po.getAge());
+  private Borrower poToBo(UserPo po) {
+    return new Borrower(po.getId(), po.getUsername(), po.getPassword(), po.getAge());
   }
 
-  private UserVo boToVo(Client bo) {
+  private UserVo boToVo(Borrower bo) {
     return new UserVo(bo.getId(), bo.getUsername(), bo.getAge());
   }
 
@@ -44,7 +43,7 @@ public class UserService {
 //    userMapper.save(po);
 //  }
   public void UserRegister(UserDto userDto) {
-    Client bo = new Client(null, userDto.getUsername(), userDto.getPassword(), userDto.getAge());
+    Borrower bo = new Borrower(null, userDto.getUsername(), userDto.getPassword(), userDto.getAge());
     UserPo po = new UserPo(bo.getId(), bo.getUsername(), passwordEncoder.encode(bo.getPassword()), bo.getAge());
     userMapper.insert(po);
   }
@@ -90,7 +89,7 @@ public class UserService {
     List<UserPo> allUsers = userMapper.selectList(new QueryWrapper<>());
     return allUsers.stream()
             .map(this::poToBo)
-            .filter(Client::isokforDiscount)
+            .filter(Borrower::isokforDiscount)
             .map(this::boToVo)
             .toList();
   }
@@ -98,7 +97,7 @@ public class UserService {
   public UserVo getDiscountUserById(int id) {
     UserPo po = userMapper.selectById(id).orElse(null);
     if (po == null) return null;
-    Client bo = poToBo(po);
+    Borrower bo = poToBo(po);
     if (bo.isokforDiscount()) {
       return boToVo(bo);
     } else {
