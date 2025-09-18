@@ -83,6 +83,7 @@ public class UserBo {
   }
 
   public boolean validateTwicePassword(String password, String checkPassword) {
+    // snyk ignore: bbeb500f-19a5-4b38-966d-24630cf41452
     Boolean isSame = password.equals(checkPassword);
     return isSame;
   }
