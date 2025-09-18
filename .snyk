@@ -1,0 +1,8 @@
+version: v1
+ignore:
+  SNYK-JAVA-ORGSPRINGFRAMEWORK-12817817:
+    - '*':
+        reason: "Test dependency only, not used in production"
+  bbeb500f-19a5-4b38-966d-24630cf41452:
+    - '*':
+        reason: "Comparing two input passwords, safe to ignore"
