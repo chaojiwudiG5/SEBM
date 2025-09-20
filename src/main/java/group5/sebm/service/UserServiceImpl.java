@@ -16,9 +16,7 @@ import group5.sebm.entity.UserPo;
 import group5.sebm.exception.BusinessException;
 import group5.sebm.exception.ErrorCode;
 import group5.sebm.exception.ThrowUtils;
-import group5.sebm.service.bo.BorrowerBo;
-import group5.sebm.service.bo.UserBo;
-import group5.sebm.service.services.UserService;
+import group5.sebm.service.bo.Borrower;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,13 +40,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserPo> implements 
     this.userMapper = userMapper;
   }
 
-  private BorrowerBo poToBo(UserPo po) {
-    BorrowerBo bo = new BorrowerBo();
+  private Borrower poToBo(UserPo po) {
+    Borrower bo = new Borrower();
     BeanUtils.copyProperties(po, bo);
     return bo;
   }
 
-  private UserVo boToVo(BorrowerBo bo) {
+  private UserVo boToVo(Borrower bo) {
     UserVo vo = new UserVo();
     BeanUtils.copyProperties(bo, vo);
     return vo;
@@ -102,7 +100,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserPo> implements 
         new QueryWrapper<UserPo>().eq("username", userLoginDto.getUsername()));
     ThrowUtils.throwIf(userPo == null, ErrorCode.NOT_FOUND_ERROR, "Username not exists");
     //2.select password from database,check if password is correct
-    UserBo userBo = new UserBo();
+    User userBo = new User();
     BeanUtils.copyProperties(userPo, userBo);
     boolean isPasswordCorrect = userBo.validatePassword(userLoginDto.getPassword(),
         userPo.getPassword(), passwordEncoder);

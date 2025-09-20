@@ -1,4 +1,4 @@
-package group5.sebm.service.services;
+package group5.sebm.service;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;

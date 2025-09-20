@@ -60,6 +60,10 @@ public class UserVo {
    * 年龄
    */
   private Integer age;
+
+    /**
+     * 是否激活
+     */
   private boolean isActive;
 
   /**
