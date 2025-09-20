@@ -17,6 +17,7 @@ import group5.sebm.exception.BusinessException;
 import group5.sebm.exception.ErrorCode;
 import group5.sebm.exception.ThrowUtils;
 import group5.sebm.service.bo.Borrower;
+import group5.sebm.service.bo.User;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,19 +67,19 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserPo> implements 
    */
   @Override
   public Long userRegister(UserRegisterDto userRegisterDto) {
-    //1. check if username already exists
-    UserPo user = userMapper.selectOne(
-        new QueryWrapper<UserPo>().eq("username", userRegisterDto.getUsername()));
-    ThrowUtils.throwIf(user != null, ErrorCode.PARAMS_ERROR, "Username already exists");
+    //1. check if userid already exists
+    UserPo userPo = userMapper.selectOne(
+        new QueryWrapper<UserPo>().eq("phone", userRegisterDto.getPhone()));
+    ThrowUtils.throwIf(userPo != null, ErrorCode.PARAMS_ERROR, "User already exists");
     //2. check if checkPassword equals password
-    UserBo userBo = new UserBo();
-    BeanUtils.copyProperties(userRegisterDto, userBo);
-    boolean isPasswordSame = userBo.validateTwicePassword(userRegisterDto.getPassword(),
+    User user = new User();
+    BeanUtils.copyProperties(userRegisterDto, user);
+    boolean isPasswordSame = user.validateTwicePassword(userRegisterDto.getPassword(),
         userRegisterDto.getCheckPassword());
     ThrowUtils.throwIf(!isPasswordSame, ErrorCode.PARAMS_ERROR, "Passwords do not match");
     //3. create user
     UserPo po = new UserPo();
-    BeanUtils.copyProperties(userBo, po);
+    BeanUtils.copyProperties(user, po);
     po.setPassword(passwordEncoder.encode(userRegisterDto.getPassword()));
     //4. insert user into database
     userMapper.insert(po);
