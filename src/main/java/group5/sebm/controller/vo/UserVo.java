@@ -61,6 +61,11 @@ public class UserVo {
    */
   private Integer age;
 
+    /**
+     * 是否激活
+     */
+  private boolean isActive;
+
   /**
    * 创建时间
    */

@@ -10,15 +10,13 @@ import group5.sebm.controller.dto.UserLoginDto;
 import group5.sebm.controller.dto.UserRegisterDto;
 import group5.sebm.controller.dto.UserUpdateDto;
 import group5.sebm.controller.vo.UserVo;
-import group5.sebm.service.services.UserService;
+import group5.sebm.service.UserService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @Slf4j
 @RestController
