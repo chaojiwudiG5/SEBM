@@ -1,6 +1,8 @@
 spring:
   application:
     name: SEBM
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:local}
 
   datasource:
     url: jdbc:mysql://trolley.proxy.rlwy.net:29578/railway?useSSL=false&serverTimezone=UTC
@@ -33,3 +35,10 @@ mybatis-plus:
   configuration:
     map-underscore-to-camel-case: false
 
+tencent:
+  cos:
+    secretId: ${TENCENT_SECRET_ID:default}
+    secretKey: ${TENCENT_SECRET_KEY:default}
+    region: ${TENCENT_REGION:default}
+    bucketName: sebm-1354340785
+    durationSeconds: 900
