@@ -12,5 +12,5 @@ import lombok.Setter;
 @NoArgsConstructor
 public class DeleteDto {
     @NotNull(message = "delete id cannot be null")
-    private String id;
+    private Long id;
 }

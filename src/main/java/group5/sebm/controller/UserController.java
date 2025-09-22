@@ -6,10 +6,11 @@ import group5.sebm.common.BaseResponse;
 import group5.sebm.common.ResultUtils;
 import group5.sebm.controller.dto.DeleteDto;
 import group5.sebm.controller.dto.PageDto;
-import group5.sebm.controller.dto.UserLoginDto;
-import group5.sebm.controller.dto.UserRegisterDto;
-import group5.sebm.controller.dto.UserUpdateDto;
+import group5.sebm.controller.dto.LoginDto;
+import group5.sebm.controller.dto.RegisterDto;
+import group5.sebm.controller.dto.UpdateDto;
 import group5.sebm.controller.vo.UserVo;
+import group5.sebm.service.ManagerServiceImpl;
 import group5.sebm.service.UserService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
@@ -25,23 +26,25 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
 
   private UserService userService;
+  private ManagerServiceImpl managerService;
 
   @Autowired
   public UserController(UserService userService) {
     this.userService = userService;
+    this.managerService = new ManagerServiceImpl();
   }
 
   @PostMapping("/register")
-  public BaseResponse<Long> userRegister(@RequestBody @Valid UserRegisterDto userRegisterDto) {
-    Long userId = userService.userRegister(userRegisterDto);
+  public BaseResponse<Long> userRegister(@RequestBody @Valid RegisterDto registerDto) {
+    Long userId = userService.userRegister(registerDto);
     log.info("UserRegister called with userId: {}", userId);
     return ResultUtils.success(userId); // 返回ID
   }
 
   @PostMapping("/login")
-  public BaseResponse<UserVo> userLogin(@RequestBody @Valid UserLoginDto UserLoginDto,
+  public BaseResponse<UserVo> userLogin(@RequestBody @Valid LoginDto LoginDto,
       HttpServletRequest request) {
-    UserVo userVo = userService.userLogin(UserLoginDto, request);
+    UserVo userVo = userService.userLogin(LoginDto, request);
     log.info("UserLogin called with userVo: {}", userVo);
     return ResultUtils.success(userVo); // 返回VO
   }
@@ -57,7 +60,7 @@ public class UserController {
   @PostMapping("/admin/getUserList")
   @AuthCheck(mustRole = "admin")
   public BaseResponse<Page<UserVo>> getAllUsers(@RequestBody @Valid PageDto pageDto) {
-    Page<UserVo> userVoPage = userService.getAllUsers(pageDto);
+    Page<UserVo> userVoPage = this.managerService.getAllBorrowers(pageDto);
     log.info("GetAllUsers called with pageDto: {}, userVoPage: {}", pageDto, userVoPage);
     return ResultUtils.success(userVoPage); // 返回Page
   }
@@ -65,15 +68,15 @@ public class UserController {
   @PostMapping("/admin/deleteUser")
   @AuthCheck(mustRole = "admin")
   public BaseResponse<Boolean> deleteUser(@RequestBody @Valid DeleteDto deleteDto) {
-    Boolean isDelete = userService.deleteUser(deleteDto);
+    Boolean isDelete = this.managerService.deleteBorrower(deleteDto);
     log.info("DeleteUser called with deleteDto: {}, isDelete: {}", deleteDto, isDelete);
     return ResultUtils.success(isDelete); // 返回Boolean
   }
 
   @PostMapping("/updateUser")
-  public BaseResponse<UserVo> updateUser(@RequestBody @Valid UserUpdateDto userUpdateDto) {
-      UserVo userVo = userService.updateUser(userUpdateDto);
-      log.info("UpdateUser called with userUpdateDto: {}, userVo: {}", userUpdateDto, userVo);
+  public BaseResponse<UserVo> updateUser(@RequestBody @Valid UpdateDto updateDto) {
+      UserVo userVo = userService.updateUser(updateDto);
+      log.info("UpdateUser called with userUpdateDto: {}, userVo: {}", updateDto, userVo);
       return ResultUtils.success(userVo); // 返回VO
   }
 }

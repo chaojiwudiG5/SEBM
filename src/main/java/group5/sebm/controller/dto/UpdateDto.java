@@ -18,7 +18,7 @@ import lombok.Builder;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserUpdateDto {
+public class UpdateDto {
 
   /**
    * 用户ID（要更新谁）

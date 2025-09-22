@@ -1,9 +1,6 @@
 package group5.sebm.service.bo;
 
-import lombok.Data;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -12,9 +9,8 @@ import org.springframework.stereotype.Repository;
  */
 @Getter
 @Setter
+@AllArgsConstructor
 @NoArgsConstructor
 public class Manager extends User{
-
-
-
+    private Boolean isDelete;
 }

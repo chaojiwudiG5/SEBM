@@ -1,12 +1,10 @@
 package group5.sebm.service;
 
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import group5.sebm.controller.dto.DeleteDto;
-import group5.sebm.controller.dto.PageDto;
-import group5.sebm.controller.dto.UserLoginDto;
-import group5.sebm.controller.dto.UserRegisterDto;
-import group5.sebm.controller.dto.UserUpdateDto;
+import group5.sebm.controller.dto.LoginDto;
+import group5.sebm.controller.dto.RegisterDto;
+import group5.sebm.controller.dto.UpdateDto;
 import group5.sebm.controller.vo.UserVo;
 import group5.sebm.entity.UserPo;
 import jakarta.servlet.http.HttpServletRequest;
@@ -18,19 +16,19 @@ import jakarta.servlet.http.HttpServletRequest;
  */
 public interface UserService extends IService<UserPo> {
 
-  Page<UserVo> getAllUsers(PageDto pageDto);
+//  Page<UserVo> getAllUsers(PageDto pageDto);
 
 //  UserVo getDiscountUserById(Long id);
 
   UserVo getLoginUser(HttpServletRequest request);
 
-  Boolean deleteUser(DeleteDto deleteDto);
+  //Boolean deleteUser(DeleteDto deleteDto);
 
-  Long userRegister(UserRegisterDto userRegisterDto);
+  Long userRegister(RegisterDto registerDto);
 
-  UserVo userLogin(UserLoginDto userLoginDto,HttpServletRequest request);
+  UserVo userLogin(LoginDto loginDto, HttpServletRequest request);
 
   Boolean userLogout(HttpServletRequest request);
 
-  UserVo updateUser(UserUpdateDto userUpdateDto);
+  UserVo updateUser(UpdateDto updateDto);
 }
