@@ -17,6 +17,14 @@ spring:
     properties:
       hibernate.format_sql: true
 
+  session:
+    store-type: redis
+  data:
+    redis:
+      host: hopper.proxy.rlwy.net
+      port: 36709
+      username: default
+      password: vXqoxFqZNtzGecKTlVdFXTBcItAZDxVV
 server:
   port: 29578
 
