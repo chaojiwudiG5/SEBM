@@ -1,7 +1,6 @@
-package group5.sebm.service.bo;
+package group5.sebm.User.service.bo;
 
 import lombok.*;
-import org.springframework.stereotype.Repository;
 
 /**
  * @author deshperaydon

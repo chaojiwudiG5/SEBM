@@ -1,28 +1,21 @@
-package group5.sebm.service;
+package group5.sebm.User.service;
 
-import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import group5.sebm.controller.dto.*;
-import group5.sebm.controller.vo.UserVo;
-import group5.sebm.dao.UserMapper;
-import group5.sebm.entity.UserPo;
+import group5.sebm.User.controller.dto.DeleteDto;
+import group5.sebm.User.controller.dto.PageDto;
+import group5.sebm.User.controller.vo.UserVo;
+import group5.sebm.User.dao.UserMapper;
+import group5.sebm.User.entity.UserPo;
 import group5.sebm.exception.BusinessException;
 import group5.sebm.exception.ErrorCode;
 import group5.sebm.exception.ThrowUtils;
-import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
-import java.util.Collection;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static group5.sebm.common.constant.UserConstant.CURRENT_LOGIN_USER;
 @Service
 public class ManagerServiceImpl extends UserServiceImpl {
     UserMapper userMapper;

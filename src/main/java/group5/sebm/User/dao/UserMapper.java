@@ -1,11 +1,13 @@
-package group5.sebm.dao;
+package group5.sebm.User.dao;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import group5.sebm.entity.UserPo;
+import group5.sebm.User.entity.UserPo;
+import org.apache.ibatis.annotations.Mapper;
 
 /**
  * @author AL
  */
+@Mapper
 public interface UserMapper extends BaseMapper<UserPo> {
 
 }
