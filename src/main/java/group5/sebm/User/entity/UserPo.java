@@ -1,4 +1,4 @@
-package group5.sebm.entity;
+package group5.sebm.User.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;

@@ -1,4 +1,4 @@
-package group5.sebm.service;
+package group5.sebm.User.service;
 
 import com.qcloud.cos.utils.Jackson;
 import com.tencent.cloud.CosStsClient;

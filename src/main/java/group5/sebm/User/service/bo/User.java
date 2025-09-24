@@ -1,4 +1,4 @@
-package group5.sebm.service.bo;
+package group5.sebm.User.service.bo;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

@@ -1,23 +1,21 @@
-package group5.sebm.service;
+package group5.sebm.User.service;
 
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import group5.sebm.controller.dto.LoginDto;
-import group5.sebm.controller.dto.RegisterDto;
-import group5.sebm.controller.dto.UpdateDto;
-import group5.sebm.controller.vo.UserVo;
-import group5.sebm.dao.UserMapper;
-import group5.sebm.entity.UserPo;
+import group5.sebm.User.controller.dto.LoginDto;
+import group5.sebm.User.controller.dto.RegisterDto;
+import group5.sebm.User.controller.dto.UpdateDto;
+import group5.sebm.User.controller.vo.UserVo;
+import group5.sebm.User.dao.UserMapper;
+import group5.sebm.User.entity.UserPo;
 import group5.sebm.exception.ErrorCode;
 import group5.sebm.exception.ThrowUtils;
-import group5.sebm.service.bo.Borrower;
+import group5.sebm.User.service.bo.Borrower;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import lombok.NoArgsConstructor;
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 

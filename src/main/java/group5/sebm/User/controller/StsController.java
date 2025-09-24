@@ -1,11 +1,11 @@
-package group5.sebm.controller;
+package group5.sebm.User.controller;
 
 import com.tencent.cloud.Response;
 import group5.sebm.common.BaseResponse;
 import group5.sebm.common.ResultUtils;
 import group5.sebm.exception.BusinessException;
 import group5.sebm.exception.ErrorCode;
-import group5.sebm.service.StsServiceImpl;
+import group5.sebm.User.service.StsServiceImpl;
 import jakarta.annotation.Resource;
 import java.util.HashMap;
 import java.util.Map;

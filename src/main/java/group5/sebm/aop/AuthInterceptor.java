@@ -2,14 +2,12 @@ package group5.sebm.aop;
 
 
 import group5.sebm.annotation.AuthCheck;
-import group5.sebm.controller.vo.UserVo;
-import group5.sebm.enums.UserRoleEnum;
+import group5.sebm.User.controller.vo.UserVo;
+import group5.sebm.User.enums.UserRoleEnum;
 import group5.sebm.exception.BusinessException;
 import group5.sebm.exception.ErrorCode;
 import group5.sebm.exception.ThrowUtils;
-import group5.sebm.service.BorrowerServiceImpl;
-import group5.sebm.service.ManagerServiceImpl;
-import group5.sebm.service.UserService;
+import group5.sebm.User.service.UserService;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import org.aspectj.lang.ProceedingJoinPoint;

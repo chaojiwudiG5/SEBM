@@ -1,34 +1,13 @@
-package group5.sebm.service;
+package group5.sebm.User.service;
 
-import static group5.sebm.common.constant.UserConstant.CURRENT_LOGIN_USER;
-
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import group5.sebm.controller.dto.DeleteDto;
-import group5.sebm.controller.dto.PageDto;
-import group5.sebm.controller.dto.LoginDto;
-import group5.sebm.controller.dto.RegisterDto;
-import group5.sebm.controller.dto.UpdateDto;
-import group5.sebm.controller.vo.UserVo;
-import group5.sebm.dao.UserMapper;
-import group5.sebm.entity.UserPo;
+import group5.sebm.User.controller.dto.DeleteDto;
+import group5.sebm.User.entity.UserPo;
 import group5.sebm.exception.BusinessException;
 import group5.sebm.exception.ErrorCode;
 import group5.sebm.exception.ThrowUtils;
-import group5.sebm.service.bo.Borrower;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.NoArgsConstructor;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import jakarta.servlet.http.HttpSession;
-
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @Transactional

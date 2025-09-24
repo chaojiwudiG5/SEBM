@@ -1,26 +1,22 @@
-package group5.sebm.controller;
+package group5.sebm.User.controller;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import group5.sebm.annotation.AuthCheck;
 import group5.sebm.common.BaseResponse;
 import group5.sebm.common.ResultUtils;
-import group5.sebm.controller.dto.DeleteDto;
-import group5.sebm.controller.dto.PageDto;
-import group5.sebm.controller.dto.LoginDto;
-import group5.sebm.controller.dto.RegisterDto;
-import group5.sebm.controller.dto.UpdateDto;
-import group5.sebm.controller.vo.UserVo;
-import group5.sebm.service.BorrowerServiceImpl;
-import group5.sebm.service.ManagerServiceImpl;
-import group5.sebm.service.UserService;
+import group5.sebm.User.controller.dto.DeleteDto;
+import group5.sebm.User.controller.dto.PageDto;
+import group5.sebm.User.controller.dto.LoginDto;
+import group5.sebm.User.controller.dto.RegisterDto;
+import group5.sebm.User.controller.dto.UpdateDto;
+import group5.sebm.User.controller.vo.UserVo;
+import group5.sebm.User.service.BorrowerServiceImpl;
+import group5.sebm.User.service.ManagerServiceImpl;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.*;
 
 @Slf4j

@@ -1,4 +1,4 @@
-package group5.sebm.controller.vo;
+package group5.sebm.User.controller.vo;
 
 import lombok.*;
 
