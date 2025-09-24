@@ -11,7 +11,7 @@ import lombok.Setter;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserRegisterDto {
+public class RegisterDto {
   @NotBlank(message = "用户名不能为空")
   private String username;
 
@@ -22,4 +22,8 @@ public class UserRegisterDto {
   @NotBlank(message = "请确认密码")
   @Size(min = 6, message = "确认密码至少6位")
   private String checkPassword;
+
+  //only phone number
+  @NotBlank(message = "电话号码不能为空")
+  private String phone;
 }
