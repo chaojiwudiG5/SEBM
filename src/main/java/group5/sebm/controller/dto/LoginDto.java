@@ -11,7 +11,7 @@ import lombok.Setter;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserLoginDto {
+public class LoginDto {
   @NotBlank(message = "用户名不能为空")
   private String username;
 
