@@ -13,6 +13,7 @@ import group5.sebm.exception.ErrorCode;
 import group5.sebm.exception.ThrowUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.BeanUtils;
+import org.springframework.stereotype.Service;
 
 import java.util.Collection;
 import java.util.List;
@@ -22,7 +23,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static group5.sebm.common.constant.UserConstant.CURRENT_LOGIN_USER;
-
+@Service
 public class ManagerServiceImpl extends UserServiceImpl {
     UserMapper userMapper;
     /**

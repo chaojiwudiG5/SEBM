@@ -19,6 +19,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.stereotype.Service;
 
 import java.util.Collection;
 import java.util.Map;
@@ -32,6 +33,7 @@ import static group5.sebm.common.constant.UserConstant.CURRENT_LOGIN_USER;
  * @author
  * @description 用户服务实现
  */
+@Service
 @NoArgsConstructor
 public class UserServiceImpl extends ServiceImpl<UserMapper, UserPo> implements UserService {
 
