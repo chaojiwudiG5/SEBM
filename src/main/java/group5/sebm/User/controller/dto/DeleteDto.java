@@ -1,4 +1,4 @@
-package group5.sebm.controller.dto;
+package group5.sebm.User.controller.dto;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;

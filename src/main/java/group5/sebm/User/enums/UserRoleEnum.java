@@ -1,4 +1,4 @@
-package group5.sebm.enums;
+package group5.sebm.User.enums;
 
 import cn.hutool.core.util.ObjUtil;
 import lombok.Getter;

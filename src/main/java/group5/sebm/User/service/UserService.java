@@ -1,12 +1,11 @@
-package group5.sebm.service;
+package group5.sebm.User.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import group5.sebm.controller.dto.DeleteDto;
-import group5.sebm.controller.dto.LoginDto;
-import group5.sebm.controller.dto.RegisterDto;
-import group5.sebm.controller.dto.UpdateDto;
-import group5.sebm.controller.vo.UserVo;
-import group5.sebm.entity.UserPo;
+import group5.sebm.User.controller.dto.LoginDto;
+import group5.sebm.User.controller.dto.RegisterDto;
+import group5.sebm.User.controller.dto.UpdateDto;
+import group5.sebm.User.controller.vo.UserVo;
+import group5.sebm.User.entity.UserPo;
 import jakarta.servlet.http.HttpServletRequest;
 
 /**
