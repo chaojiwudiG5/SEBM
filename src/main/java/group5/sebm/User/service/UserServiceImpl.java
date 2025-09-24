@@ -35,149 +35,156 @@ import static group5.sebm.common.constant.UserConstant.CURRENT_LOGIN_USER;
 @NoArgsConstructor
 public class UserServiceImpl extends ServiceImpl<UserMapper, UserPo> implements UserService {
 
-    protected final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+  protected final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
-    /**
-     * 获取当前登录用户
-     *
-     * @param request 请求
-     * @return 当前登录用户
-     */
-    public UserVo getLoginUser(HttpServletRequest request) {
-        UserVo userVo;
-        userVo = (UserVo) request.getSession().getAttribute(CURRENT_LOGIN_USER);
-        return userVo;
-    }
-
-
-    /**
-     * 注册用户
-     *
-     * @param registerDto 用户信息
-     * @return 用户id
-     */
-    @Override
-    public Long userRegister(RegisterDto registerDto) {
-        //1. check if user already exists
-        UserPo userPo = baseMapper.selectOne(
-                new QueryWrapper<UserPo>().eq("phone", registerDto.getPhone()));
-        ThrowUtils.throwIf(userPo != null, ErrorCode.NOT_FOUND_ERROR, "User already exists");
-
-        //2. check if checkPassword equals password
-        Borrower borrower = new Borrower();
-        BeanUtils.copyProperties(registerDto, borrower);
-        boolean isPasswordSame = borrower.validateTwicePassword(registerDto.getPassword(),
-                registerDto.getCheckPassword());
-        ThrowUtils.throwIf(!isPasswordSame, ErrorCode.PARAMS_ERROR, "Passwords do not match");
-
-        //3. create user
-        UserPo po = new UserPo();
-        BeanUtils.copyProperties(borrower, po);
-        po.setPassword(passwordEncoder.encode(registerDto.getPassword()));
-
-        //4. insert user into database
-        baseMapper.insert(po);
-        //5. return user id
-        return po.getId();
-    }
-
-    /**
-        * 用户登录
-        * @param loginDto 登录信息
-     */
-    @Override
-    public UserVo userLogin(LoginDto loginDto, HttpServletRequest request) {
-
-        //1. check if user exists
-        UserPo userPo = baseMapper.selectOne(
-                new QueryWrapper<UserPo>().eq("username", loginDto.getUsername()));
-        ThrowUtils.throwIf(userPo == null, ErrorCode.NOT_FOUND_ERROR, "Username not exists");
-
-        //2.select password from database,check if password is correct
-        Borrower borrower = new Borrower();
-        BeanUtils.copyProperties(userPo, borrower);
-        boolean isPasswordCorrect = borrower.validatePassword(loginDto.getPassword(),
-                userPo.getPassword(), passwordEncoder);
-        ThrowUtils.throwIf(!isPasswordCorrect, ErrorCode.PASS_ERROR, "Password is incorrect");
-
-        //3. set current login user to session
-        UserVo userVo = new UserVo();
-        BeanUtils.copyProperties(userPo, userVo);
-        request.getSession().setAttribute(CURRENT_LOGIN_USER, userVo);
-        //4. return user information
-        return userVo;
-    }
+  /**
+   * 获取当前登录用户
+   *
+   * @param request 请求
+   * @return 当前登录用户
+   */
+  public UserVo getLoginUser(HttpServletRequest request) {
+    UserVo userVo;
+    userVo = (UserVo) request.getSession().getAttribute(CURRENT_LOGIN_USER);
+    return userVo;
+  }
 
 
-    /**
-     * 用户登出
-     *
-     * @param request 请求
-     * @return 是否登出成功
-     */
-    @Override
-    public Boolean userLogout(HttpServletRequest request) {
-        HttpSession session = request.getSession();
-        session.removeAttribute(CURRENT_LOGIN_USER);
-        ThrowUtils.throwIf(session.getAttribute(CURRENT_LOGIN_USER) != null, ErrorCode.SYSTEM_ERROR,
-                "Logout failed");
-        return true;
-    }
-    /**
-     * 更新用户信息
-     *
-     * @param updateDto 用户信息
-     * @return 更新后的用户信息
-     */
-    @Override
-    public UserVo updateUser(UpdateDto updateDto) {
-        //1. check if user exists
-        UserPo userPo = baseMapper.selectById(updateDto.getId());
-        ThrowUtils.throwIf(userPo == null, ErrorCode.NOT_FOUND_ERROR, "User not exists");
-        //2. update user information
-        UserPo newUserPo = new UserPo();
-        BeanUtils.copyProperties(updateDto, newUserPo);
-        baseMapper.updateById(newUserPo);
-        //3. return updated user information
-        UserVo userVo = new UserVo();
-        BeanUtils.copyProperties(newUserPo, userVo);
-        return userVo;
-    }
+  /**
+   * 注册用户
+   *
+   * @param registerDto 用户信息
+   * @return 用户id
+   */
+  @Override
+  public Long userRegister(RegisterDto registerDto) {
+    //1. check if user already exists
+    UserPo userPo = baseMapper.selectOne(
+        new QueryWrapper<UserPo>().eq("phone", registerDto.getPhone()));
+    ThrowUtils.throwIf(userPo != null, ErrorCode.NOT_FOUND_ERROR, "User already exists");
+
+    //2. check if checkPassword equals password
+    Borrower borrower = new Borrower();
+    BeanUtils.copyProperties(registerDto, borrower);
+    boolean isPasswordSame = borrower.validateTwicePassword(registerDto.getPassword(),
+        registerDto.getCheckPassword());
+    ThrowUtils.throwIf(!isPasswordSame, ErrorCode.PARAMS_ERROR, "Passwords do not match");
+
+    //3. create user
+    UserPo po = new UserPo();
+    BeanUtils.copyProperties(borrower, po);
+    po.setPassword(passwordEncoder.encode(registerDto.getPassword()));
+
+    //4. insert user into database
+    baseMapper.insert(po);
+    //5. return user id
+    return po.getId();
+  }
+
+  /**
+   * 用户登录
+   *
+   * @param loginDto 登录信息
+   */
+  @Override
+  public UserVo userLogin(LoginDto loginDto, HttpServletRequest request) {
+
+    //1. check if user exists
+    UserPo userPo = baseMapper.selectOne(
+        new QueryWrapper<UserPo>().eq("username", loginDto.getUsername()));
+    ThrowUtils.throwIf(userPo == null, ErrorCode.NOT_FOUND_ERROR, "Username not exists");
+
+    //2.select password from database,check if password is correct
+    Borrower borrower = new Borrower();
+    BeanUtils.copyProperties(userPo, borrower);
+    boolean isPasswordCorrect = borrower.validatePassword(loginDto.getPassword(),
+        userPo.getPassword(), passwordEncoder);
+    ThrowUtils.throwIf(!isPasswordCorrect, ErrorCode.PASS_ERROR, "Password is incorrect");
+
+    //3. set current login user to session
+    UserVo userVo = new UserVo();
+    BeanUtils.copyProperties(userPo, userVo);
+    request.getSession().setAttribute(CURRENT_LOGIN_USER, userVo);
+    //4. return user information
+    return userVo;
+  }
 
 
+  /**
+   * 用户登出
+   *
+   * @param request 请求
+   * @return 是否登出成功
+   */
+  @Override
+  public Boolean userLogout(HttpServletRequest request) {
+    HttpSession session = request.getSession();
+    session.removeAttribute(CURRENT_LOGIN_USER);
+    ThrowUtils.throwIf(session.getAttribute(CURRENT_LOGIN_USER) != null, ErrorCode.SYSTEM_ERROR,
+        "Logout failed");
+    return true;
+  }
 
-    @Override
-    public boolean updateBatchById(Collection<UserPo> entityList, int batchSize) {
-        return false;
-    }
+  /**
+   * 更新用户信息
+   *
+   * @param updateDto 用户信息
+   * @return 更新后的用户信息
+   */
+  @Override
+  public UserVo updateUser(UpdateDto updateDto, HttpServletRequest request) {
+    //0.check if it is the current login user
+    UserVo loginUser = getLoginUser(request);
+    ThrowUtils.throwIf(loginUser == null || loginUser.getId() != updateDto.getId(),
+        ErrorCode.NOT_LOGIN_ERROR, "Not the current login user");
+    //1. check if user exists
+    UserPo userPo = baseMapper.selectById(updateDto.getId());
+    ThrowUtils.throwIf(userPo == null, ErrorCode.NOT_FOUND_ERROR, "User not exists");
+    //2. update user information
+    UserPo newUserPo = new UserPo();
+    BeanUtils.copyProperties(updateDto, newUserPo);
+    baseMapper.updateById(newUserPo);
+    //3. return updated user information
+    UserVo userVo = new UserVo();
+    BeanUtils.copyProperties(newUserPo, userVo);
+    //4. update session
+    request.getSession().setAttribute(CURRENT_LOGIN_USER, userVo);
+    return userVo;
+  }
 
-    @Override
-    public boolean saveOrUpdate(UserPo entity) {
-        return false;
-    }
 
-    @Override
-    public UserPo getOne(Wrapper<UserPo> queryWrapper, boolean throwEx) {
-        return null;
-    }
+  @Override
+  public boolean updateBatchById(Collection<UserPo> entityList, int batchSize) {
+    return false;
+  }
 
-    @Override
-    public Optional<UserPo> getOneOpt(Wrapper<UserPo> queryWrapper, boolean throwEx) {
-        return Optional.empty();
-    }
+  @Override
+  public boolean saveOrUpdate(UserPo entity) {
+    return false;
+  }
 
-    @Override
-    public Map<String, Object> getMap(Wrapper<UserPo> queryWrapper) {
-        return Map.of();
-    }
+  @Override
+  public UserPo getOne(Wrapper<UserPo> queryWrapper, boolean throwEx) {
+    return null;
+  }
 
-    @Override
-    public <V> V getObj(Wrapper<UserPo> queryWrapper, Function<? super Object, V> mapper) {
-        return null;
-    }
+  @Override
+  public Optional<UserPo> getOneOpt(Wrapper<UserPo> queryWrapper, boolean throwEx) {
+    return Optional.empty();
+  }
 
-    @Override
-    public Class<UserPo> getEntityClass() {
-        return null;
-    }
+  @Override
+  public Map<String, Object> getMap(Wrapper<UserPo> queryWrapper) {
+    return Map.of();
+  }
+
+  @Override
+  public <V> V getObj(Wrapper<UserPo> queryWrapper, Function<? super Object, V> mapper) {
+    return null;
+  }
+
+  @Override
+  public Class<UserPo> getEntityClass() {
+    return null;
+  }
 }

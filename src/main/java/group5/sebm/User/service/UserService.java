@@ -29,5 +29,5 @@ public interface UserService extends IService<UserPo> {
 
   Boolean userLogout(HttpServletRequest request);
 
-  UserVo updateUser(UpdateDto updateDto);
+  UserVo updateUser(UpdateDto updateDto,HttpServletRequest request);
 }

@@ -1,5 +1,7 @@
 package group5.sebm.User.controller;
 
+import static group5.sebm.common.constant.UserConstant.CURRENT_LOGIN_USER;
+
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import group5.sebm.annotation.AuthCheck;
 import group5.sebm.common.BaseResponse;
@@ -17,6 +19,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 @Slf4j
@@ -69,9 +72,16 @@ public class UserController {
   }
 
   @PostMapping("/updateUser")
-  public BaseResponse<UserVo> updateUser(@RequestBody @Valid UpdateDto updateDto) {
-      UserVo userVo = borrowerService.updateUser(updateDto);
+  public BaseResponse<UserVo> updateUser(@RequestBody @Valid UpdateDto updateDto,HttpServletRequest request) {
+      UserVo userVo = borrowerService.updateUser(updateDto,request);
       log.info("UpdateUser called with userUpdateDto: {}, userVo: {}", updateDto, userVo);
       return ResultUtils.success(userVo); // 返回VO
+  }
+
+  @GetMapping("/getCurrentUser")
+  public BaseResponse<UserVo> getCurrentUser(HttpServletRequest request) {
+    UserVo userVo = (UserVo) request.getSession().getAttribute(CURRENT_LOGIN_USER);
+    log.info("GetCurrentUser called with request: {}, userVo: {}", request, userVo);
+    return ResultUtils.success(userVo); // 返回VO
   }
 }

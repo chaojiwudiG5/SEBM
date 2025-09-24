@@ -1,6 +1,7 @@
 package group5.sebm.User.controller.dto;
 
 import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -48,8 +49,10 @@ public class UpdateDto {
   /**
    * 性别 0 = 未知，1 = 男，2 = 女
    */
-  @Pattern(regexp = "^[0-2]$", message = "性别只能是 0=未知，1=男，2=女")
-  private String gender;
+  @NotNull(message = "性别不能为空")
+  @Min(value = 0, message = "性别最小为0")
+  @Max(value = 2, message = "性别最大为2")
+  private Integer gender;
 
   /**
    * 年龄
