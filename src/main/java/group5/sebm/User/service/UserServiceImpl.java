@@ -12,6 +12,7 @@ import group5.sebm.User.entity.UserPo;
 import group5.sebm.exception.ErrorCode;
 import group5.sebm.exception.ThrowUtils;
 import group5.sebm.User.service.bo.Borrower;
+import group5.sebm.utils.JwtUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import lombok.NoArgsConstructor;
@@ -40,15 +41,20 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserPo> implements 
   /**
    * 获取当前登录用户
    *
-   * @param request 请求
+   * @param request http 请求
    * @return 当前登录用户
    */
-  public UserVo getLoginUser(HttpServletRequest request) {
-    UserVo userVo;
-    userVo = (UserVo) request.getSession().getAttribute(CURRENT_LOGIN_USER);
+  @Override
+  public UserVo getCurrentUser(HttpServletRequest request) {
+    Long userId = (Long) request.getAttribute("userId");
+    if (userId == null) {
+      ThrowUtils.throwIf(true, ErrorCode.NOT_LOGIN_ERROR, "Not login");
+    }
+    UserPo userPo = baseMapper.selectById(userId);
+    UserVo userVo = new UserVo();
+    BeanUtils.copyProperties(userPo, userVo);
     return userVo;
   }
-
 
   /**
    * 注册用户
@@ -81,49 +87,33 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserPo> implements 
     return po.getId();
   }
 
-  /**
-   * 用户登录
-   *
-   * @param loginDto 登录信息
-   */
   @Override
-  public UserVo userLogin(LoginDto loginDto, HttpServletRequest request) {
-
-    //1. check if user exists
+  public UserVo userLogin(LoginDto loginDto) {
+    // 1. 检查用户是否存在
     UserPo userPo = baseMapper.selectOne(
         new QueryWrapper<UserPo>().eq("username", loginDto.getUsername()));
     ThrowUtils.throwIf(userPo == null, ErrorCode.NOT_FOUND_ERROR, "Username not exists");
 
-    //2.select password from database,check if password is correct
+    // 2. 校验密码
     Borrower borrower = new Borrower();
     BeanUtils.copyProperties(userPo, borrower);
-    boolean isPasswordCorrect = borrower.validatePassword(loginDto.getPassword(),
-        userPo.getPassword(), passwordEncoder);
+    boolean isPasswordCorrect = borrower.validatePassword(
+        loginDto.getPassword(),
+        userPo.getPassword(),
+        passwordEncoder
+    );
     ThrowUtils.throwIf(!isPasswordCorrect, ErrorCode.PASS_ERROR, "Password is incorrect");
 
-    //3. set current login user to session
+    // 3. 生成 JWT token
+    String token = JwtUtils.generateToken(userPo.getId());
+
+    // 4. 封装返回对象
     UserVo userVo = new UserVo();
     BeanUtils.copyProperties(userPo, userVo);
-    request.getSession().setAttribute(CURRENT_LOGIN_USER, userVo);
-    //4. return user information
+    userVo.setToken(token);
     return userVo;
   }
 
-
-  /**
-   * 用户登出
-   *
-   * @param request 请求
-   * @return 是否登出成功
-   */
-  @Override
-  public Boolean userLogout(HttpServletRequest request) {
-    HttpSession session = request.getSession();
-    session.removeAttribute(CURRENT_LOGIN_USER);
-    ThrowUtils.throwIf(session.getAttribute(CURRENT_LOGIN_USER) != null, ErrorCode.SYSTEM_ERROR,
-        "Logout failed");
-    return true;
-  }
 
   /**
    * 更新用户信息
@@ -132,11 +122,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserPo> implements 
    * @return 更新后的用户信息
    */
   @Override
-  public UserVo updateUser(UpdateDto updateDto, HttpServletRequest request) {
+  public UserVo updateUser(UpdateDto updateDto,HttpServletRequest request) {
     //0.check if it is the current login user
-    UserVo loginUser = getLoginUser(request);
-    ThrowUtils.throwIf(loginUser == null || loginUser.getId() != updateDto.getId(),
-        ErrorCode.NOT_LOGIN_ERROR, "Not the current login user");
+    Long userId = (Long) request.getAttribute("userId");
+    ThrowUtils.throwIf(updateDto.getId() != userId, ErrorCode.NOT_LOGIN_ERROR, "Not login");
     //1. check if user exists
     UserPo userPo = baseMapper.selectById(updateDto.getId());
     ThrowUtils.throwIf(userPo == null, ErrorCode.NOT_FOUND_ERROR, "User not exists");
@@ -147,8 +136,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserPo> implements 
     //3. return updated user information
     UserVo userVo = new UserVo();
     BeanUtils.copyProperties(newUserPo, userVo);
-    //4. update session
-    request.getSession().setAttribute(CURRENT_LOGIN_USER, userVo);
+    //4. return updated user information
     return userVo;
   }
 

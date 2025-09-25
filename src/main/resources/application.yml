@@ -10,14 +10,6 @@ spring:
     password: RxAHOOQJjTtBblTpadijgyIWmArpvibI
     driver-class-name: com.mysql.cj.jdbc.Driver
 
-  servlet:
-    session:
-      cookie:
-        name: JSESSIONID
-        secure: true
-        http-only: true
-        same-site: none
-
   session:
     store-type: redis
   data:
@@ -28,7 +20,6 @@ spring:
       password: vXqoxFqZNtzGecKTlVdFXTBcItAZDxVV
 server:
   port: 29578
-
 # springdoc-openapi
 springdoc:
   group-configs:

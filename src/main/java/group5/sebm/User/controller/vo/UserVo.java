@@ -72,4 +72,8 @@ public class UserVo {
    * 更新时间
    */
   private Date updateTime;
+  /**
+   * jwt token
+   */
+  private String token;
 }
