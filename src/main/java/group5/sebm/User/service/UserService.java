@@ -19,15 +19,11 @@ public interface UserService extends IService<UserPo> {
 
 //  UserVo getDiscountUserById(Long id);
 
-  UserVo getLoginUser(HttpServletRequest request);
-
-  //Boolean deleteUser(DeleteDto deleteDto);
+  UserVo getCurrentUser(HttpServletRequest request);
 
   Long userRegister(RegisterDto registerDto);
 
-  UserVo userLogin(LoginDto loginDto, HttpServletRequest request);
-
-  Boolean userLogout(HttpServletRequest request);
+  UserVo userLogin(LoginDto loginDto);
 
   UserVo updateUser(UpdateDto updateDto,HttpServletRequest request);
 }

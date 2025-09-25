@@ -10,6 +10,7 @@ import group5.sebm.User.entity.UserPo;
 import group5.sebm.exception.BusinessException;
 import group5.sebm.exception.ErrorCode;
 import group5.sebm.exception.ThrowUtils;
+import jakarta.annotation.Resource;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
@@ -18,7 +19,8 @@ import java.util.stream.Collectors;
 
 @Service
 public class ManagerServiceImpl extends UserServiceImpl {
-    UserMapper userMapper;
+    @Resource
+    private UserMapper userMapper;
     /**
      * 删除用户
      *

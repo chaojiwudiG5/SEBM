@@ -3,6 +3,8 @@ package group5.sebm.User.controller;
 import static group5.sebm.common.constant.UserConstant.CURRENT_LOGIN_USER;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import group5.sebm.User.service.UserService;
+import group5.sebm.User.service.UserServiceImpl;
 import group5.sebm.annotation.AuthCheck;
 import group5.sebm.common.BaseResponse;
 import group5.sebm.common.ResultUtils;
@@ -15,6 +17,7 @@ import group5.sebm.User.controller.vo.UserVo;
 import group5.sebm.User.service.BorrowerServiceImpl;
 import group5.sebm.User.service.ManagerServiceImpl;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -31,6 +34,7 @@ public class UserController {
 
   private final BorrowerServiceImpl borrowerService;
   private final ManagerServiceImpl managerService;
+  private final UserServiceImpl userServiceImpl;
 
   @PostMapping("/register")
   public BaseResponse<Long> userRegister(@RequestBody @Valid RegisterDto registerDto) {
@@ -40,18 +44,10 @@ public class UserController {
   }
 
   @PostMapping("/login")
-  public BaseResponse<UserVo> userLogin(@RequestBody @Valid LoginDto LoginDto,
-      HttpServletRequest request) {
-    UserVo userVo = borrowerService.userLogin(LoginDto, request);
+  public BaseResponse<UserVo> userLogin(@RequestBody @Valid LoginDto LoginDto) {
+    UserVo userVo = borrowerService.userLogin(LoginDto);
     log.info("UserLogin called with userVo: {}", userVo);
     return ResultUtils.success(userVo); // 返回VO
-  }
-
-  @PostMapping("/logout")
-  public BaseResponse<Boolean> userLogout(HttpServletRequest request) {
-    Boolean isLogout = borrowerService.userLogout(request);
-    log.info("UserLogout called with request: {}", request);
-    return ResultUtils.success(isLogout); // 返回Boolean
   }
 
   //TODO只有管理员能查看所有用户，需编写AOP进行权限控制
@@ -80,8 +76,8 @@ public class UserController {
 
   @GetMapping("/getCurrentUser")
   public BaseResponse<UserVo> getCurrentUser(HttpServletRequest request) {
-    UserVo userVo = (UserVo) request.getSession().getAttribute(CURRENT_LOGIN_USER);
-    log.info("GetCurrentUser called with request: {}, userVo: {}", request, userVo);
-    return ResultUtils.success(userVo); // 返回VO
+    UserVo currentUser = userServiceImpl.getCurrentUser(request);
+    log.info("GetCurrentUser called with currentUser: {}", currentUser);
+    return ResultUtils.success(currentUser); // 返回VO
   }
 }
