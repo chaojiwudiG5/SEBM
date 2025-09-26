@@ -16,4 +16,6 @@ public class DeviceVo {
   private String location;
 
   private String description;
+
+  private String image;
 }
