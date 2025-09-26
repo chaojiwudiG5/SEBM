@@ -5,7 +5,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-@MapperScan("group5.sebm.User.dao")
+@MapperScan({"group5.sebm.User.dao", "group5.sebm.notifiation.dao"})
 public class SebmApplication {
 
   public static void main(String[] args) {
