@@ -1,4 +1,4 @@
-package group5.sebm.ServiceTest;
+package group5.sebm.UserServiceTest;
 
 /**
  * @author Deshperaydon
