@@ -46,6 +46,11 @@ public class DevicePo {
     private String description;
 
     /**
+     * 设备图片
+     */
+    private String image;
+
+    /**
      * 是否删除
      */
     @TableLogic
