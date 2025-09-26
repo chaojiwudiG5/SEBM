@@ -147,9 +147,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserPo> implements 
    * 用户注销
    *
    * @param deleteDto 用户id
-   * @return 是否删除成功
    */
-  public Boolean deactivateUser(DeleteDto deleteDto) {
+  public Long deactivateUser(DeleteDto deleteDto) {
     // 1. 检查用户是否存在
     UserPo userPo = baseMapper.selectById(deleteDto.getId());
     ThrowUtils.throwIf(userPo == null, ErrorCode.NOT_FOUND_ERROR, "User not exists");
@@ -161,43 +160,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserPo> implements 
     } catch (Exception e) {
       throw new BusinessException(ErrorCode.SYSTEM_ERROR, "Deactivate failed");
     }
-
-    return true;
-  }
-
-
-  @Override
-  public boolean updateBatchById(Collection<UserPo> entityList, int batchSize) {
-    return false;
-  }
-
-  @Override
-  public boolean saveOrUpdate(UserPo entity) {
-    return false;
-  }
-
-  @Override
-  public UserPo getOne(Wrapper<UserPo> queryWrapper, boolean throwEx) {
-    return null;
-  }
-
-  @Override
-  public Optional<UserPo> getOneOpt(Wrapper<UserPo> queryWrapper, boolean throwEx) {
-    return Optional.empty();
-  }
-
-  @Override
-  public Map<String, Object> getMap(Wrapper<UserPo> queryWrapper) {
-    return Map.of();
-  }
-
-  @Override
-  public <V> V getObj(Wrapper<UserPo> queryWrapper, Function<? super Object, V> mapper) {
-    return null;
-  }
-
-  @Override
-  public Class<UserPo> getEntityClass() {
-    return null;
+    return userPo.getId();
   }
 }

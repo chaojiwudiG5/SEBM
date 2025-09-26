@@ -64,10 +64,10 @@ public class UserController {
     return ResultUtils.success(isDelete); // 返回Boolean
   }
   @PostMapping("/deactivateUser")
-  public BaseResponse<Boolean> deactivateUser(@RequestBody @Valid DeleteDto deactivateUser) {
-    Boolean isDeactivate = borrowerService.deactivateUser(deactivateUser);
-    log.info("DeactivateUser called with userVo: {}, isDeactivate: {}", deactivateUser, isDeactivate);
-    return ResultUtils.success(isDeactivate); // 返回Boolean
+  public BaseResponse<Long> deactivateUser(@RequestBody @Valid DeleteDto deactivateUser) {
+    Long id = borrowerService.deactivateUser(deactivateUser);
+    log.info("DeactivateUser called with userVo: {}, isDeactivate: {}", deactivateUser, id);
+    return ResultUtils.success(id); // 返回Boolean
   }
 
 
