@@ -17,7 +17,7 @@ import lombok.Setter;
 public class Borrower extends User{
 
   private Boolean isDelete;
-  private int age;
+  private Integer age;
 
 
   public boolean isokforDiscount() {

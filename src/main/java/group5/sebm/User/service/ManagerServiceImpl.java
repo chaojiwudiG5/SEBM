@@ -11,6 +11,7 @@ import group5.sebm.exception.BusinessException;
 import group5.sebm.exception.ErrorCode;
 import group5.sebm.exception.ThrowUtils;
 import jakarta.annotation.Resource;
+import lombok.NoArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
@@ -18,9 +19,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-public class ManagerServiceImpl extends UserServiceImpl {
-    @Resource
-    private UserMapper userMapper;
+@NoArgsConstructor
+public class ManagerServiceImpl extends UserServiceImpl implements ManagerService {
     /**
      * 删除用户
      *
@@ -29,13 +29,28 @@ public class ManagerServiceImpl extends UserServiceImpl {
      */
     public Boolean deleteBorrower(DeleteDto deleteDto) {
         //1. check if user exists
-        UserPo userPo = userMapper.selectById(deleteDto.getId());
+        UserPo userPo = baseMapper.selectById(deleteDto.getId());
         ThrowUtils.throwIf(userPo == null, ErrorCode.NOT_FOUND_ERROR, "User not exists");
         //2. delete user from database
         try {
-            userMapper.deleteById(deleteDto.getId());
+            baseMapper.deleteById(deleteDto.getId());
         } catch (Exception e) {
             throw new BusinessException(ErrorCode.SYSTEM_ERROR, "Delete failed");
+        }
+        return true;
+    }
+
+    /**
+     * 批量删除用户
+     */
+    public Boolean deleteBorrowers(List<Long> ids) {
+        if (ids == null || ids.isEmpty()) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "id list is empty");
+        }
+        try {
+            this.removeByIds(ids);
+        } catch (Exception e) {
+            throw new BusinessException(ErrorCode.SYSTEM_ERROR, "Batch delete failed");
         }
         return true;
     }
@@ -46,7 +61,6 @@ public class ManagerServiceImpl extends UserServiceImpl {
      * @param pageDto 分页信息
      * @return 用户列表
      */
-
     public Page<UserVo> getAllBorrowers(PageDto pageDto) {
         // 1. 创建分页对象
         Page<UserPo> page = new Page<>(pageDto.getPageNumber(), pageDto.getPageSize());
@@ -71,4 +85,5 @@ public class ManagerServiceImpl extends UserServiceImpl {
 
         return resultPage;
     }
+
 }
