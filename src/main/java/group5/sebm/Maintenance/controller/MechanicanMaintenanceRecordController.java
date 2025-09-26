@@ -11,6 +11,6 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "MechanicanMaintenanceRecord")
 @RequestMapping("/mechanicanMaintenanceRecord")
 @AllArgsConstructor
-public class gotMaintenanceRecordController {
+public class MechanicanMaintenanceRecordController {
 
 }
