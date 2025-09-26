@@ -21,7 +21,7 @@ public enum NotificationMethodEnum {
     /**
      * 根据code获取枚举
      */
-    public static NotificationNodeEnum getByCode(Integer code) {
+    public static NotificationNodeEnum parseNode(Integer code) {
         if (code == null) {
             return null;
         }
@@ -37,7 +37,7 @@ public enum NotificationMethodEnum {
      * 验证code是否有效
      */
     public static boolean isValidCode(Integer code) {
-        return getByCode(code) != null;
+        return parseNode(code) != null;
     }
 
 }

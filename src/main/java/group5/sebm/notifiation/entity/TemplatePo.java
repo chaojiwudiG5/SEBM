@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
  * 通知模板实体类
  */
 @Data
-@TableName("notification_template")
+@TableName("notificationTemplate")
 public class TemplatePo {
     
     /**
@@ -38,6 +38,12 @@ public class TemplatePo {
      */
     @TableField("notificationNode")
     private String notificationNode;
+
+    /**
+     * 通知角色
+     */
+    @TableField("notificationRole")
+    private String notificationRole;
     
     /**
      * 相关时间偏移
@@ -56,6 +62,12 @@ public class TemplatePo {
      */
     @TableField("content")
     private String content;
+
+    /**
+     * 模版描述
+     */
+    @TableField("templateDesc")
+    private String templateDesc;
     
     /**
      * 状态

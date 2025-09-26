@@ -48,7 +48,7 @@ public enum NotificationNodeEnum {
     /**
      * 根据code获取枚举
      */
-    public static NotificationNodeEnum getByCode(Integer code) {
+    public static NotificationNodeEnum parseNode(Integer code) {
         if (code == null) {
             return null;
         }
@@ -64,7 +64,7 @@ public enum NotificationNodeEnum {
      * 验证是否为可用节点
      */
     public static boolean isValidCode(Integer code) {
-        return getByCode(code) != null;
+        return parseNode(code) != null;
     }
 
 }

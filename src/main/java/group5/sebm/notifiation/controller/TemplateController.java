@@ -10,6 +10,7 @@ import group5.sebm.notifiation.controller.dto.CreateTemplateDto;
 import group5.sebm.notifiation.controller.vo.TemplateVo;
 import group5.sebm.notifiation.enums.NotificationMethodEnum;
 import group5.sebm.notifiation.enums.NotificationNodeEnum;
+import group5.sebm.notifiation.enums.NotificationRoleEnum;
 import group5.sebm.notifiation.service.TemplateService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -63,6 +64,10 @@ public class TemplateController {
     private void validateCreateTemplateParams(CreateTemplateDto createTemplateDto) {
         // 验证通知节点是否有效
         ThrowUtils.throwIf(!NotificationNodeEnum.isValidCode(createTemplateDto.getNotificationNode()),
+                ErrorCode.PARAMS_ERROR);
+
+        // 验证通知节点是否有效
+        ThrowUtils.throwIf(!NotificationRoleEnum.isValidCode(createTemplateDto.getNotificationRole()),
                 ErrorCode.PARAMS_ERROR);
         
         // 验证模板标题长度

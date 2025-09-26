@@ -31,24 +31,14 @@ public class TemplateVo {
     private String templateType;
     
     /**
-     * 通知节点代码
+     * 通知描述
      */
-    private Integer notificationNode;
-    
+    private String templateDesc;
+
     /**
-     * 通知节点描述
+     * 通知角色
      */
-    private String notificationNodeDesc;
-    
-    /**
-     * 相关时间偏移（分钟）
-     */
-    private Integer relateTimeOffset;
-    
-    /**
-     * 用户ID
-     */
-    private Long userId;
+    private Integer notificationRole;
     
     /**
      * 内容
@@ -64,9 +54,4 @@ public class TemplateVo {
      * 创建时间
      */
     private LocalDateTime createTime;
-    
-    /**
-     * 更新时间
-     */
-    private LocalDateTime updateTime;
 }

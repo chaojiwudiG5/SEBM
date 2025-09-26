@@ -27,7 +27,7 @@ public interface TemplateConverter {
      */
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "userId", source = "request", qualifiedByName = "getUserIdFromRequest")
-    @Mapping(target = "isDelete", constant = "0")
+    @Mapping(target = "status", constant = "1")
     @Mapping(target = "createTime", expression = "java(getCurrentTime())")
     @Mapping(target = "updateTime", expression = "java(getCurrentTime())")
     TemplatePo toPo(CreateTemplateDto createTemplateDto, HttpServletRequest request);

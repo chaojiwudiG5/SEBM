@@ -33,19 +33,31 @@ public class CreateTemplateDto {
      */
     @NotNull(message = "通知节点不能为空")
     private Integer notificationNode;
+
     /**
      * 通知节点 (使用NotificationMethodEnum的code值)
      */
     @NotNull(message = "通知方式不能为空")
     private Integer notificationMethod;
+
     /**
      * 相关时间偏移（秒）
      */
     private Integer relateTimeOffset;
-    
+
     /**
      * 内容
      */
     @NotBlank(message = "模板内容不能为空")
     private String content;
+
+    /**
+     * 通知角色(使用NotificationRoleEnum的code值)
+     */
+    private Integer notificationRole;
+
+    /**
+     * 模版描述
+     */
+    private String templateDesc;
 }
