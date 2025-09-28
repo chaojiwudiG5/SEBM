@@ -17,7 +17,7 @@ public class UserMaintenanceRecordPo {
     /**
      * 维修单ID
      */
-    @TableId(type = IdType.ASSIGN_ID)
+    @TableId(type = IdType.AUTO)
     private Long id;
 
     /**

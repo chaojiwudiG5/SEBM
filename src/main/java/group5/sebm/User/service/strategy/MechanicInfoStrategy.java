@@ -33,10 +33,10 @@ public class MechanicInfoStrategy implements UserInfoStrategy {
         MechanicVo mechanicVo = new MechanicVo();
         MechanicInfoPo mechanicInfoPo = mechanicInfoService.getOne(
             new QueryWrapper<MechanicInfoPo>().eq("userId", userPo.getId()));
-        
-        BeanUtils.copyProperties(userPo, mechanicVo);
+
         BeanUtils.copyProperties(mechanicInfoPo, mechanicVo);
-        
+
+        BeanUtils.copyProperties(userPo, mechanicVo);
         return mechanicVo;
     }
     
