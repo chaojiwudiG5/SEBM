@@ -26,7 +26,6 @@ import org.springframework.web.bind.annotation.*;
 @AllArgsConstructor
 public class UserController {
 
-  private final AdminService managerService;
   private final UserService userServiceImpl;
 
   @PostMapping("/register")
@@ -47,7 +46,7 @@ public class UserController {
   @PostMapping("/admin/getUserList")
   @AuthCheck(mustRole = UserRoleEnum.ADMIN)
   public BaseResponse<Page<UserVo>> getAllUsers(@RequestBody @Valid PageDto pageDto) {
-    Page<UserVo> userVoPage = managerService.getAllBorrowers(pageDto);
+    Page<UserVo> userVoPage = userServiceImpl.getAllBorrowers(pageDto);
     log.info("GetAllUsers called with pageDto: {}, userVoPage: {}", pageDto, userVoPage);
     return ResultUtils.success(userVoPage); // 返回Page
   }
@@ -55,7 +54,7 @@ public class UserController {
   @PostMapping("/admin/deleteUser")
   @AuthCheck(mustRole = UserRoleEnum.ADMIN)
   public BaseResponse<Boolean> deleteUser(@RequestBody @Valid DeleteDto deleteDto) {
-    Boolean isDelete = managerService.deleteBorrower(deleteDto);
+    Boolean isDelete = userServiceImpl.deleteBorrower(deleteDto);
     log.info("DeleteUser called with deleteDto: {}, isDelete: {}", deleteDto, isDelete);
     return ResultUtils.success(isDelete); // 返回Boolean
   }

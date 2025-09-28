@@ -1,39 +1,34 @@
 package group5.sebm.User.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import group5.sebm.User.controller.dto.DeleteDto;
 import group5.sebm.User.controller.dto.LoginDto;
+import group5.sebm.User.controller.dto.PageDto;
 import group5.sebm.User.controller.dto.RegisterDto;
 import group5.sebm.User.controller.dto.UpdateDto;
-import group5.sebm.User.controller.vo.AdminVo;
-import group5.sebm.User.controller.vo.BorrowerVo;
-import group5.sebm.User.controller.vo.MechanicVo;
 import group5.sebm.User.controller.vo.UserVo;
 import group5.sebm.User.dao.UserMapper;
-import group5.sebm.User.entity.AdminInfoPo;
 import group5.sebm.User.entity.BorrowerInfoPo;
-import group5.sebm.User.entity.MechanicInfoPo;
 import group5.sebm.User.entity.UserPo;
-import group5.sebm.User.service.Info.AdminInfoService;
 import group5.sebm.User.service.Info.BorrowerInfoService;
-import group5.sebm.User.service.Info.MechanicInfoService;
+import group5.sebm.User.service.strategy.UserInfoStrategy;
+import group5.sebm.User.service.strategy.UserInfoStrategyFactory;
 import group5.sebm.User.service.bo.User;
-import group5.sebm.common.dto.User.AdminInfoDto;
-import group5.sebm.common.dto.User.MechanicInfoDto;
 import group5.sebm.common.dto.User.UserInfoDto;
 import group5.sebm.exception.BusinessException;
 import group5.sebm.exception.ErrorCode;
-import group5.sebm.exception.GlobalExceptionHandler;
 import group5.sebm.exception.ThrowUtils;
 import group5.sebm.User.service.bo.Borrower;
 import group5.sebm.utils.JwtUtils;
 import jakarta.servlet.http.HttpServletRequest;
+import java.util.List;
+import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-import group5.sebm.common.dto.User.BorrowerInfoDto;
 import java.util.Objects;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -50,9 +45,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserPo> implements 
 
   private final BorrowerInfoService borrowerInfoService;
 
-  private final AdminInfoService adminInfoService;
-
-  private final MechanicInfoService mechanicInfoService;
+  private final UserInfoStrategyFactory userInfoStrategyFactory;
 
   /**
    * 获取当前登录用户（给前端使用）
@@ -65,33 +58,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserPo> implements 
     Long userId = (Long) request.getAttribute("userId");
     ThrowUtils.throwIf(userId == null, ErrorCode.NOT_LOGIN_ERROR, "Not login");
     UserPo userPo = baseMapper.selectById(userId);
-    //TODO:添加其他角色的返回值
-    switch (userPo.getUserRole()) {
-      case 0:
-        BorrowerVo borrowerVo = new BorrowerVo();
-        BorrowerInfoPo borrowerInfoPo = borrowerInfoService.getOne(
-            new QueryWrapper<BorrowerInfoPo>().eq("userId", userPo.getId()));
-        BeanUtils.copyProperties(userPo, borrowerVo);
-        BeanUtils.copyProperties(borrowerInfoPo, borrowerVo);
-        return borrowerVo;
-      case 1:
-        AdminVo adminVo = new AdminVo();
-        AdminInfoPo adminInfoPo = adminInfoService.getOne(
-            new QueryWrapper<AdminInfoPo>().eq("userId", userPo.getId()));
-        BeanUtils.copyProperties(userPo, adminVo);
-        BeanUtils.copyProperties(adminInfoPo, adminVo);
-        return adminVo;
-      case 2:
-        MechanicVo mechanicVo = new MechanicVo();
-        MechanicInfoPo mechanicInfoPo = mechanicInfoService.getOne(
-            new QueryWrapper<MechanicInfoPo>().eq("userId", userPo.getId()));
-        BeanUtils.copyProperties(userPo, mechanicVo);
-        BeanUtils.copyProperties(mechanicInfoPo, mechanicVo);
-        return mechanicVo;
-
-      default:
-        throw new BusinessException(ErrorCode.SYSTEM_ERROR, "Unknown user role");
-    }
+    
+    UserInfoStrategy strategy = userInfoStrategyFactory.getStrategy(userPo.getUserRole());
+    return strategy.buildUserVo(userPo);
   }
 
   /**
@@ -105,36 +74,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserPo> implements 
     Long userId = (Long) request.getAttribute("userId");
     ThrowUtils.throwIf(userId == null, ErrorCode.NOT_LOGIN_ERROR, "Not login");
     UserPo userPo = baseMapper.selectById(userId);
-    //TODO:添加其他角色的返回值
-    switch (userPo.getUserRole()) {
-      case 0:
-        BorrowerInfoPo borrowerInfoPo = borrowerInfoService.getOne(
-            new QueryWrapper<BorrowerInfoPo>().eq("userId", userPo.getId()));
-        BorrowerInfoDto borrowerInfoDto = new BorrowerInfoDto();
-        BeanUtils.copyProperties(borrowerInfoPo, borrowerInfoDto);
-        BeanUtils.copyProperties(userPo, borrowerInfoDto);
-        return borrowerInfoDto;
-      case 1:
-        AdminInfoPo adminInfoPo = adminInfoService.getOne(
-            new QueryWrapper<AdminInfoPo>().eq("userId", userPo.getId()));
-        AdminInfoDto adminInfoDto = new AdminInfoDto();
-        BeanUtils.copyProperties(adminInfoPo, adminInfoDto);
-        BeanUtils.copyProperties(userPo, adminInfoDto);
-        return adminInfoDto;
-      case 2:
-        MechanicInfoPo mechanicInfoPo = mechanicInfoService.getOne(
-            new QueryWrapper<MechanicInfoPo>().eq("userId", userPo.getId()));
-        MechanicInfoDto mechanicInfoDto = new MechanicInfoDto();
-        BeanUtils.copyProperties(mechanicInfoPo, mechanicInfoDto);
-        BeanUtils.copyProperties(userPo, mechanicInfoDto);
-        return mechanicInfoDto;
-      default:
-        throw new BusinessException(ErrorCode.SYSTEM_ERROR, "Unknown user role");
-    }
+    
+    UserInfoStrategy strategy = userInfoStrategyFactory.getStrategy(userPo.getUserRole());
+    return strategy.buildUserInfoDto(userPo);
   }
 
   /**
-   * 注册用户
+   * 注册用户(其实只有借用者能注册)
    *
    * @param registerDto 用户信息
    * @return 用户id
@@ -194,35 +140,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserPo> implements 
     String token = JwtUtils.generateToken(userPo.getId());
 
     // 4. 根据角色的不同返回不同的用户信息
-    //TODO:添加其他角色的返回值
-    switch (userPo.getUserRole()) {
-      case 0:
-        BorrowerVo borrowerVo = new BorrowerVo();
-        BorrowerInfoPo borrowerInfoPo = borrowerInfoService.getOne(
-            new QueryWrapper<BorrowerInfoPo>().eq("userId", userPo.getId()));
-        BeanUtils.copyProperties(userPo, borrowerVo);
-        BeanUtils.copyProperties(borrowerInfoPo, borrowerVo);
-        borrowerVo.setToken(token);
-        return borrowerVo;
-      case 1:
-        AdminVo adminVo = new AdminVo();
-        AdminInfoPo adminInfoPo = adminInfoService.getOne(
-            new QueryWrapper<AdminInfoPo>().eq("userId", userPo.getId()));
-        BeanUtils.copyProperties(userPo, adminVo);
-        BeanUtils.copyProperties(adminInfoPo, adminVo);
-        adminVo.setToken(token);
-        return adminVo;
-      case 2:
-        MechanicVo mechanicVo = new MechanicVo();
-        MechanicInfoPo mechanicInfoPo = mechanicInfoService.getOne(
-            new QueryWrapper<MechanicInfoPo>().eq("userId", userPo.getId()));
-        BeanUtils.copyProperties(userPo, mechanicVo);
-        BeanUtils.copyProperties(mechanicInfoPo, mechanicVo);
-        mechanicVo.setToken(token);
-        return mechanicVo;
-      default:
-        throw new BusinessException(ErrorCode.SYSTEM_ERROR, "Unknown user role");
-    }
+    UserInfoStrategy strategy = userInfoStrategyFactory.getStrategy(userPo.getUserRole());
+    UserVo userVo = strategy.buildUserVo(userPo);
+    strategy.setToken(userVo, token);
+    
+    return userVo;
   }
 
 
@@ -269,5 +191,71 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserPo> implements 
 
     // 3. 返回用户id
     return userPo.getId();
+  }
+
+  /**
+   * 删除用户
+   *
+   * @param deleteDto 用户id
+   * @return 是否删除成功
+   */
+  public Boolean deleteBorrower(DeleteDto deleteDto) {
+    //1. check if user exists
+    UserPo userPo = baseMapper.selectById(deleteDto.getId());
+    ThrowUtils.throwIf(userPo == null, ErrorCode.NOT_FOUND_ERROR, "User not exists");
+    //2. delete user from database
+    try {
+      baseMapper.deleteById(deleteDto.getId());
+    } catch (Exception e) {
+      throw new BusinessException(ErrorCode.SYSTEM_ERROR, "Delete failed");
+    }
+    return true;
+  }
+
+  /**
+   * 批量删除用户
+   */
+  @Override
+  public Boolean deleteBorrowers(List<Long> ids) {
+    if (ids == null || ids.isEmpty()) {
+      throw new BusinessException(ErrorCode.PARAMS_ERROR, "id list is empty");
+    }
+    try {
+      baseMapper.deleteByIds(ids);
+    } catch (Exception e) {
+      throw new BusinessException(ErrorCode.SYSTEM_ERROR, "Batch delete failed");
+    }
+    return true;
+  }
+
+  /**
+   * 获取所有用户
+   *
+   * @param pageDto 分页信息
+   * @return 用户列表
+   */
+  public Page<UserVo> getAllBorrowers(PageDto pageDto) {
+    // 1. 创建分页对象
+    Page<UserPo> page = new Page<>(pageDto.getPageNumber(), pageDto.getPageSize());
+
+    // 2. 执行分页查询
+    Page<UserPo> userPage = baseMapper.selectPage(page, new QueryWrapper<>());
+
+    // 3. 将 PO 转 VO
+    List<UserVo> voList = userPage.getRecords().stream()
+        .map(po -> {
+          UserVo vo = new UserVo();
+          BeanUtils.copyProperties(po, vo);
+          return vo;
+        })
+        .collect(Collectors.toList());
+
+
+    // 4. 将 VO 列表放回 Page 对象
+    Page<UserVo> resultPage = new Page<>(userPage.getCurrent(), userPage.getSize(),
+        userPage.getTotal());
+    resultPage.setRecords(voList);
+
+    return resultPage;
   }
 }
