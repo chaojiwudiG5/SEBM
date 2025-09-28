@@ -11,7 +11,7 @@ import java.util.List;
  * @author Deshperaydon
  * @date 2025/9/26
  */
-public interface ManagerService {
+public interface AdminService {
     Boolean deleteBorrower(DeleteDto deleteDto);
     Boolean deleteBorrowers(List<Long> ids);
     Page<UserVo> getAllBorrowers(PageDto pageDto);

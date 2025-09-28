@@ -25,7 +25,7 @@ public class UserPo {
   /**
    * id
    */
-  @TableId(type = IdType.AUTO)
+  @TableId(type = IdType.ASSIGN_ID)
   private Long id;
 
   /**
@@ -88,12 +88,4 @@ public class UserPo {
    * 年龄
    */
   private Integer age;
-  /**
-   * 逾期次数
-   */
-  private Integer overdueTimes;
-  /**
-   * 借用设备数量
-   */
-  private Integer borrowedDeviceCount;
 }

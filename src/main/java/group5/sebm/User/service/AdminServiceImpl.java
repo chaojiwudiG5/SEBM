@@ -10,17 +10,19 @@ import group5.sebm.User.entity.UserPo;
 import group5.sebm.exception.BusinessException;
 import group5.sebm.exception.ErrorCode;
 import group5.sebm.exception.ThrowUtils;
-import jakarta.annotation.Resource;
-import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.BeanUtils;
+import org.springframework.data.annotation.Version;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-@NoArgsConstructor
-public class ManagerServiceImpl extends UserServiceImpl implements ManagerService {
+@AllArgsConstructor
+public class AdminServiceImpl implements AdminService {
+
+    private final UserMapper userMapper;
     /**
      * 删除用户
      *
@@ -29,11 +31,11 @@ public class ManagerServiceImpl extends UserServiceImpl implements ManagerServic
      */
     public Boolean deleteBorrower(DeleteDto deleteDto) {
         //1. check if user exists
-        UserPo userPo = baseMapper.selectById(deleteDto.getId());
+        UserPo userPo = userMapper.selectById(deleteDto.getId());
         ThrowUtils.throwIf(userPo == null, ErrorCode.NOT_FOUND_ERROR, "User not exists");
         //2. delete user from database
         try {
-            baseMapper.deleteById(deleteDto.getId());
+            userMapper.deleteById(deleteDto.getId());
         } catch (Exception e) {
             throw new BusinessException(ErrorCode.SYSTEM_ERROR, "Delete failed");
         }
@@ -43,12 +45,13 @@ public class ManagerServiceImpl extends UserServiceImpl implements ManagerServic
     /**
      * 批量删除用户
      */
+    @Override
     public Boolean deleteBorrowers(List<Long> ids) {
         if (ids == null || ids.isEmpty()) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "id list is empty");
         }
         try {
-            this.removeByIds(ids);
+            userMapper.deleteByIds(ids);
         } catch (Exception e) {
             throw new BusinessException(ErrorCode.SYSTEM_ERROR, "Batch delete failed");
         }
@@ -66,7 +69,7 @@ public class ManagerServiceImpl extends UserServiceImpl implements ManagerServic
         Page<UserPo> page = new Page<>(pageDto.getPageNumber(), pageDto.getPageSize());
 
         // 2. 执行分页查询
-        Page<UserPo> userPage = baseMapper.selectPage(page, new QueryWrapper<>());
+        Page<UserPo> userPage = userMapper.selectPage(page, new QueryWrapper<>());
 
         // 3. 将 PO 转 VO
         List<UserVo> voList = userPage.getRecords().stream()

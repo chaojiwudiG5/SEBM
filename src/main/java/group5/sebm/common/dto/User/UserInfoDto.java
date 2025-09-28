@@ -17,12 +17,5 @@ public class UserInfoDto {
    * 用户角色
    */
   private Integer userRole;
-  /**
-   * 逾期次数
-   */
-  private Integer overdueTimes;
-  /**
-   * 借用设备数量
-   */
-  private Integer borrowedDeviceCount;
+
 }
