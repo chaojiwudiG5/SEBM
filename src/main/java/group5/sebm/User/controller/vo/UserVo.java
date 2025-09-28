@@ -3,12 +3,13 @@ package group5.sebm.User.controller.vo;
 import lombok.*;
 
 import java.util.Date;
+import lombok.experimental.SuperBuilder;
 
 /**
  * 用户展示 VO
  */
 @Data
-@Builder
+@SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserVo {
@@ -64,24 +65,8 @@ public class UserVo {
   private boolean isActive;
 
   /**
-   * 创建时间
-   */
-  private Date createTime;
-
-  /**
-   * 更新时间
-   */
-  private Date updateTime;
-  /**
    * jwt token
    */
   private String token;
-  /**
-   * 逾期次数
-   */
-  private Integer overdueTimes;
-  /**
-   * 借用设备数量
-   */
-  private Integer borrowedDeviceCount;
+
 }

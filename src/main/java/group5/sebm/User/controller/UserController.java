@@ -26,20 +26,18 @@ import org.springframework.web.bind.annotation.*;
 @AllArgsConstructor
 public class UserController {
 
-  private final BorrowerService borrowerService;
-  private final ManagerService managerService;
   private final UserService userServiceImpl;
 
   @PostMapping("/register")
   public BaseResponse<Long> userRegister(@RequestBody @Valid RegisterDto registerDto) {
-    Long userId = borrowerService.userRegister(registerDto);
+    Long userId = userServiceImpl.userRegister(registerDto);
     log.info("UserRegister called with userId: {}", userId);
     return ResultUtils.success(userId); // 返回ID
   }
 
   @PostMapping("/login")
   public BaseResponse<UserVo> userLogin(@RequestBody @Valid LoginDto LoginDto) {
-    UserVo userVo = borrowerService.userLogin(LoginDto);
+    UserVo userVo = userServiceImpl.userLogin(LoginDto);
     log.info("UserLogin called with userVo: {}", userVo);
     return ResultUtils.success(userVo); // 返回VO
   }
@@ -48,7 +46,7 @@ public class UserController {
   @PostMapping("/admin/getUserList")
   @AuthCheck(mustRole = UserRoleEnum.ADMIN)
   public BaseResponse<Page<UserVo>> getAllUsers(@RequestBody @Valid PageDto pageDto) {
-    Page<UserVo> userVoPage = this.managerService.getAllBorrowers(pageDto);
+    Page<UserVo> userVoPage = userServiceImpl.getAllBorrowers(pageDto);
     log.info("GetAllUsers called with pageDto: {}, userVoPage: {}", pageDto, userVoPage);
     return ResultUtils.success(userVoPage); // 返回Page
   }
@@ -56,14 +54,14 @@ public class UserController {
   @PostMapping("/admin/deleteUser")
   @AuthCheck(mustRole = UserRoleEnum.ADMIN)
   public BaseResponse<Boolean> deleteUser(@RequestBody @Valid DeleteDto deleteDto) {
-    Boolean isDelete = this.managerService.deleteBorrower(deleteDto);
+    Boolean isDelete = userServiceImpl.deleteBorrower(deleteDto);
     log.info("DeleteUser called with deleteDto: {}, isDelete: {}", deleteDto, isDelete);
     return ResultUtils.success(isDelete); // 返回Boolean
   }
 
   @PostMapping("/deactivateUser")
   public BaseResponse<Long> deactivateUser(@RequestBody @Valid DeleteDto deactivateUser) {
-    Long id = borrowerService.deactivateUser(deactivateUser);
+    Long id = userServiceImpl.deactivateUser(deactivateUser);
     log.info("DeactivateUser called with userVo: {}, isDeactivate: {}", deactivateUser, id);
     return ResultUtils.success(id); // 返回Boolean
   }
@@ -71,8 +69,7 @@ public class UserController {
   @PostMapping("/updateUser")
   public BaseResponse<UserVo> updateUser(@RequestBody @Valid UpdateDto updateDto,
       HttpServletRequest request) {
-
-    UserVo userVo = borrowerService.updateUser(updateDto, request);
+    UserVo userVo = userServiceImpl.updateUser(updateDto, request);
     log.info("UpdateUser called with userUpdateDto: {}, userVo: {}", updateDto, userVo);
     return ResultUtils.success(userVo); // 返回VO
   }
