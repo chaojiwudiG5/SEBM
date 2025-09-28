@@ -3,6 +3,7 @@ package group5.sebm.Device.dao;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import group5.sebm.Device.entity.DevicePo;
+import org.apache.ibatis.annotations.Mapper;
 
 /**
 * @author Luoimo
@@ -10,6 +11,7 @@ import group5.sebm.Device.entity.DevicePo;
 * @createDate 2025-09-26 11:29:28
 * @Entity generator.domain.Device
 */
+@Mapper
 public interface DeviceMapper extends BaseMapper<DevicePo> {
 
 }

@@ -9,6 +9,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @MapperScan("group5.sebm.Device.dao")
 @MapperScan("group5.sebm.BorrowRecord.dao")
 @MapperScan("group5.sebm.Maintenance.dao")
+@MapperScan("group5.sebm.Reservation.dao")
 public class SebmApplication {
 
   public static void main(String[] args) {

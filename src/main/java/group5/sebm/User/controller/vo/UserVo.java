@@ -76,4 +76,12 @@ public class UserVo {
    * jwt token
    */
   private String token;
+  /**
+   * 逾期次数
+   */
+  private Integer overdueTimes;
+  /**
+   * 借用设备数量
+   */
+  private Integer borrowedDeviceCount;
 }

@@ -16,13 +16,13 @@ import lombok.Setter;
 @AllArgsConstructor
 public class Borrower extends User{
 
-  private Boolean isDelete;
-  private Integer age;
-
-
-  public boolean isokforDiscount() {
-    return this.age <= 18;
-  }
-
+  /**
+   * 逾期次数
+   */
+  private Integer overdueTimes;
+  /**
+   * 借用设备数量
+   */
+  private Integer borrowedDeviceCount;
 
 }
