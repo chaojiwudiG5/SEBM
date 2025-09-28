@@ -12,7 +12,7 @@ import lombok.Data;
  */
 @Data
 @TableName("borrowRecord")
-public class BorrowRecord {
+public class BorrowRecordPo {
     /**
      * 借用记录ID
      */

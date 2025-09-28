@@ -8,6 +8,7 @@ import lombok.Data;
  */
 @Data
 public class BorrowRecordVo {
+
   /**
    * 借用记录ID
    */
@@ -32,7 +33,10 @@ public class BorrowRecordVo {
    * 设备名称（可选，前端展示用）
    */
   private String deviceName;
-
+  /**
+   * 设备图片（可选，前端展示用）
+   */
+  private String image;
   /**
    * 借出时间
    */

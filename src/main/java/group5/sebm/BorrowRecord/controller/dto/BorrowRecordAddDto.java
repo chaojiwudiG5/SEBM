@@ -12,12 +12,6 @@ import lombok.Data;
 public class BorrowRecordAddDto {
 
     /**
-     * 借用人ID
-     */
-    @NotNull(message = "借用人ID不能为空")
-    private Long userId;
-
-    /**
      * 借用设备ID
      */
     @NotNull(message = "设备ID不能为空")

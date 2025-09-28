@@ -1,6 +1,7 @@
 package group5.sebm.User.service;
 
 import group5.sebm.User.controller.dto.DeleteDto;
+import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * @author
@@ -8,4 +9,8 @@ import group5.sebm.User.controller.dto.DeleteDto;
  */
 public interface BorrowerService extends UserService {
     Long deactivateUser(DeleteDto deleteDto);
+
+    Integer addOverdueTimes(Long userId);
+
+    Integer updateBorrowedCount(Long userId, Integer num);
 }

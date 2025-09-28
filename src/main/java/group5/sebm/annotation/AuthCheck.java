@@ -1,5 +1,6 @@
 package group5.sebm.annotation;
 
+import group5.sebm.common.enums.UserRoleEnum;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -12,5 +13,5 @@ public @interface AuthCheck {
   /**
    * 必须有某个角色
    */
-  String mustRole() default "";
+  UserRoleEnum mustRole() default UserRoleEnum.USER;
 }

@@ -85,7 +85,15 @@ public class UserPo {
   private Integer userStatus;
 
   /**
-   *
+   * 年龄
    */
   private Integer age;
+  /**
+   * 逾期次数
+   */
+  private Integer overdueTimes;
+  /**
+   * 借用设备数量
+   */
+  private Integer borrowedDeviceCount;
 }
