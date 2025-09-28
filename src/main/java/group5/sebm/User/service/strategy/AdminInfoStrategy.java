@@ -33,10 +33,10 @@ public class AdminInfoStrategy implements UserInfoStrategy {
         AdminVo adminVo = new AdminVo();
         AdminInfoPo adminInfoPo = adminInfoService.getOne(
             new QueryWrapper<AdminInfoPo>().eq("userId", userPo.getId()));
-        
-        BeanUtils.copyProperties(userPo, adminVo);
+
         BeanUtils.copyProperties(adminInfoPo, adminVo);
-        
+        BeanUtils.copyProperties(userPo, adminVo);
+
         return adminVo;
     }
     

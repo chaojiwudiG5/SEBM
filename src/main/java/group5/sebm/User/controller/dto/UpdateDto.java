@@ -22,12 +22,6 @@ import lombok.Builder;
 public class UpdateDto {
 
   /**
-   * 用户ID（要更新谁）
-   */
-  @NotNull(message = "用户ID不能为空")
-  private Long id;
-
-  /**
    * 用户昵称
    */
   @NotBlank(message = "用户名不能为空")

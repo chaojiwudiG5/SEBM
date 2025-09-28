@@ -158,13 +158,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserPo> implements 
   public UserVo updateUser(UpdateDto updateDto, HttpServletRequest request) {
     //0.check if it is the current login user
     Long userId = (Long) request.getAttribute("userId");
-    ThrowUtils.throwIf(!Objects.equals(updateDto.getId(), userId), ErrorCode.NOT_LOGIN_ERROR,
-        "Not login");
     //1. check if user exists
-    UserPo userPo = baseMapper.selectById(updateDto.getId());
+    UserPo userPo = baseMapper.selectById(userId);
     ThrowUtils.throwIf(userPo == null, ErrorCode.NOT_FOUND_ERROR, "User not exists");
     //2. update user information
     UserPo newUserPo = new UserPo();
+    newUserPo.setId(userId);
     BeanUtils.copyProperties(updateDto, newUserPo);
     baseMapper.updateById(newUserPo);
     //3. return updated user information
