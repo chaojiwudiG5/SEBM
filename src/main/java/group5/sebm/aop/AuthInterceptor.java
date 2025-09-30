@@ -7,7 +7,7 @@ import group5.sebm.common.enums.UserRoleEnum;
 import group5.sebm.exception.BusinessException;
 import group5.sebm.exception.ErrorCode;
 import group5.sebm.exception.ThrowUtils;
-import group5.sebm.User.service.UserService;
+import group5.sebm.User.service.UserServiceInterface.UserService;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import org.aspectj.lang.ProceedingJoinPoint;
