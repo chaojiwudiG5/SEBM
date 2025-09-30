@@ -7,9 +7,7 @@ import group5.sebm.Device.controller.dto.DeviceQueryDto;
 import group5.sebm.Device.controller.dto.DeviceUpdateDto;
 import group5.sebm.Device.controller.vo.DeviceVo;
 import group5.sebm.Device.entity.DevicePo;
-import group5.sebm.User.controller.dto.PageDto;
 import group5.sebm.common.dto.DeleteDto;
-import jakarta.validation.Valid;
 
 /**
  * @author Luoimo
