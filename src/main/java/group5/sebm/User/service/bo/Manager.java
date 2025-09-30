@@ -10,6 +10,6 @@ import lombok.*;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class Admin extends User{
-  private String level;
+public class Manager extends User{
+    private Boolean isDelete;
 }

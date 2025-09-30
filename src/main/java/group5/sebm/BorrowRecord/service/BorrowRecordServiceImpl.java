@@ -12,11 +12,11 @@ import group5.sebm.BorrowRecord.controller.vo.BorrowRecordVo;
 import group5.sebm.BorrowRecord.dao.BorrowRecordMapper;
 import group5.sebm.BorrowRecord.entity.BorrowRecordPo;
 import group5.sebm.Device.entity.DevicePo;
-import group5.sebm.User.entity.BorrowerInfoPo;
-import group5.sebm.User.service.Info.BorrowerInfoService;
-import group5.sebm.User.service.UserService;
+import group5.sebm.User.service.UserServiceInterface.BorrowerService;
+import group5.sebm.User.service.UserServiceInterface.UserService;
+import group5.sebm.User.service.bo.User;
 import group5.sebm.common.constant.BorrowConstant;
-import group5.sebm.common.dto.User.UserInfoDto;
+import group5.sebm.common.dto.UserDto;
 import group5.sebm.common.enums.BorrowStatusEnum;
 import group5.sebm.BorrowRecord.service.services.BorrowRecordService;
 import group5.sebm.Device.service.services.DeviceService;
@@ -42,17 +42,15 @@ public class BorrowRecordServiceImpl extends ServiceImpl<BorrowRecordMapper, Bor
 
   private final BorrowRecordMapper borrowRecordMapper;
 
-  private final UserService userServiceImpl;
+  private final BorrowerService borrowerService;
 
   private final DeviceService deviceService;
-
-  private final BorrowerInfoService borrowerInfoService;
 
   @Override
   public BorrowRecordVo borrowDevice(BorrowRecordAddDto borrowRecordAddDto,
       HttpServletRequest request) {
     //1. 获取当前用户
-    UserInfoDto currentUser = userServiceImpl.getCurrentUserDto(request);
+    UserDto currentUser = borrowerService.getCurrentUserDto(request);
     //2. 检查时间区间是否合法
     //2.1 借出时间不能早于当前时间，加上10秒以防止时间误差
     ThrowUtils.throwIf(
@@ -67,13 +65,12 @@ public class BorrowRecordServiceImpl extends ServiceImpl<BorrowRecordMapper, Bor
             > BorrowConstant.MAX_BORROW_DAYS * 24 * 60 * 60 * 1000,
         ErrorCode.PARAMS_ERROR, "Due time cannot be later than 7 days");
     //3. 判断用户是否还能借用设备
-    BorrowerInfoPo borrowerInfoPo = borrowerInfoService.getOne(
-        new QueryWrapper<BorrowerInfoPo>().eq("userId", currentUser.getId()));
+    ThrowUtils.throwIf(currentUser.getOverdueTimes() >= currentUser.getMaxOverdueTimes(),
+        ErrorCode.NO_AUTH_ERROR, "Overdue times exceed the limit");
     ThrowUtils.throwIf(
-        borrowerInfoPo.getBorrowedDeviceCount() >= borrowerInfoPo.getMaxBorrowedDeviceCount(),
-        ErrorCode.PARAMS_ERROR, "No available device");
-    ThrowUtils.throwIf(borrowerInfoPo.getOverdueTimes() >= borrowerInfoPo.getMaxOverdueTimes(),
-        ErrorCode.PARAMS_ERROR, "No available device");
+        currentUser.getBorrowedDeviceCount() >= currentUser.getMaxBorrowedDeviceCount(),
+        ErrorCode.NO_AUTH_ERROR, "Borrowed device count exceed the limit");
+    //4. 判断设备是否存在
     //4. 修改设备状态
     DevicePo device = deviceService.getById(borrowRecordAddDto.getDeviceId());
     ThrowUtils.throwIf(device == null, ErrorCode.NOT_FOUND_ERROR, "Device not found");
@@ -87,7 +84,9 @@ public class BorrowRecordServiceImpl extends ServiceImpl<BorrowRecordMapper, Bor
     borrowRecord.setUserId(currentUser.getId());
     borrowRecordMapper.insert(borrowRecord);
     //6. 增加用户借用设备数量
-    borrowerInfoService.updateBorrowedCount(currentUser.getId(), BorrowConstant.PLUS);
+    UserDto newUser = new UserDto();
+    currentUser.setBorrowedDeviceCount(currentUser.getBorrowedDeviceCount() + 1);
+    BeanUtils.copyProperties(currentUser, newUser);
     //7. 返回结果
     BorrowRecordVo borrowRecordVo = new BorrowRecordVo();
     BeanUtils.copyProperties(borrowRecord, borrowRecordVo);
@@ -163,7 +162,7 @@ public class BorrowRecordServiceImpl extends ServiceImpl<BorrowRecordMapper, Bor
   public BorrowRecordVo returnDevice(BorrowRecordReturnDto borrowRecordReturnDto,
       HttpServletRequest request) {
     //1. 校验参数
-    UserInfoDto currentUser = userServiceImpl.getCurrentUserDto(request);
+    UserDto currentUser = borrowerService.getCurrentUserDto(request);
     //2. 更新记录
     BorrowRecordPo borrowRecord = borrowRecordMapper.selectById(borrowRecordReturnDto.getId());
     ThrowUtils.throwIf(borrowRecord == null, ErrorCode.NOT_FOUND_ERROR, "No borrow record");
@@ -179,37 +178,7 @@ public class BorrowRecordServiceImpl extends ServiceImpl<BorrowRecordMapper, Bor
     device.setStatus(DeviceStatusEnum.AVAILABLE.getCode());
     deviceService.updateById(device);
     //4. 减少用户借用设备数量
-    borrowerInfoService.updateBorrowedCount(currentUser.getId(), BorrowConstant.MINUS);
-    //4. 返回结果
-    BorrowRecordVo borrowRecordVo = new BorrowRecordVo();
-    BeanUtils.copyProperties(borrowRecord, borrowRecordVo);
-    return borrowRecordVo;
-  }
-
-  /**
-   * 续借设备
-   *
-   * @param borrowRecordRenewDto
-   * @param request
-   * @return
-   */
-  @Override
-  @Deprecated
-  public BorrowRecordVo renewDevice(BorrowRecordRenewDto borrowRecordRenewDto,
-      HttpServletRequest request) {
-    //1. 校验参数
-    UserInfoDto currentUser = userServiceImpl.getCurrentUserDto(request);
-    ThrowUtils.throwIf(
-        currentUser.getId().longValue() != borrowRecordRenewDto.getUserId().longValue(),
-        ErrorCode.NO_AUTH_ERROR, "无权限操作");
-    //2. 禁止续借超过7天
-    ThrowUtils.throwIf(borrowRecordRenewDto.getDueTime().getTime() - System.currentTimeMillis()
-            > 7 * 24 * 60 * 60 * 1000,
-        ErrorCode.PARAMS_ERROR, "续借时间超过7天");
-    //3. 更新记录
-    BorrowRecordPo borrowRecord = borrowRecordMapper.selectById(borrowRecordRenewDto.getId());
-    ThrowUtils.throwIf(borrowRecord == null, ErrorCode.NOT_FOUND_ERROR, "借用记录不存在");
-
+    borrowerService.updateBorrowedCount(currentUser.getId(), BorrowConstant.MINUS);
     //4. 返回结果
     BorrowRecordVo borrowRecordVo = new BorrowRecordVo();
     BeanUtils.copyProperties(borrowRecord, borrowRecordVo);

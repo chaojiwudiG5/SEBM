@@ -4,7 +4,6 @@ import lombok.Data;
 
 @Data
 public class DeviceVo {
-
   private Long id;
 
   private String deviceName;

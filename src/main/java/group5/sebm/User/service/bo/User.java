@@ -62,12 +62,7 @@ public class User {
      * 创建时间
      */
     protected Date createTime;
-    /**
-     * 密码加密
-     * @param password
-     * @param checkPassword
-     * @return
-     */
+
     public boolean validateTwicePassword(String password, String checkPassword) {
         return password != null && password.equals(checkPassword);
     }

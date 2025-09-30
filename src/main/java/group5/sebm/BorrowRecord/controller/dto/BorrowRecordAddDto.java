@@ -1,5 +1,6 @@
 package group5.sebm.BorrowRecord.controller.dto;
 
+import jakarta.validation.constraints.FutureOrPresent;
 import java.util.Date;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Future;
@@ -21,6 +22,7 @@ public class BorrowRecordAddDto {
      * 借出时间
      */
     @NotNull(message = "借出时间不能为空")
+    @FutureOrPresent(message = "借出时间必须是未来时间")
     private Date borrowTime;
 
     /**
