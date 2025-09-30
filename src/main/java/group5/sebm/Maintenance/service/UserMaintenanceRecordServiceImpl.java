@@ -49,6 +49,8 @@ public class UserMaintenanceRecordServiceImpl extends ServiceImpl<UserMaintenanc
         record.setUpdateTime(now);
         this.save(record);
         //2.修改设备状态为报修中
+        boolean success = deviceService.updateDeviceStatus(createDto.getDeviceId(), 2);
+        ThrowUtils.throwIf(!success, ErrorCode.OPERATION_ERROR, "修改设备状态失败");
         return record.getId();
     }
 
@@ -109,10 +111,13 @@ public class UserMaintenanceRecordServiceImpl extends ServiceImpl<UserMaintenanc
         LambdaUpdateWrapper<UserMaintenanceRecordPo> updateWrapper = new LambdaUpdateWrapper<>();
         updateWrapper.eq(UserMaintenanceRecordPo::getId, recordId)
                 .eq(UserMaintenanceRecordPo::getUserId, userId);
+        //2.逻辑删除报修单
         UserMaintenanceRecordPo update = new UserMaintenanceRecordPo();
         update.setIsDelete(1);
         update.setUpdateTime(new Date());
         boolean success = this.update(update, updateWrapper);
+        //3.修改设备状态为可用
+        success = success && deviceService.updateDeviceStatus(record.getDeviceId(), 0);
         ThrowUtils.throwIf(!success, ErrorCode.OPERATION_ERROR, "取消报修单失败");
         return true;
     }

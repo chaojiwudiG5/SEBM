@@ -4,6 +4,7 @@ package group5.sebm.Maintenance.service;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import group5.sebm.Device.service.services.DeviceService;
 import group5.sebm.Maintenance.controller.dto.MechanicanClaimDto;
 import group5.sebm.Maintenance.controller.dto.MechanicanQueryDto;
 import group5.sebm.Maintenance.controller.dto.MechanicanUpdateDto;
@@ -20,6 +21,8 @@ import java.util.Date;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import lombok.AllArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -31,10 +34,11 @@ import org.springframework.util.StringUtils;
 * @createDate 2025-09-26 13:41:31
 */
 @Service
+@AllArgsConstructor
 public class MechanicanMaintenanceRecordServiceImpl extends ServiceImpl<MechanicanMaintenanceRecordMapper, MechanicanMaintenanceRecordPo>
     implements MechanicanMaintenanceRecordService {
 
-
+    private final DeviceService deviceService;
     private static final Set<Integer> VALID_STATUS = Set.of(0, 1, 2, 3);
 
     @Resource
@@ -138,6 +142,14 @@ public class MechanicanMaintenanceRecordServiceImpl extends ServiceImpl<Mechanic
                 userRecord.setStatus(1);
                 userRecord.setUpdateTime(new Date());
                 userMaintenanceRecordMapper.updateById(userRecord);
+                // 如果维修完成，更新设备状态为可用
+                if (updateDto.getStatus() == 2) {
+                    deviceService.updateDeviceStatus(userRecord.getDeviceId(), 0);
+                }
+                // 如果维修失败，更新设备状态为故障
+                if (updateDto.getStatus() == 3) {
+                    deviceService.updateDeviceStatus(userRecord.getDeviceId(), 3);
+                }
             }
         }
         return true;
