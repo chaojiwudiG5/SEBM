@@ -4,7 +4,6 @@ package group5.sebm.User.controller.dto;
  * @author Deshperaydon
  * @date 2025/9/29
  */
-package group5.sebm.User.controller.dto;
 
 import lombok.*;
 import jakarta.validation.constraints.*;
