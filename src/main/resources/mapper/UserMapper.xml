@@ -18,6 +18,11 @@
             <result property="createTime" column="createTime" jdbcType="TIMESTAMP"/>
             <result property="userStatus" column="userStatus" jdbcType="INTEGER"/>
             <result property="age" column="age" jdbcType="INTEGER"/>
+            <result property="level" column="level" jdbcType="INTEGER"/>
+            <result property="overdueTimes" column="overdueTimes" jdbcType="INTEGER"/>
+            <result property="borrowedDeviceCount" column="borrowedDeviceCount" jdbcType="INTEGER"/>
+            <result property="maxBorrowedDeviceCount" column="maxBorrowedDeviceCount" jdbcType="INTEGER"/>
+            <result property="maxOverdueTimes" column="maxOverdueTimes" jdbcType="INTEGER"/>
     </resultMap>
 
     <sql id="Base_Column_List">
@@ -25,6 +30,8 @@
         email,phone,gender,
         avatarUrl,userRole,isDelete,
         updateTime,createTime,userStatus,
-        age
+        age,level,overdueTimes,
+        borrowedDeviceCount,maxBorrowedDeviceCount,
+        maxOverdueTimes
     </sql>
 </mapper>

@@ -7,10 +7,12 @@ import group5.sebm.User.controller.dto.DeleteDto;
 import group5.sebm.User.controller.dto.LoginDto;
 import group5.sebm.User.controller.dto.RegisterDto;
 import group5.sebm.User.controller.dto.UpdateDto;
+
 import group5.sebm.User.controller.vo.UserVo;
 import group5.sebm.User.dao.UserMapper;
 import group5.sebm.User.entity.UserPo;
 import group5.sebm.User.service.UserServiceInterface.UserService;
+import group5.sebm.common.dto.UserDto;
 import group5.sebm.exception.BusinessException;
 import group5.sebm.exception.ErrorCode;
 import group5.sebm.exception.ThrowUtils;
@@ -56,6 +58,23 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserPo> implements 
     BeanUtils.copyProperties(userPo, userVo);
     return userVo;
   }
+  /**
+   * 获取当前登录用户
+   *
+   * @param request http 请求
+   * @return 当前登录用户
+   */
+  @Override
+  public UserDto getCurrentUserDto(HttpServletRequest request) {
+    Long userId = (Long) request.getAttribute("userId");
+    if (userId == null) {
+      ThrowUtils.throwIf(true, ErrorCode.NOT_LOGIN_ERROR, "Not login");
+    }
+    UserPo userPo = baseMapper.selectById(userId);
+    UserDto userDto = new UserDto();
+    BeanUtils.copyProperties(userPo, userDto);
+    return userDto;
+  }
 
   /**
    * 注册用户
@@ -80,6 +99,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserPo> implements 
     //3. create user
     UserPo po = new UserPo();
     BeanUtils.copyProperties(borrower, po);
+    po.setBorrowedDeviceCount(0);
+    po.setMaxBorrowedDeviceCount(3);
+    po.setMaxOverdueTimes(3);
+    po.setOverdueTimes(0);
     po.setPassword(passwordEncoder.encode(registerDto.getPassword()));
 
     //4. insert user into database

@@ -70,15 +70,9 @@ public class UserPo {
   /** 已借设备数 */
   private Integer borrowedDeviceCount;
 
-  /** 已预约设备数 */
-  private Integer reservedDeviceCount;
-
   /** 最大可借设备数 */
   private Integer maxBorrowedDeviceCount;
 
   /** 最大逾期次数 */
   private Integer maxOverdueTimes;
-
-  /** 最大可预约设备数 */
-  private Integer maxReservedDeviceCount;
 }

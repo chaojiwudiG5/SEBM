@@ -13,6 +13,7 @@ import group5.sebm.User.controller.dto.LoginDto;
 import group5.sebm.User.controller.dto.RegisterDto;
 import group5.sebm.User.controller.dto.UpdateDto;
 import group5.sebm.User.controller.vo.UserVo;
+import group5.sebm.common.enums.UserRoleEnum;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -47,7 +48,7 @@ public class UserController {
 
   //TODO只有管理员能查看所有用户，需编写AOP进行权限控制
   @PostMapping("/admin/getUserList")
-  @AuthCheck(mustRole = "admin")
+  @AuthCheck(mustRole = UserRoleEnum.ADMIN)
   public BaseResponse<Page<UserVo>> getAllUsers(@RequestBody @Valid PageDto pageDto) {
     Page<UserVo> userVoPage = this.managerService.getAllBorrowers(pageDto);
     log.info("GetAllUsers called with pageDto: {}, userVoPage: {}", pageDto, userVoPage);
@@ -55,7 +56,7 @@ public class UserController {
   }
 
   @PostMapping("/admin/deleteUser")
-  @AuthCheck(mustRole = "admin")
+  @AuthCheck(mustRole = UserRoleEnum.ADMIN)
   public BaseResponse<Boolean> deleteUser(@RequestBody @Valid DeleteDto deleteDto) {
     Boolean isDelete = this.managerService.deleteBorrower(deleteDto);
     log.info("DeleteUser called with deleteDto: {}, isDelete: {}", deleteDto, isDelete);

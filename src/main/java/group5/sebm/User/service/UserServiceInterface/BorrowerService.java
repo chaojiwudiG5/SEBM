@@ -15,4 +15,6 @@ public interface BorrowerService extends UserService {
      * @return 是否删除成功
      */
     Boolean deactivateUser(DeleteDto deleteDto);
+
+    Boolean updateBorrowedCount(Long userId, Integer borrowedCount);
 }

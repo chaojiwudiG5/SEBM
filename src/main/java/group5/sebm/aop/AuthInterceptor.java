@@ -1,8 +1,7 @@
 package group5.sebm.aop;
 
 import group5.sebm.annotation.AuthCheck;
-import group5.sebm.User.controller.vo.UserVo;
-import group5.sebm.common.dto.User.UserInfoDto;
+import group5.sebm.common.dto.UserDto;
 import group5.sebm.common.enums.UserRoleEnum;
 import group5.sebm.exception.BusinessException;
 import group5.sebm.exception.ErrorCode;
@@ -10,6 +9,7 @@ import group5.sebm.exception.ThrowUtils;
 import group5.sebm.User.service.UserServiceInterface.UserService;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.AllArgsConstructor;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -21,11 +21,12 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 
 @Aspect
 @Component
+@AllArgsConstructor
+
 public class AuthInterceptor {
 
   @Resource
-  @Qualifier("userServiceImpl")
-  private UserService userService;
+  private UserService userServiceImpl;
 
   /**
    * 执行拦截
@@ -40,7 +41,7 @@ public class AuthInterceptor {
     HttpServletRequest request = ((ServletRequestAttributes) requestAttributes).getRequest();
 
     // 当前登录用户
-    UserInfoDto loginUser = userService.getCurrentUserDto(request);
+    UserDto loginUser = userServiceImpl.getCurrentUserDto(request);
     ThrowUtils.throwIf(loginUser == null, ErrorCode.NOT_LOGIN_ERROR);
 
     // 不需要权限，放行
@@ -52,9 +53,7 @@ public class AuthInterceptor {
     UserRoleEnum userRoleEnum = UserRoleEnum.fromCode(loginUser.getUserRole());
 
     // 没有权限，拒绝
-    if (userRoleEnum == null) {
-      throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
-    }
+    ThrowUtils.throwIf(userRoleEnum.getCode() != mustRoleCode, ErrorCode.NO_AUTH_ERROR);
 
     // 权限校验：必须管理员，但当前用户不是管理员
     if (mustRoleCode == UserRoleEnum.ADMIN.getCode() && userRoleEnum != UserRoleEnum.ADMIN) {

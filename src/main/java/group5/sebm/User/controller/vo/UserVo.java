@@ -33,10 +33,8 @@ public class UserVo {
   private Integer level;
   private Integer overdueTimes;
   private Integer borrowedDeviceCount;
-  private Integer reservedDeviceCount;
   private Integer maxBorrowedDeviceCount;
   private Integer maxOverdueTimes;
-  private Integer maxReservedDeviceCount;
 
   private Date createTime;
   private Date updateTime;

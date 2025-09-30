@@ -24,8 +24,6 @@ public interface BorrowRecordService extends IService<BorrowRecordPo> {
 
   BorrowRecordVo returnDevice(BorrowRecordReturnDto borrowRecordReturnDto, HttpServletRequest request);
 
-  BorrowRecordVo renewDevice(BorrowRecordRenewDto borrowRecordRenewDto, HttpServletRequest request);
-
   Page<BorrowRecordVo> getBorrowRecordListWithStatus(BorrowRecordQueryWithStatusDto borrowRecordQueryWithStatusDto);
 
 }
