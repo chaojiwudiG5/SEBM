@@ -9,6 +9,7 @@ import group5.sebm.Device.controller.vo.DeviceVo;
 import group5.sebm.Device.entity.DevicePo;
 import group5.sebm.User.controller.dto.PageDto;
 import group5.sebm.common.dto.DeleteDto;
+import jakarta.validation.Valid;
 
 /**
  * @author Luoimo
@@ -23,9 +24,9 @@ public interface DeviceService extends IService<DevicePo> {
 
   Long addDevice(DeviceAddDto deviceAddDto);
 
-  Long updateDevice(DeviceUpdateDto deviceUpdateDto);
-
-  Boolean removeDeviceById(DeleteDto deleteDto);
+  DeviceVo updateDevice(DeviceUpdateDto deviceUpdateDto);
 
   Boolean updateDeviceStatus(Long deviceId, Integer status);
+
+  Boolean deleteDevice( DeleteDto deleteDto);
 }

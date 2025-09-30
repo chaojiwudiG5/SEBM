@@ -1,5 +1,6 @@
 package group5.sebm.Reservation.controller.vo;
 
+import java.util.Date;
 import lombok.Data;
 
 /**
@@ -35,22 +36,17 @@ public class ReservationVo {
   /**
    * 预约开始时间（格式化为 yyyy-MM-dd HH:mm）
    */
-  private String reserveStart;
+  private Date reserveStart;
 
   /**
    * 预约结束时间（格式化为 yyyy-MM-dd HH:mm）
    */
-  private String reserveEnd;
+  private Date reserveEnd;
 
   /**
    * 预约状态 0 - 未确认 1 - 已确认 2 - 已取消 3 - 已过期
    */
   private Integer status;
-
-  /**
-   * 状态说明（方便前端直接展示）
-   */
-  private String statusDesc;
 
   /**
    * 备注

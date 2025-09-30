@@ -11,10 +11,15 @@ import group5.sebm.Device.dao.DeviceMapper;
 import group5.sebm.Device.entity.DevicePo;
 import group5.sebm.Device.service.services.DeviceService;
 import group5.sebm.common.dto.DeleteDto;
+import group5.sebm.exception.BusinessException;
+import group5.sebm.exception.ErrorCode;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.BeanUtils;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 
@@ -37,6 +42,7 @@ public class DeviceServiceImpl extends ServiceImpl<DeviceMapper, DevicePo>
    * @return Page<DeviceVo>
    */
   @Override
+  @Cacheable(value = "deviceList", key = "#deviceQueryDto.toString()")
   public Page<DeviceVo> getDeviceList(DeviceQueryDto deviceQueryDto) {
     // 1. 获取分页参数
     int pageNum = deviceQueryDto.getPageNumber();
@@ -85,6 +91,7 @@ public class DeviceServiceImpl extends ServiceImpl<DeviceMapper, DevicePo>
    * @return  DeviceVo
    */
   @Override
+  @Cacheable(value = "deviceById", key = "#id")
   public DeviceVo getDeviceById(Long id) {
     //1. 根据id查询设备
     DevicePo device = deviceMapper.selectById(id);
@@ -118,14 +125,17 @@ public class DeviceServiceImpl extends ServiceImpl<DeviceMapper, DevicePo>
    * @return 成功返回id，失败返回null
    */
   @Override
-  public Long updateDevice(DeviceUpdateDto deviceUpdateDto) {
+  @CachePut(value = "deviceById", key = "#deviceUpdateDto.id")
+  public DeviceVo updateDevice(DeviceUpdateDto deviceUpdateDto) {
     //1. 转换为实体对象
     DevicePo device = new DevicePo();
     BeanUtils.copyProperties(deviceUpdateDto, device); // 复制属性
     //2. 更新数据库
     deviceMapper.updateById(device);
-    //3. 返回id
-    return device.getId();
+    //3. 返回 VO 对象
+    DeviceVo vo = new DeviceVo();
+    BeanUtils.copyProperties(device, vo); // 复制属性
+    return vo;
   }
 
   /**
@@ -135,9 +145,14 @@ public class DeviceServiceImpl extends ServiceImpl<DeviceMapper, DevicePo>
    * @return 成功返回true，失败返回false
    */
   @Override
-  public Boolean removeDeviceById(DeleteDto deleteDto) {
+  @CacheEvict(value = "deviceById", key = "#deleteDto.id")
+  public Boolean deleteDevice(DeleteDto deleteDto) {
     //1. 根据id删除设备
-    deviceMapper.deleteById(deleteDto.getId());
+    try {
+      deviceMapper.deleteById(deleteDto.getId());
+    }catch (Exception e){
+      throw new BusinessException(ErrorCode.SYSTEM_ERROR, "Delete device failed");
+    }
     //2. 返回成功
     return true;
   }
@@ -150,6 +165,7 @@ public class DeviceServiceImpl extends ServiceImpl<DeviceMapper, DevicePo>
    * @return
    */
   @Override
+  @CacheEvict(value = "deviceById", key = "#deviceId")
   public Boolean updateDeviceStatus(Long deviceId, Integer status) {
     //1. 根据id查询设备
     DevicePo device = deviceMapper.selectById(deviceId);

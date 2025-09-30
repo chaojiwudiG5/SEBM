@@ -5,6 +5,7 @@ import group5.sebm.Device.controller.dto.DeviceAddDto;
 import group5.sebm.Device.controller.dto.DeviceQueryDto;
 import group5.sebm.Device.controller.dto.DeviceUpdateDto;
 import group5.sebm.Device.controller.vo.DeviceVo;
+import group5.sebm.Device.entity.DevicePo;
 import group5.sebm.Device.service.services.DeviceService;
 import group5.sebm.User.controller.dto.PageDto;
 import group5.sebm.annotation.AuthCheck;
@@ -58,10 +59,10 @@ public class DeviceController {
 
   @PostMapping("/updateDevice")
   @AuthCheck(mustRole = UserRoleEnum.ADMIN)
-  public BaseResponse<Long> updateDevice(@RequestBody @Valid DeviceUpdateDto deviceUpdateDto) {
-    Long id = deviceService.updateDevice(deviceUpdateDto);
-    log.info("UpdateDevice called with deviceUpdateDto: {}, id: {}", deviceUpdateDto, id);
-    return ResultUtils.success(id); // 返回新增的id
+  public BaseResponse<DeviceVo> updateDevice(@RequestBody @Valid DeviceUpdateDto deviceUpdateDto) {
+    DeviceVo deviceVo = deviceService.updateDevice(deviceUpdateDto);
+    log.info("UpdateDevice called with deviceUpdateDto: {}, id: {}", deviceUpdateDto, deviceVo);
+    return ResultUtils.success(deviceVo); // 返回新增的id
   }
 
   @PostMapping("/updateDeviceStatus")
@@ -75,7 +76,7 @@ public class DeviceController {
   @PostMapping("/deleteDevice")
   @AuthCheck(mustRole = UserRoleEnum.ADMIN)
   public BaseResponse<Boolean> deleteDevice(@RequestBody @Valid DeleteDto deleteDto) {
-    Boolean result = deviceService.removeDeviceById(deleteDto);
+    Boolean result = deviceService.deleteDevice(deleteDto);
     log.info("DeleteDevice called with deleteDto: {}, result: {}", deleteDto, result);
     return ResultUtils.success(result); // 返回删除的id
   }
