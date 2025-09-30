@@ -1,79 +1,47 @@
 package group5.sebm.User.controller.vo;
 
 import lombok.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.util.Date;
 
-/**
- * 用户展示 VO
- */
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserVo {
 
-  /**
-   * 用户ID
-   */
   private Long id;
-
-  /**
-   * 用户昵称
-   */
   private String username;
 
-  /**
-   * 邮箱
-   */
+  /** 密码前端无需看到，标记 JsonIgnore */
+  @JsonIgnore
+  private String password;
+
   private String email;
-
-  /**
-   * 电话
-   */
   private String phone;
-
-  /**
-   * 性别
-   */
   private Integer gender;
-
-  /**
-   * 用户头像
-   */
   private String avatarUrl;
-
-  /**
-   * 用户角色 0 - 普通用户 1 - 管理员
-   */
   private Integer userRole;
-
-  /**
-   * 用户状态 0 - 正常
-   */
   private Integer userStatus;
 
-  /**
-   * 年龄
-   */
+  /** 是否删除（逻辑删除）不暴露前端 */
+  @JsonIgnore
+  private Integer isDelete;
+
   private Integer age;
+  private Integer level;
+  private Integer overdueTimes;
+  private Integer borrowedDeviceCount;
+  private Integer reservedDeviceCount;
+  private Integer maxBorrowedDeviceCount;
+  private Integer maxOverdueTimes;
+  private Integer maxReservedDeviceCount;
 
-    /**
-     * 是否激活
-     */
-  private boolean isActive;
-
-  /**
-   * 创建时间
-   */
   private Date createTime;
-
-  /**
-   * 更新时间
-   */
   private Date updateTime;
-  /**
-   * jwt token
-   */
+
+  /** 可由 Service 层设置 */
+  private boolean isActive;
   private String token;
 }

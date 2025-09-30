@@ -10,15 +10,14 @@ import group5.sebm.User.controller.dto.UpdateDto;
 import group5.sebm.User.controller.vo.UserVo;
 import group5.sebm.User.dao.UserMapper;
 import group5.sebm.User.entity.UserPo;
+import group5.sebm.User.service.UserServiceInterface.UserService;
 import group5.sebm.exception.BusinessException;
 import group5.sebm.exception.ErrorCode;
 import group5.sebm.exception.ThrowUtils;
 import group5.sebm.User.service.bo.Borrower;
 import group5.sebm.utils.JwtUtils;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpSession;
 import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -28,8 +27,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
-
-import static group5.sebm.common.constant.UserConstant.CURRENT_LOGIN_USER;
 
 
 /**

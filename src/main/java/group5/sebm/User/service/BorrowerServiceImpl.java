@@ -1,13 +1,7 @@
 package group5.sebm.User.service;
 
-import group5.sebm.User.controller.dto.DeleteDto;
-import group5.sebm.User.dao.UserMapper;
-import group5.sebm.User.entity.UserPo;
-import group5.sebm.exception.BusinessException;
-import group5.sebm.exception.ErrorCode;
-import group5.sebm.exception.ThrowUtils;
+import group5.sebm.User.service.UserServiceInterface.BorrowerService;
 import lombok.NoArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

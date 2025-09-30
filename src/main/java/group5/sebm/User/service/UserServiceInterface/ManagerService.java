@@ -1,4 +1,4 @@
-package group5.sebm.User.service;
+package group5.sebm.User.service.UserServiceInterface;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import group5.sebm.User.controller.dto.DeleteDto;

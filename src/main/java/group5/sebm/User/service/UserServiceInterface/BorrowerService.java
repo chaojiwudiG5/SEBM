@@ -1,4 +1,4 @@
-package group5.sebm.User.service;
+package group5.sebm.User.service.UserServiceInterface;
 
 import group5.sebm.User.controller.dto.DeleteDto;
 

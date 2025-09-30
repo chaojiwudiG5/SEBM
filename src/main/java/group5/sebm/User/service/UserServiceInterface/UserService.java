@@ -1,4 +1,4 @@
-package group5.sebm.User.service;
+package group5.sebm.User.service.UserServiceInterface;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import group5.sebm.User.controller.dto.LoginDto;
