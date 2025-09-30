@@ -65,7 +65,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserPo> implements 
    * @return 当前登录用户
    */
   @Override
-  public UserDto getCurrentUserDto(HttpServletRequest request) {
+  public UserDto getCurrentUserDtoFromHttp(HttpServletRequest request) {
     Long userId = (Long) request.getAttribute("userId");
     if (userId == null) {
       ThrowUtils.throwIf(true, ErrorCode.NOT_LOGIN_ERROR, "Not login");
@@ -75,6 +75,29 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserPo> implements 
     BeanUtils.copyProperties(userPo, userDto);
     return userDto;
   }
+    /**
+     * 根据用户id获取用户信息
+     *
+     * @param userId 用户id
+     * @return 用户信息
+     */
+    @Override
+    public UserDto getCurrentUserDtoFromID(Long userId) {
+      if (userId == null) {
+        ThrowUtils.throwIf(true, ErrorCode.NOT_LOGIN_ERROR, "Not login");
+      }
+
+      UserPo userPo = baseMapper.selectById(userId);
+      // 数据库没查到用户
+      if (userPo == null) {
+        ThrowUtils.throwIf(true, ErrorCode.NOT_FOUND_ERROR, "User not found");
+      }
+      UserDto userDto = new UserDto();
+      BeanUtils.copyProperties(userPo, userDto);
+      return userDto;
+    }
+
+
 
   /**
    * 注册用户

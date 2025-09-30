@@ -22,7 +22,9 @@ public interface UserService extends IService<UserPo> {
 
   UserVo getCurrentUser(HttpServletRequest request);
 
-  UserDto getCurrentUserDto(HttpServletRequest request);
+  UserDto getCurrentUserDtoFromHttp(HttpServletRequest request);
+
+  UserDto getCurrentUserDtoFromID(Long id);
 
   Long userRegister(RegisterDto registerDto);
 

@@ -41,7 +41,7 @@ public class AuthInterceptor {
     HttpServletRequest request = ((ServletRequestAttributes) requestAttributes).getRequest();
 
     // 当前登录用户
-    UserDto loginUser = userServiceImpl.getCurrentUserDto(request);
+    UserDto loginUser = userServiceImpl.getCurrentUserDtoFromHttp(request);
     ThrowUtils.throwIf(loginUser == null, ErrorCode.NOT_LOGIN_ERROR);
 
     // 不需要权限，放行

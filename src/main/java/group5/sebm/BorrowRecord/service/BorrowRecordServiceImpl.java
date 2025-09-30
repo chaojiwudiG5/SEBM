@@ -48,9 +48,9 @@ public class BorrowRecordServiceImpl extends ServiceImpl<BorrowRecordMapper, Bor
 
   @Override
   public BorrowRecordVo borrowDevice(BorrowRecordAddDto borrowRecordAddDto,
-      HttpServletRequest request) {
+      Long userId) {
     //1. 获取当前用户
-    UserDto currentUser = borrowerService.getCurrentUserDto(request);
+    UserDto currentUser = borrowerService.getCurrentUserDtoFromID(userId);
     //2. 检查时间区间是否合法
     //2.1 借出时间不能早于当前时间，加上10秒以防止时间误差
     ThrowUtils.throwIf(
@@ -160,9 +160,9 @@ public class BorrowRecordServiceImpl extends ServiceImpl<BorrowRecordMapper, Bor
 
   @Override
   public BorrowRecordVo returnDevice(BorrowRecordReturnDto borrowRecordReturnDto,
-      HttpServletRequest request) {
+      Long userId) {
     //1. 校验参数
-    UserDto currentUser = borrowerService.getCurrentUserDto(request);
+    UserDto currentUser = borrowerService.getCurrentUserDtoFromID(userId);
     //2. 更新记录
     BorrowRecordPo borrowRecord = borrowRecordMapper.selectById(borrowRecordReturnDto.getId());
     ThrowUtils.throwIf(borrowRecord == null, ErrorCode.NOT_FOUND_ERROR, "No borrow record");

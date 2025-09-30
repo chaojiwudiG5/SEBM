@@ -18,11 +18,11 @@ import jakarta.servlet.http.HttpServletRequest;
 */
 public interface BorrowRecordService extends IService<BorrowRecordPo> {
 
-  BorrowRecordVo borrowDevice(BorrowRecordAddDto borrowRecordAddDto, HttpServletRequest request);
+  BorrowRecordVo borrowDevice(BorrowRecordAddDto borrowRecordAddDto, Long userId);
 
   Page<BorrowRecordVo> getBorrowRecordList(BorrowRecordQueryDto borrowRecordQueryDto);
 
-  BorrowRecordVo returnDevice(BorrowRecordReturnDto borrowRecordReturnDto, HttpServletRequest request);
+  BorrowRecordVo returnDevice(BorrowRecordReturnDto borrowRecordReturnDto, Long userId);
 
   Page<BorrowRecordVo> getBorrowRecordListWithStatus(BorrowRecordQueryWithStatusDto borrowRecordQueryWithStatusDto);
 
