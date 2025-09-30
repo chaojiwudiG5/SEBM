@@ -14,19 +14,19 @@ public class UserCreateDto {
     /**
      * 设备ID
      */
-    @NotNull(message = "设备ID不能为空")
+    @NotNull(message = "deviceId cannot be null")
     private Long deviceId;
 
     /**
      * 故障描述
      */
-    @NotBlank(message = "故障描述不能为空")
-    @Size(max = 500, message = "故障描述不能超过500个字符")
+    @NotBlank(message = "description cannot be blank")
+    @Size(max = 500, message = "description cannot exceed 500 characters")
     private String description;
 
     /**
      * 故障图片
      */
-    @Size(max = 1024, message = "图片地址过长")
+    @Size(max = 1024, message = "image URL is too long")
     private String image;
 }

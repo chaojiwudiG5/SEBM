@@ -15,27 +15,27 @@ public class MechanicanUpdateDto {
     /**
      * 技工维修单ID
      */
-    @NotNull(message = "维修单ID不能为空")
+    @NotNull(message = "technicianMaintenanceRecordId cannot be null")
     private Long id;
 
     /**
      * 新状态：0-待处理，1-处理中，2-已修复，3-无法修复
      */
-    @NotNull(message = "状态不能为空")
-    @Min(value = 0, message = "非法的状态值")
-    @Max(value = 3, message = "非法的状态值")
+    @NotNull(message = "status cannot be null")
+    @Min(value = 0, message = "illegal status value")
+    @Max(value = 3, message = "illegal status value")
     private Integer status;
 
     /**
      * 维修描述
      */
-    @Size(max = 500, message = "描述不能超过500个字符")
+    @Size(max = 500, message = "description cannot exceed 500 characters")
     private String description;
 
     /**
      * 完成图片
      */
-    @Size(max = 1024, message = "图片地址过长")
+    @Size(max = 1024, message = "image URL is too long")
     private String image;
 
     /**
