@@ -1,4 +1,4 @@
-package group5.sebm.User.service;
+package group5.sebm.User.service.UserServiceInterface;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import group5.sebm.User.controller.dto.LoginDto;
@@ -6,6 +6,7 @@ import group5.sebm.User.controller.dto.RegisterDto;
 import group5.sebm.User.controller.dto.UpdateDto;
 import group5.sebm.User.controller.vo.UserVo;
 import group5.sebm.User.entity.UserPo;
+import group5.sebm.common.dto.UserDto;
 import jakarta.servlet.http.HttpServletRequest;
 
 /**
@@ -20,6 +21,10 @@ public interface UserService extends IService<UserPo> {
 //  UserVo getDiscountUserById(Long id);
 
   UserVo getCurrentUser(HttpServletRequest request);
+
+  UserDto getCurrentUserDtoFromHttp(HttpServletRequest request);
+
+  UserDto getCurrentUserDtoFromID(Long id);
 
   Long userRegister(RegisterDto registerDto);
 

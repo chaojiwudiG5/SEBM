@@ -1,10 +1,9 @@
 package group5.sebm.User.controller;
 
-import static group5.sebm.common.constant.UserConstant.CURRENT_LOGIN_USER;
-
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import group5.sebm.User.service.UserService;
-import group5.sebm.User.service.UserServiceImpl;
+import group5.sebm.User.service.UserServiceInterface.BorrowerService;
+import group5.sebm.User.service.UserServiceInterface.ManagerService;
+import group5.sebm.User.service.UserServiceInterface.UserService;
 import group5.sebm.annotation.AuthCheck;
 import group5.sebm.common.BaseResponse;
 import group5.sebm.common.ResultUtils;
@@ -14,15 +13,12 @@ import group5.sebm.User.controller.dto.LoginDto;
 import group5.sebm.User.controller.dto.RegisterDto;
 import group5.sebm.User.controller.dto.UpdateDto;
 import group5.sebm.User.controller.vo.UserVo;
-import group5.sebm.User.service.BorrowerServiceImpl;
-import group5.sebm.User.service.ManagerServiceImpl;
+import group5.sebm.common.enums.UserRoleEnum;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 @Slf4j
@@ -32,9 +28,9 @@ import org.springframework.web.bind.annotation.*;
 @AllArgsConstructor
 public class UserController {
 
-  private final BorrowerServiceImpl borrowerService;
-  private final ManagerServiceImpl managerService;
-  private final UserServiceImpl userServiceImpl;
+  private final BorrowerService borrowerService;
+  private final ManagerService managerService;
+  private final UserService userServiceImpl;
 
   @PostMapping("/register")
   public BaseResponse<Long> userRegister(@RequestBody @Valid RegisterDto registerDto) {
@@ -52,7 +48,7 @@ public class UserController {
 
   //TODO只有管理员能查看所有用户，需编写AOP进行权限控制
   @PostMapping("/admin/getUserList")
-  @AuthCheck(mustRole = "admin")
+  @AuthCheck(mustRole = UserRoleEnum.ADMIN)
   public BaseResponse<Page<UserVo>> getAllUsers(@RequestBody @Valid PageDto pageDto) {
     Page<UserVo> userVoPage = this.managerService.getAllBorrowers(pageDto);
     log.info("GetAllUsers called with pageDto: {}, userVoPage: {}", pageDto, userVoPage);
@@ -60,15 +56,24 @@ public class UserController {
   }
 
   @PostMapping("/admin/deleteUser")
-  @AuthCheck(mustRole = "admin")
+  @AuthCheck(mustRole = UserRoleEnum.ADMIN)
   public BaseResponse<Boolean> deleteUser(@RequestBody @Valid DeleteDto deleteDto) {
     Boolean isDelete = this.managerService.deleteBorrower(deleteDto);
     log.info("DeleteUser called with deleteDto: {}, isDelete: {}", deleteDto, isDelete);
     return ResultUtils.success(isDelete); // 返回Boolean
   }
+  @PostMapping("/deactivateUser")
+  public BaseResponse<Boolean> deactivateUser(@RequestBody @Valid DeleteDto deactivateUser) {
+    Boolean isDeactivate = borrowerService.deactivateUser(deactivateUser);
+    log.info("DeactivateUser called with userVo: {}, isDeactivate: {}", deactivateUser, isDeactivate);
+    return ResultUtils.success(isDeactivate); // 返回Boolean
+  }
+
+
 
   @PostMapping("/updateUser")
   public BaseResponse<UserVo> updateUser(@RequestBody @Valid UpdateDto updateDto,HttpServletRequest request) {
+
       UserVo userVo = borrowerService.updateUser(updateDto,request);
       log.info("UpdateUser called with userUpdateDto: {}, userVo: {}", updateDto, userVo);
       return ResultUtils.success(userVo); // 返回VO
