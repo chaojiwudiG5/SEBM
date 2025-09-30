@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import group5.sebm.Device.service.services.DeviceService;
 import group5.sebm.Maintenance.controller.dto.UserCreateDto;
 import group5.sebm.Maintenance.controller.dto.UserQueryDto;
 import group5.sebm.Maintenance.controller.vo.UserMaintenanceRecordVo;
@@ -16,6 +17,8 @@ import group5.sebm.exception.ThrowUtils;
 import java.util.Date;
 import java.util.Objects;
 import java.util.stream.Collectors;
+
+import lombok.AllArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
@@ -25,12 +28,16 @@ import org.springframework.stereotype.Service;
 * @createDate 2025-09-26 13:41:45
 */
 @Service
+@AllArgsConstructor
 public class UserMaintenanceRecordServiceImpl extends ServiceImpl<UserMaintenanceRecordMapper, UserMaintenanceRecordPo>
     implements UserMaintenanceRecordService {
+
+    private final DeviceService deviceService;
 
     @Override
     public Long createMaintenanceRecord(Long userId, UserCreateDto createDto) {
         Date now = new Date();
+        //1.保存报修单
         UserMaintenanceRecordPo record = new UserMaintenanceRecordPo();
         record.setUserId(userId);
         record.setDeviceId(createDto.getDeviceId());
@@ -41,6 +48,7 @@ public class UserMaintenanceRecordServiceImpl extends ServiceImpl<UserMaintenanc
         record.setCreateTime(now);
         record.setUpdateTime(now);
         this.save(record);
+        //2.修改设备状态为报修中
         return record.getId();
     }
 
