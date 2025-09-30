@@ -9,15 +9,14 @@ spring:
     username: root
     password: RxAHOOQJjTtBblTpadijgyIWmArpvibI
     driver-class-name: com.mysql.cj.jdbc.Driver
-
-  session:
-    store-type: redis
+  cache:
+    type: redis
   data:
     redis:
-      host: hopper.proxy.rlwy.net
-      port: 36709
+      host: caboose.proxy.rlwy.net
+      port: 13462
       username: default
-      password: vXqoxFqZNtzGecKTlVdFXTBcItAZDxVV
+      password: ekseulHMMJJMoAFIOLchTXsnRDbpMHff
 server:
   port: 29578
 # springdoc-openapi
@@ -34,7 +33,10 @@ knife4j:
 mybatis-plus:
   configuration:
     map-underscore-to-camel-case: false
-
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  global-config:
+    db-config:
+      id-type: auto
 tencent:
   cos:
     secretId: ${TENCENT_SECRET_ID:default}

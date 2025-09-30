@@ -4,7 +4,6 @@ import lombok.Data;
 
 @Data
 public class DeviceVo {
-
   private Long id;
 
   private String deviceName;
@@ -16,4 +15,6 @@ public class DeviceVo {
   private String location;
 
   private String description;
+
+  private String image;
 }

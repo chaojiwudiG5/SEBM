@@ -2,14 +2,17 @@ package group5.sebm.Device.controller;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import group5.sebm.Device.controller.dto.DeviceAddDto;
+import group5.sebm.Device.controller.dto.DeviceQueryDto;
 import group5.sebm.Device.controller.dto.DeviceUpdateDto;
 import group5.sebm.Device.controller.vo.DeviceVo;
+import group5.sebm.Device.entity.DevicePo;
 import group5.sebm.Device.service.services.DeviceService;
 import group5.sebm.User.controller.dto.PageDto;
 import group5.sebm.annotation.AuthCheck;
 import group5.sebm.common.BaseResponse;
 import group5.sebm.common.ResultUtils;
 import group5.sebm.common.dto.DeleteDto;
+import group5.sebm.common.enums.UserRoleEnum;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
@@ -30,13 +33,12 @@ import org.springframework.web.bind.annotation.RestController;
 @AllArgsConstructor
 public class DeviceController {
 
-  @Resource
-  private DeviceService deviceService;
+  private final DeviceService deviceService;
 
   @PostMapping("/getDeviceList")
-  public BaseResponse<List<DeviceVo>> getDeviceList(@RequestBody @Valid PageDto pageDto) {
-    Page<DeviceVo> deviceVoPage = deviceService.getDeviceList(pageDto);
-    log.info("GetDeviceList called with pageDto: {}, deviceVoPage: {}", pageDto, deviceVoPage);
+  public BaseResponse<List<DeviceVo>> getDeviceList(@RequestBody @Valid DeviceQueryDto deviceQueryDto) {
+    Page<DeviceVo> deviceVoPage = deviceService.getDeviceList(deviceQueryDto);
+    log.info("GetDeviceList called with pageDto: {}, deviceVoPage: {}", deviceQueryDto, deviceVoPage);
     return ResultUtils.success(deviceVoPage.getRecords()); // 返回List
   }
 
@@ -48,7 +50,7 @@ public class DeviceController {
   }
 
   @PostMapping("/addDevice")
-  @AuthCheck(mustRole = "admin")
+  @AuthCheck(mustRole = UserRoleEnum.ADMIN)
   public BaseResponse<Long> addDevice(@RequestBody @Valid DeviceAddDto deviceAddDto) {
     Long id = deviceService.addDevice(deviceAddDto);
     log.info("AddDevice called with deviceAddDto: {}, id: {}", deviceAddDto, id);
@@ -56,17 +58,25 @@ public class DeviceController {
   }
 
   @PostMapping("/updateDevice")
-  @AuthCheck(mustRole = "admin")
-  public BaseResponse<Long> updateDevice(@RequestBody @Valid DeviceUpdateDto deviceUpdateDto) {
-    Long id = deviceService.updateDevice(deviceUpdateDto);
-    log.info("UpdateDevice called with deviceUpdateDto: {}, id: {}", deviceUpdateDto, id);
-    return ResultUtils.success(id); // 返回新增的id
+  @AuthCheck(mustRole = UserRoleEnum.ADMIN)
+  public BaseResponse<DeviceVo> updateDevice(@RequestBody @Valid DeviceUpdateDto deviceUpdateDto) {
+    DeviceVo deviceVo = deviceService.updateDevice(deviceUpdateDto);
+    log.info("UpdateDevice called with deviceUpdateDto: {}, id: {}", deviceUpdateDto, deviceVo);
+    return ResultUtils.success(deviceVo); // 返回新增的id
+  }
+
+  @PostMapping("/updateDeviceStatus")
+  public BaseResponse<Boolean> updateDeviceStatus(Long deviceId, Integer status) {
+    Boolean result = deviceService.updateDeviceStatus(deviceId, status);
+    log.info("UpdateDeviceStatus called with deviceId: {}, status: {}, result: {}", deviceId,
+        status, result);
+    return ResultUtils.success(result); // 返回更新的状态
   }
 
   @PostMapping("/deleteDevice")
-  @AuthCheck(mustRole = "admin")
+  @AuthCheck(mustRole = UserRoleEnum.ADMIN)
   public BaseResponse<Boolean> deleteDevice(@RequestBody @Valid DeleteDto deleteDto) {
-    Boolean result = deviceService.removeDeviceById(deleteDto);
+    Boolean result = deviceService.deleteDevice(deleteDto);
     log.info("DeleteDevice called with deleteDto: {}, result: {}", deleteDto, result);
     return ResultUtils.success(result); // 返回删除的id
   }

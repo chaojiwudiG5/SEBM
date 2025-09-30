@@ -17,7 +17,7 @@ public class DevicePo {
     /**
      * 设备ID
      */
-    @TableId(value = "id", type = IdType.ASSIGN_ID)
+    @TableId(value = "id", type = IdType.AUTO)
     private Long id;
 
     /**
@@ -44,6 +44,11 @@ public class DevicePo {
      * 设备描述
      */
     private String description;
+
+    /**
+     * 设备图片
+     */
+    private String image;
 
     /**
      * 是否删除

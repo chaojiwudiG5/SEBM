@@ -29,4 +29,7 @@ public class DeviceAddDto {
 
     @Size(max = 200, message = "设备描述不能超过200字符")
     private String description;
+
+    @Size(max = 200, message = "设备图片不能超过200字符")
+    private String image;
 }

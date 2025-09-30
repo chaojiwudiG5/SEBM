@@ -4,49 +4,70 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import group5.sebm.Device.controller.dto.DeviceAddDto;
+import group5.sebm.Device.controller.dto.DeviceQueryDto;
 import group5.sebm.Device.controller.dto.DeviceUpdateDto;
 import group5.sebm.Device.controller.vo.DeviceVo;
 import group5.sebm.Device.dao.DeviceMapper;
 import group5.sebm.Device.entity.DevicePo;
 import group5.sebm.Device.service.services.DeviceService;
-import group5.sebm.User.controller.dto.PageDto;
 import group5.sebm.common.dto.DeleteDto;
-import jakarta.annotation.Resource;
+import group5.sebm.exception.BusinessException;
+import group5.sebm.exception.ErrorCode;
 import java.util.List;
 import java.util.stream.Collectors;
-import org.apache.ibatis.annotations.Delete;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.BeanUtils;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 
 
 /**
-* @author Luoimo
-* @description 针对表【device(设备表)】的数据库操作Service实现
-* @createDate 2025-09-26 11:29:28
-*/
+ * @author Luoimo
+ * @description 针对表【device(设备表)】的数据库操作Service实现
+ * @createDate 2025-09-26 11:29:28
+ */
 @Service
+@AllArgsConstructor
 public class DeviceServiceImpl extends ServiceImpl<DeviceMapper, DevicePo>
     implements DeviceService {
 
-  @Resource
-  private DeviceMapper deviceMapper;
+  private final DeviceMapper deviceMapper;
 
   /**
    * 获取设备列表
-   * @param pageDto
-   * @return
+   *
+   * @param deviceQueryDto
+   * @return Page<DeviceVo>
    */
   @Override
-  public Page<DeviceVo> getDeviceList(PageDto pageDto) {
+  @Cacheable(value = "deviceList", key = "#deviceQueryDto.toString()+ '_' + #deviceQueryDto.pageNumber + '_' + #deviceQueryDto.pageSize")
+  public Page<DeviceVo> getDeviceList(DeviceQueryDto deviceQueryDto) {
     // 1. 获取分页参数
-    int pageNum = pageDto.getPageNumber();
-    int pageSize = pageDto.getPageSize();
+    int pageNum = deviceQueryDto.getPageNumber();
+    int pageSize = deviceQueryDto.getPageSize();
 
     // 2. 构建分页对象
     Page<DevicePo> page = new Page<>(pageNum, pageSize);
 
-    // 3. 查询数据库（可以加条件，比如只查有效设备）
-    Page<DevicePo> devicePage = deviceMapper.selectPage(page, new QueryWrapper<>());
+    // 3. 构建筛选条件
+    QueryWrapper<DevicePo> queryWrapper = new QueryWrapper<>();
+    if (deviceQueryDto.getDeviceName() != null) {
+      queryWrapper.like("deviceName", deviceQueryDto.getDeviceName());
+    }
+    if (deviceQueryDto.getDeviceType() != null) {
+      queryWrapper.like("deviceType", deviceQueryDto.getDeviceType());
+    }
+    if (deviceQueryDto.getStatus() != null) {
+      queryWrapper.eq("status", deviceQueryDto.getStatus());
+    }
+    if (deviceQueryDto.getLocation() != null) {
+      queryWrapper.like("location", deviceQueryDto.getLocation());
+    }
+    // 4. 执行查询
+    Page<DevicePo> devicePage = deviceMapper.selectPage(page, queryWrapper);
 
     // 4. 转换为 VO 对象
     List<DeviceVo> deviceVoList = devicePage.getRecords().stream()
@@ -63,12 +84,15 @@ public class DeviceServiceImpl extends ServiceImpl<DeviceMapper, DevicePo>
 
     return resultPage;
   }
+
   /**
    * 根据id获取设备
+   *
    * @param id
-   * @return
+   * @return DeviceVo
    */
   @Override
+  @Cacheable(value = "deviceById", key = "#id")
   public DeviceVo getDeviceById(Long id) {
     //1. 根据id查询设备
     DevicePo device = deviceMapper.selectById(id);
@@ -77,12 +101,17 @@ public class DeviceServiceImpl extends ServiceImpl<DeviceMapper, DevicePo>
     BeanUtils.copyProperties(device, vo); // 复制属性
     return vo;
   }
+
   /**
    * 新增设备
+   *
    * @param deviceAddDto
-   * @return
+   * @return 成功返回id，失败返回null
    */
   @Override
+  @Caching(evict = {
+      @CacheEvict(value = "deviceList", allEntries = true) // 清除列表缓存
+  })
   public Long addDevice(DeviceAddDto deviceAddDto) {
     //1. 转换为实体对象
     DevicePo device = new DevicePo();
@@ -92,33 +121,83 @@ public class DeviceServiceImpl extends ServiceImpl<DeviceMapper, DevicePo>
     //3. 返回id
     return device.getId();
   }
+
   /**
    * 更新设备
+   *
    * @param deviceUpdateDto
-   * @return
+   * @return 成功返回id，失败返回null
    */
   @Override
-  public Long updateDevice(DeviceUpdateDto deviceUpdateDto) {
+  @Caching(
+      put = {
+          @CachePut(value = "deviceById", key = "#deviceUpdateDto.id")
+      },
+      evict = {
+          @CacheEvict(value = "deviceList", allEntries = true)
+      }
+  )
+  public DeviceVo updateDevice(DeviceUpdateDto deviceUpdateDto) {
     //1. 转换为实体对象
     DevicePo device = new DevicePo();
     BeanUtils.copyProperties(deviceUpdateDto, device); // 复制属性
     //2. 更新数据库
     deviceMapper.updateById(device);
-    //3. 返回id
-    return device.getId();
+    //3. 返回 VO 对象
+    DeviceVo vo = new DeviceVo();
+    BeanUtils.copyProperties(device, vo); // 复制属性
+    return vo;
   }
+
   /**
    * 根据id删除设备
+   *
    * @param deleteDto
-   * @return
+   * @return 成功返回true，失败返回false
    */
   @Override
-  public Boolean removeDeviceById(DeleteDto deleteDto) {
+  @Caching(evict = {
+      @CacheEvict(value = "deviceById", key = "#deviceUpdateDto.id"),
+      @CacheEvict(value = "deviceList", allEntries = true) // 清除列表缓存
+  })
+  public Boolean deleteDevice(DeleteDto deleteDto) {
     //1. 根据id删除设备
-    deviceMapper.deleteById(deleteDto.getId());
+    try {
+      deviceMapper.deleteById(deleteDto.getId());
+    } catch (Exception e) {
+      throw new BusinessException(ErrorCode.SYSTEM_ERROR, "Delete device failed");
+    }
     //2. 返回成功
     return true;
   }
+
+  /**
+   * 更新设备状态
+   *
+   * @param deviceId
+   * @param status
+   * @return
+   */
+  @Override
+  @Caching(
+      put = {
+          @CachePut(value = "deviceById", key = "#deviceId")
+      },
+      evict = {
+          @CacheEvict(value = "deviceList", allEntries = true)
+      }
+  )
+  public Boolean updateDeviceStatus(Long deviceId, Integer status) {
+    //1. 根据id查询设备
+    DevicePo device = deviceMapper.selectById(deviceId);
+    //2. 更新设备状态
+    device.setStatus(status);
+    //3. 更新数据库
+    deviceMapper.updateById(device);
+    //4. 返回成功
+    return true;
+  }
+
 
 }
 

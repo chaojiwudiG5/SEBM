@@ -3,29 +3,32 @@ package group5.sebm.User.service;
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import group5.sebm.User.controller.dto.DeleteDto;
 import group5.sebm.User.controller.dto.LoginDto;
 import group5.sebm.User.controller.dto.RegisterDto;
 import group5.sebm.User.controller.dto.UpdateDto;
+
 import group5.sebm.User.controller.vo.UserVo;
 import group5.sebm.User.dao.UserMapper;
 import group5.sebm.User.entity.UserPo;
+import group5.sebm.User.service.UserServiceInterface.UserService;
+import group5.sebm.common.dto.UserDto;
+import group5.sebm.exception.BusinessException;
 import group5.sebm.exception.ErrorCode;
 import group5.sebm.exception.ThrowUtils;
 import group5.sebm.User.service.bo.Borrower;
 import group5.sebm.utils.JwtUtils;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpSession;
-import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
-
-import static group5.sebm.common.constant.UserConstant.CURRENT_LOGIN_USER;
 
 
 /**
@@ -33,7 +36,7 @@ import static group5.sebm.common.constant.UserConstant.CURRENT_LOGIN_USER;
  * @description 用户服务实现
  */
 @Service
-@NoArgsConstructor
+@AllArgsConstructor
 public class UserServiceImpl extends ServiceImpl<UserMapper, UserPo> implements UserService {
 
   protected final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
@@ -54,6 +57,23 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserPo> implements 
     UserVo userVo = new UserVo();
     BeanUtils.copyProperties(userPo, userVo);
     return userVo;
+  }
+  /**
+   * 获取当前登录用户
+   *
+   * @param request http 请求
+   * @return 当前登录用户
+   */
+  @Override
+  public UserDto getCurrentUserDto(HttpServletRequest request) {
+    Long userId = (Long) request.getAttribute("userId");
+    if (userId == null) {
+      ThrowUtils.throwIf(true, ErrorCode.NOT_LOGIN_ERROR, "Not login");
+    }
+    UserPo userPo = baseMapper.selectById(userId);
+    UserDto userDto = new UserDto();
+    BeanUtils.copyProperties(userPo, userDto);
+    return userDto;
   }
 
   /**
@@ -79,6 +99,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserPo> implements 
     //3. create user
     UserPo po = new UserPo();
     BeanUtils.copyProperties(borrower, po);
+    po.setBorrowedDeviceCount(0);
+    po.setMaxBorrowedDeviceCount(3);
+    po.setMaxOverdueTimes(3);
+    po.setOverdueTimes(0);
     po.setPassword(passwordEncoder.encode(registerDto.getPassword()));
 
     //4. insert user into database
@@ -125,7 +149,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserPo> implements 
   public UserVo updateUser(UpdateDto updateDto,HttpServletRequest request) {
     //0.check if it is the current login user
     Long userId = (Long) request.getAttribute("userId");
-    ThrowUtils.throwIf(updateDto.getId() != userId, ErrorCode.NOT_LOGIN_ERROR, "Not login");
+    ThrowUtils.throwIf(!Objects.equals(updateDto.getId(), userId), ErrorCode.NOT_LOGIN_ERROR, "Not login");
     //1. check if user exists
     UserPo userPo = baseMapper.selectById(updateDto.getId());
     ThrowUtils.throwIf(userPo == null, ErrorCode.NOT_FOUND_ERROR, "User not exists");
@@ -138,6 +162,27 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserPo> implements 
     BeanUtils.copyProperties(newUserPo, userVo);
     //4. return updated user information
     return userVo;
+  }
+  /**
+   * 用户注销
+   *
+   * @param deleteDto 用户id
+   * @return 是否删除成功
+   */
+  public Boolean deactivateUser(DeleteDto deleteDto) {
+    // 1. 检查用户是否存在
+    UserPo userPo = baseMapper.selectById(deleteDto.getId());
+    ThrowUtils.throwIf(userPo == null, ErrorCode.NOT_FOUND_ERROR, "User not exists");
+
+    // 2. 修改用户状态为“已注销”，假设 status=0 表示正常，status=1 表示注销
+    userPo.setIsDelete(1);
+    try {
+      baseMapper.updateById(userPo);
+    } catch (Exception e) {
+      throw new BusinessException(ErrorCode.SYSTEM_ERROR, "Deactivate failed");
+    }
+
+    return true;
   }
 
 
