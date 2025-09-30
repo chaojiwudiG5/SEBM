@@ -36,7 +36,7 @@ public class BorrowRecordController {
       @RequestBody BorrowRecordAddDto borrowRecordAddDto,
       HttpServletRequest request) {
     BorrowRecordVo borrowRecordVo = borrowRecordService.borrowDevice(borrowRecordAddDto,
-        request);
+        (Long) request.getAttribute("userId"));
     log.info("addBorrowRecord success, borrowRecordVo: {}", borrowRecordVo);
     return ResultUtils.success(borrowRecordVo);
   }
@@ -46,7 +46,7 @@ public class BorrowRecordController {
       @RequestBody BorrowRecordReturnDto borrowRecordReturnDto,
       HttpServletRequest request) {
     BorrowRecordVo borrowRecordVo = borrowRecordService.returnDevice(borrowRecordReturnDto,
-        request);
+        (Long) request.getAttribute("userId"));
     log.info("returnDevice success, borrowRecordVo: {}", borrowRecordVo);
     return ResultUtils.success(borrowRecordVo);
   }
