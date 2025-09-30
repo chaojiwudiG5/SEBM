@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * 通知模板实体类
@@ -30,8 +31,8 @@ public class TemplatePo {
     /**
      * 模板类型
      */
-    @TableField("templateType")
-    private String templateType;
+    @TableField("notificationMethod")
+    private List<Integer> notificationMethod;
     
     /**
      * 通知节点

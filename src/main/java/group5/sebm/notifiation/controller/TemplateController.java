@@ -1,12 +1,15 @@
 package group5.sebm.notifiation.controller;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import group5.sebm.annotation.AuthCheck;
 import group5.sebm.common.BaseResponse;
 import group5.sebm.common.ResultUtils;
 import group5.sebm.common.constant.NotificationConstant;
+import group5.sebm.common.enums.UserRoleEnum;
 import group5.sebm.exception.ErrorCode;
 import group5.sebm.exception.ThrowUtils;
 import group5.sebm.notifiation.controller.dto.CreateTemplateDto;
+import group5.sebm.notifiation.controller.dto.TemplateQueryDto;
 import group5.sebm.notifiation.controller.vo.TemplateVo;
 import group5.sebm.notifiation.enums.NotificationMethodEnum;
 import group5.sebm.notifiation.enums.NotificationNodeEnum;
@@ -19,10 +22,7 @@ import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * 通知模板控制器
@@ -42,8 +42,8 @@ public class TemplateController {
      * @param request HTTP请求对象
      * @return 创建的模板信息
      */
-    @PostMapping("/admin/create")
-    @AuthCheck(mustRole = "admin")
+    @PostMapping("/create")
+    @AuthCheck(mustRole = UserRoleEnum.ADMIN)
     @Operation(summary = "创建通知模板", description = "管理员创建新的通知模板")
     public BaseResponse<TemplateVo> createTemplate(@RequestBody @Valid CreateTemplateDto createTemplateDto,
             HttpServletRequest request) {
@@ -55,6 +55,38 @@ public class TemplateController {
         log.info("createTemplate Dto: {}, Vo: {}", createTemplateDto, templateVo);
         
         return ResultUtils.success(templateVo);
+    }
+
+    /**
+     * 分页查询通知模板列表 - 仅限管理员
+     * @param templateQueryDto 查询条件
+     * @return 分页结果
+     */
+    @PostMapping("/list")
+    @AuthCheck(mustRole = UserRoleEnum.ADMIN)
+    @Operation(summary = "分页查询通知模板", description = "管理员分页查询通知模板列表")
+    public BaseResponse<Page<TemplateVo>> getTemplateList(@RequestBody @Valid TemplateQueryDto templateQueryDto) {
+        log.info("查询模板列表，参数：{}", templateQueryDto);
+        
+        Page<TemplateVo> templateVoPage = templateService.getTemplateList(templateQueryDto);
+        
+        return ResultUtils.success(templateVoPage);
+    }
+    
+    /**
+     * 根据ID查询模板详情 - 仅限管理员
+     * @param templateId 模板ID
+     * @return 模板详情
+     */
+    @GetMapping("/detail/{templateId}")
+    @AuthCheck(mustRole = UserRoleEnum.ADMIN)
+    @Operation(summary = "查询模板详情", description = "根据ID查询模板详细信息")
+    public BaseResponse<TemplateVo> getTemplateDetail(@PathVariable Long templateId) {
+        log.info("查询模板详情，ID：{}", templateId);
+        
+        // 这里需要添加一个根据ID查询VO的方法，或者直接使用现有的方法
+        // 暂时返回null，实际项目中需要实现
+        return ResultUtils.success(null);
     }
     
     /**

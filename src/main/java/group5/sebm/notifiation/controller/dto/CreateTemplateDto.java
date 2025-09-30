@@ -3,15 +3,15 @@ package group5.sebm.notifiation.controller.dto;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
+
+import java.util.List;
 
 /**
  * 创建通知模板请求DTO
  */
-@Setter
-@Getter
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class CreateTemplateDto {
@@ -38,7 +38,7 @@ public class CreateTemplateDto {
      * 通知节点 (使用NotificationMethodEnum的code值)
      */
     @NotNull(message = "通知方式不能为空")
-    private Integer notificationMethod;
+    private List<Integer> notificationMethod;
 
     /**
      * 相关时间偏移（秒）

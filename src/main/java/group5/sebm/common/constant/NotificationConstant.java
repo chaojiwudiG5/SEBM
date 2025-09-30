@@ -25,4 +25,9 @@ public class NotificationConstant {
          * 最大时间偏移天数
          */
         public static final int MAX_TIME_OFFSET_DAYS = 7;
+        
+        // Business status constants
+        public static final String TEMPLATE_STATUS_ACTIVE = "active";
+        
+        public static final Integer NOT_DELETED = 0;
 }

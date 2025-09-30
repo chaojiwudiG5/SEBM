@@ -1,7 +1,10 @@
 package group5.sebm.notifiation.enums;
 
+import cn.hutool.core.collection.CollectionUtil;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+
+import java.util.List;
 
 /**
  * 通知方式枚举
@@ -21,13 +24,13 @@ public enum NotificationMethodEnum {
     /**
      * 根据code获取枚举
      */
-    public static NotificationNodeEnum parseNode(Integer code) {
+    public static NotificationMethodEnum parseMethod(Integer code) {
         if (code == null) {
             return null;
         }
-        for (NotificationNodeEnum nodeEnum : NotificationNodeEnum.values()) {
-            if (nodeEnum.getCode().equals(code)) {
-                return nodeEnum;
+        for (NotificationMethodEnum methodEnum : NotificationMethodEnum.values()) {
+            if (methodEnum.getCode().equals(code)) {
+                return methodEnum;
             }
         }
         return null;
@@ -37,7 +40,22 @@ public enum NotificationMethodEnum {
      * 验证code是否有效
      */
     public static boolean isValidCode(Integer code) {
-        return parseNode(code) != null;
+        return parseMethod(code) != null;
+    }
+
+    /**
+     * 验证code是否有效(多个参数版)
+     */
+    public static boolean isValidCode(List<Integer> methods) {
+        if(CollectionUtil.isEmpty(methods)) {
+            return false;
+        }
+        for (Integer method : methods) {
+            if(!isValidCode(method)) {
+                return false;
+            }
+        }
+        return true;
     }
 
 }
