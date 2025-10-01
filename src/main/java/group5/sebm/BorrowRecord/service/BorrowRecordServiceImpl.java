@@ -7,14 +7,11 @@ import group5.sebm.BorrowRecord.controller.dto.BorrowRecordAddDto;
 import group5.sebm.BorrowRecord.controller.dto.BorrowRecordQueryDto;
 import group5.sebm.BorrowRecord.controller.dto.BorrowRecordQueryWithStatusDto;
 import group5.sebm.BorrowRecord.controller.dto.BorrowRecordReturnDto;
-import group5.sebm.BorrowRecord.controller.dto.BorrowRecordRenewDto;
 import group5.sebm.BorrowRecord.controller.vo.BorrowRecordVo;
 import group5.sebm.BorrowRecord.dao.BorrowRecordMapper;
 import group5.sebm.BorrowRecord.entity.BorrowRecordPo;
 import group5.sebm.Device.entity.DevicePo;
 import group5.sebm.User.service.UserServiceInterface.BorrowerService;
-import group5.sebm.User.service.UserServiceInterface.UserService;
-import group5.sebm.User.service.bo.User;
 import group5.sebm.common.constant.BorrowConstant;
 import group5.sebm.common.dto.UserDto;
 import group5.sebm.common.enums.BorrowStatusEnum;
@@ -23,11 +20,13 @@ import group5.sebm.Device.service.services.DeviceService;
 import group5.sebm.common.enums.DeviceStatusEnum;
 import group5.sebm.exception.ErrorCode;
 import group5.sebm.exception.ThrowUtils;
-import jakarta.servlet.http.HttpServletRequest;
+import group5.sebm.utils.GeoFenceUtils;
+import group5.sebm.exception.BusinessException;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 
 /**
@@ -47,6 +46,7 @@ public class BorrowRecordServiceImpl extends ServiceImpl<BorrowRecordMapper, Bor
   private final DeviceService deviceService;
 
   @Override
+  @Transactional(rollbackFor = BusinessException.class)
   public BorrowRecordVo borrowDevice(BorrowRecordAddDto borrowRecordAddDto,
       Long userId) {
     //1. 获取当前用户
@@ -76,17 +76,15 @@ public class BorrowRecordServiceImpl extends ServiceImpl<BorrowRecordMapper, Bor
     ThrowUtils.throwIf(device == null, ErrorCode.NOT_FOUND_ERROR, "Device not found");
     ThrowUtils.throwIf(device.getStatus() != DeviceStatusEnum.AVAILABLE.getCode(),
         ErrorCode.PARAMS_ERROR, "Device is not available");
-    device.setStatus(DeviceStatusEnum.BORROWED.getCode());
-    deviceService.updateById(device);
+    deviceService.updateDeviceStatus(borrowRecordAddDto.getDeviceId(),
+        DeviceStatusEnum.BORROWED.getCode());
     //5. 保存记录
     BorrowRecordPo borrowRecord = new BorrowRecordPo();
     BeanUtils.copyProperties(borrowRecordAddDto, borrowRecord);
     borrowRecord.setUserId(currentUser.getId());
     borrowRecordMapper.insert(borrowRecord);
     //6. 增加用户借用设备数量
-    UserDto newUser = new UserDto();
-    currentUser.setBorrowedDeviceCount(currentUser.getBorrowedDeviceCount() + 1);
-    BeanUtils.copyProperties(currentUser, newUser);
+    borrowerService.updateBorrowedCount(currentUser.getId(), BorrowConstant.PLUS);
     //7. 返回结果
     BorrowRecordVo borrowRecordVo = new BorrowRecordVo();
     BeanUtils.copyProperties(borrowRecord, borrowRecordVo);
@@ -159,10 +157,17 @@ public class BorrowRecordServiceImpl extends ServiceImpl<BorrowRecordMapper, Bor
   }
 
   @Override
+  @Transactional(rollbackFor = BusinessException.class)
   public BorrowRecordVo returnDevice(BorrowRecordReturnDto borrowRecordReturnDto,
       Long userId) {
     //1. 校验参数
     UserDto currentUser = borrowerService.getCurrentUserDtoFromID(userId);
+    ThrowUtils.throwIf(currentUser == null, ErrorCode.NOT_FOUND_ERROR, "No user");
+    boolean inGeofence = GeoFenceUtils.isInGeofence(borrowRecordReturnDto.getLongitude(),
+        borrowRecordReturnDto.getLatitude(), BorrowConstant.CENTER_LONGITUDE,
+        BorrowConstant.CENTER_LATITUDE, BorrowConstant.RADIUS);
+    ThrowUtils.throwIf(!inGeofence, ErrorCode.FORBIDDEN_ERROR,
+        "Out of geofence,please return in the storeroom");
     //2. 更新记录
     BorrowRecordPo borrowRecord = borrowRecordMapper.selectById(borrowRecordReturnDto.getId());
     ThrowUtils.throwIf(borrowRecord == null, ErrorCode.NOT_FOUND_ERROR, "No borrow record");
@@ -175,8 +180,10 @@ public class BorrowRecordServiceImpl extends ServiceImpl<BorrowRecordMapper, Bor
     //3. 更新设备状态
     DevicePo device = deviceService.getById(borrowRecord.getDeviceId());
     ThrowUtils.throwIf(device == null, ErrorCode.NOT_FOUND_ERROR, "No device");
-    device.setStatus(DeviceStatusEnum.AVAILABLE.getCode());
-    deviceService.updateById(device);
+    ThrowUtils.throwIf(device.getStatus() != DeviceStatusEnum.BORROWED.getCode(),
+        ErrorCode.PARAMS_ERROR, "Device is not borrowed");
+    deviceService.updateDeviceStatus(borrowRecord.getDeviceId(),
+        DeviceStatusEnum.AVAILABLE.getCode());
     //4. 减少用户借用设备数量
     borrowerService.updateBorrowedCount(currentUser.getId(), BorrowConstant.MINUS);
     //4. 返回结果

@@ -24,7 +24,7 @@ public interface DeviceService extends IService<DevicePo> {
 
   DeviceVo updateDevice(DeviceUpdateDto deviceUpdateDto);
 
-  Boolean updateDeviceStatus(Long deviceId, Integer status);
+  DeviceVo updateDeviceStatus(Long deviceId, Integer status);
 
   Boolean deleteDevice( DeleteDto deleteDto);
 }
