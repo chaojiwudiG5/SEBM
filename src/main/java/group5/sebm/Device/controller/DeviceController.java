@@ -66,8 +66,8 @@ public class DeviceController {
   }
 
   @PostMapping("/updateDeviceStatus")
-  public BaseResponse<Boolean> updateDeviceStatus(Long deviceId, Integer status) {
-    Boolean result = deviceService.updateDeviceStatus(deviceId, status);
+  public BaseResponse<DeviceVo> updateDeviceStatus(Long deviceId, Integer status) {
+    DeviceVo result = deviceService.updateDeviceStatus(deviceId, status);
     log.info("UpdateDeviceStatus called with deviceId: {}, status: {}, result: {}", deviceId,
         status, result);
     return ResultUtils.success(result); // 返回更新的状态
