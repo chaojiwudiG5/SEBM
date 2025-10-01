@@ -164,8 +164,13 @@ public class BorrowRecordServiceImpl extends ServiceImpl<BorrowRecordMapper, Bor
     UserDto currentUser = borrowerService.getCurrentUserDtoFromID(userId);
     ThrowUtils.throwIf(currentUser == null, ErrorCode.NOT_FOUND_ERROR, "No user");
     boolean inGeofence = GeoFenceUtils.isInGeofence(borrowRecordReturnDto.getLongitude(),
-        borrowRecordReturnDto.getLatitude(), BorrowConstant.CENTER_LONGITUDE,
-        BorrowConstant.CENTER_LATITUDE, BorrowConstant.RADIUS);
+        borrowRecordReturnDto.getLatitude(), BorrowConstant.CENTER_LONGITUDE_HOME,
+        BorrowConstant.CENTER_LATITUDE_HOME, BorrowConstant.RADIUS) ||
+        GeoFenceUtils.isInGeofence(borrowRecordReturnDto.getLongitude(),
+            borrowRecordReturnDto.getLatitude(),
+            BorrowConstant.CENTER_LONGITUDE_SCHOOL, BorrowConstant.CENTER_LATITUDE_SCHOOL,
+            BorrowConstant.RADIUS);
+    ;
     ThrowUtils.throwIf(!inGeofence, ErrorCode.FORBIDDEN_ERROR,
         "Out of geofence,please return in the storeroom");
     //2. 更新记录
