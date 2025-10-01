@@ -50,7 +50,7 @@ public class UserMaintenanceRecordServiceImpl extends ServiceImpl<UserMaintenanc
         this.save(record);
         //2.修改设备状态为报修中
         boolean success = deviceService.updateDeviceStatus(createDto.getDeviceId(), 2);
-        ThrowUtils.throwIf(!success, ErrorCode.OPERATION_ERROR, "修改设备状态失败");
+        ThrowUtils.throwIf(!success, ErrorCode.OPERATION_ERROR, "create maintenance record failed");
         return record.getId();
     }
 
@@ -91,7 +91,7 @@ public class UserMaintenanceRecordServiceImpl extends ServiceImpl<UserMaintenanc
                 .eq(UserMaintenanceRecordPo::getUserId, userId)
                 .eq(UserMaintenanceRecordPo::getIsDelete, 0);
         UserMaintenanceRecordPo record = this.getOne(wrapper);
-        ThrowUtils.throwIf(record == null, ErrorCode.NOT_FOUND_ERROR, "报修单不存在");
+        ThrowUtils.throwIf(record == null, ErrorCode.NOT_FOUND_ERROR, "user maintenance record not found");
         UserMaintenanceRecordVo vo = new UserMaintenanceRecordVo();
         BeanUtils.copyProperties(record, vo);
         return vo;
@@ -104,10 +104,10 @@ public class UserMaintenanceRecordServiceImpl extends ServiceImpl<UserMaintenanc
                 .eq(UserMaintenanceRecordPo::getUserId, userId)
                 .eq(UserMaintenanceRecordPo::getIsDelete, 0);
         UserMaintenanceRecordPo record = this.getOne(queryWrapper);
-        ThrowUtils.throwIf(record == null, ErrorCode.NOT_FOUND_ERROR, "报修单不存在");
+        ThrowUtils.throwIf(record == null, ErrorCode.NOT_FOUND_ERROR, "user maintenance record not found");
         ThrowUtils.throwIf(!Objects.equals(record.getStatus(), 0), ErrorCode.OPERATION_ERROR,
-                "报修单已处理，无法取消");
-
+                "maintenance record cannot be cancelled");
+        //1.构建更新条件
         LambdaUpdateWrapper<UserMaintenanceRecordPo> updateWrapper = new LambdaUpdateWrapper<>();
         updateWrapper.eq(UserMaintenanceRecordPo::getId, recordId)
                 .eq(UserMaintenanceRecordPo::getUserId, userId);
@@ -118,7 +118,7 @@ public class UserMaintenanceRecordServiceImpl extends ServiceImpl<UserMaintenanc
         boolean success = this.update(update, updateWrapper);
         //3.修改设备状态为可用
         success = success && deviceService.updateDeviceStatus(record.getDeviceId(), 0);
-        ThrowUtils.throwIf(!success, ErrorCode.OPERATION_ERROR, "取消报修单失败");
+        ThrowUtils.throwIf(!success, ErrorCode.OPERATION_ERROR, "delete maintenance record failed");
         return true;
     }
 

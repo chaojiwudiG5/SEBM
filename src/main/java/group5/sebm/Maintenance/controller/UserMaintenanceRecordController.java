@@ -32,20 +32,20 @@ public class UserMaintenanceRecordController {
     private final UserMaintenanceRecordService userMaintenanceRecordService;
 
     @PostMapping("/report")
-    public BaseResponse<Long> createMaintenanceRecord(@RequestBody @Valid UserCreateDto createDto,
-                                                      HttpServletRequest request) {
+    public BaseResponse<Long> createMaintenanceRecord(@RequestBody @Valid UserCreateDto createDto, HttpServletRequest request)
+    {
         Long userId = (Long) request.getAttribute("userId");
-        ThrowUtils.throwIf(userId == null, ErrorCode.NOT_LOGIN_ERROR, "未登录");
+        ThrowUtils.throwIf(userId == null, ErrorCode.NOT_LOGIN_ERROR, "login required");
         Long recordId = userMaintenanceRecordService.createMaintenanceRecord(userId, createDto);
         log.info("User {} created maintenance record {}", userId, recordId);
         return ResultUtils.success(recordId);
     }
 
     @PostMapping("/myList")
-    public BaseResponse<Page<UserMaintenanceRecordVo>> listMyRecords(
-            @RequestBody @Valid UserQueryDto queryDto, HttpServletRequest request) {
+    public BaseResponse<Page<UserMaintenanceRecordVo>> listMyRecords(@RequestBody @Valid UserQueryDto queryDto, HttpServletRequest request)
+    {
         Long userId = (Long) request.getAttribute("userId");
-        ThrowUtils.throwIf(userId == null, ErrorCode.NOT_LOGIN_ERROR, "未登录");
+        ThrowUtils.throwIf(userId == null, ErrorCode.NOT_LOGIN_ERROR, "login required");
         Page<UserMaintenanceRecordVo> page = userMaintenanceRecordService
                 .listUserMaintenanceRecords(userId, queryDto);
         log.info("User {} queried maintenance records page {}", userId, page);
@@ -53,10 +53,10 @@ public class UserMaintenanceRecordController {
     }
 
     @GetMapping("/{id}")
-    public BaseResponse<UserMaintenanceRecordVo> getRecordDetail(@PathVariable("id") Long id,
-                                                                 HttpServletRequest request) {
+    public BaseResponse<UserMaintenanceRecordVo> getRecordDetail(@PathVariable("id") Long id, HttpServletRequest request)
+    {
         Long userId = (Long) request.getAttribute("userId");
-        ThrowUtils.throwIf(userId == null, ErrorCode.NOT_LOGIN_ERROR, "未登录");
+        ThrowUtils.throwIf(userId == null, ErrorCode.NOT_LOGIN_ERROR, "login required");
         UserMaintenanceRecordVo record = userMaintenanceRecordService
                 .getUserMaintenanceRecordDetail(userId, id);
         log.info("User {} fetched maintenance record detail {}", userId, id);
@@ -64,10 +64,10 @@ public class UserMaintenanceRecordController {
     }
 
     @PostMapping("/cancel")
-    public BaseResponse<Boolean> cancelRecord(@RequestBody @Valid DeleteDto deleteDto,
-                                              HttpServletRequest request) {
+    public BaseResponse<Boolean> cancelRecord(@RequestBody @Valid DeleteDto deleteDto, HttpServletRequest request)
+    {
         Long userId = (Long) request.getAttribute("userId");
-        ThrowUtils.throwIf(userId == null, ErrorCode.NOT_LOGIN_ERROR, "未登录");
+        ThrowUtils.throwIf(userId == null, ErrorCode.NOT_LOGIN_ERROR, "login required");
         Boolean result = userMaintenanceRecordService.cancelMaintenanceRecord(userId, deleteDto.getId());
         log.info("User {} cancelled maintenance record {}", userId, deleteDto.getId());
         return ResultUtils.success(result);

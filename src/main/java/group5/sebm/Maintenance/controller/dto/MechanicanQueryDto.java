@@ -13,15 +13,15 @@ public class MechanicanQueryDto {
     /**
      * 页码
      */
-    @NotNull(message = "页码不能为空")
-    @Min(value = 1, message = "页码必须大于等于1")
+    @NotNull(message = "pageNumber cannot be null")
+    @Min(value = 1, message = "pageNumber must be greater than or equal to 1")
     private Integer pageNumber;
 
     /**
      * 每页数量
      */
-    @NotNull(message = "每页条数不能为空")
-    @Min(value = 1, message = "每页条数必须大于等于1")
+    @NotNull(message = "pageSize cannot be null")
+    @Min(value = 1, message = "pageSize must be greater than or equal to 1")
     private Integer pageSize;
 
     /**

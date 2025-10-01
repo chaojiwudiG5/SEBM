@@ -27,6 +27,8 @@ public class UserCreateDto {
     /**
      * 故障图片
      */
+    //image URL cannot be blank
+    @NotBlank(message = "image URL cannot be blank")
     @Size(max = 1024, message = "image URL is too long")
     private String image;
 }

@@ -48,9 +48,9 @@ public class MechanicanMaintenanceRecordServiceImpl extends ServiceImpl<Mechanic
     public Long claimMaintenanceTask(Long mechanicId, MechanicanClaimDto claimDto) {
         UserMaintenanceRecordPo userRecord = userMaintenanceRecordMapper
                 .selectById(claimDto.getUserMaintenanceRecordId());
-        ThrowUtils.throwIf(userRecord == null, ErrorCode.NOT_FOUND_ERROR, "用户报修单不存在");
+        ThrowUtils.throwIf(userRecord == null, ErrorCode.NOT_FOUND_ERROR, "userMaintenanceRecord not found");
         ThrowUtils.throwIf(userRecord.getStatus() != null && userRecord.getStatus() == 1,
-                ErrorCode.OPERATION_ERROR, "报修单已处理");
+                ErrorCode.OPERATION_ERROR, "userMaintenanceRecord already claimed");
 
         Date now = new Date();
         MechanicanMaintenanceRecordPo record = new MechanicanMaintenanceRecordPo();
@@ -106,7 +106,7 @@ public class MechanicanMaintenanceRecordServiceImpl extends ServiceImpl<Mechanic
                 .eq(MechanicanMaintenanceRecordPo::getUserId, mechanicId)
                 .eq(MechanicanMaintenanceRecordPo::getIsDelete, 0);
         MechanicanMaintenanceRecordPo record = this.getOne(wrapper);
-        ThrowUtils.throwIf(record == null, ErrorCode.NOT_FOUND_ERROR, "维修单不存在");
+        ThrowUtils.throwIf(record == null, ErrorCode.NOT_FOUND_ERROR, "userMaintenanceRecord not found");
         MechanicanMaintenanceRecordVo vo = new MechanicanMaintenanceRecordVo();
         BeanUtils.copyProperties(record, vo);
         return vo;
@@ -115,13 +115,13 @@ public class MechanicanMaintenanceRecordServiceImpl extends ServiceImpl<Mechanic
     @Override
     public Boolean updateMechanicMaintenanceRecord(Long mechanicId, MechanicanUpdateDto updateDto) {
         ThrowUtils.throwIf(!VALID_STATUS.contains(updateDto.getStatus()), ErrorCode.PARAMS_ERROR,
-                "非法的状态值");
+                "invalid status");
         MechanicanMaintenanceRecordPo record = this.getById(updateDto.getId());
-        ThrowUtils.throwIf(record == null, ErrorCode.NOT_FOUND_ERROR, "维修单不存在");
+        ThrowUtils.throwIf(record == null, ErrorCode.NOT_FOUND_ERROR, "userMaintenanceRecord not found");
         ThrowUtils.throwIf(record.getIsDelete() != null && record.getIsDelete() == 1,
-                ErrorCode.NOT_FOUND_ERROR, "维修单不存在");
+                ErrorCode.NOT_FOUND_ERROR, "userMaintenanceRecord not found");
         ThrowUtils.throwIf(!Objects.equals(record.getUserId(), mechanicId), ErrorCode.NO_AUTH_ERROR,
-                "无权限操作该维修单");
+                "no auth to update this record");
 
         record.setStatus(updateDto.getStatus());
         if (StringUtils.hasText(updateDto.getDescription())) {

@@ -32,10 +32,10 @@ public class MechanicanMaintenanceRecordController {
     private final MechanicanMaintenanceRecordService mechanicanMaintenanceRecordService;
 
     @PostMapping("/claim")
-    public BaseResponse<Long> claimMaintenanceTask(@RequestBody @Valid MechanicanClaimDto claimDto,
-                                                   HttpServletRequest request) {
+    public BaseResponse<Long> claimMaintenanceTask(@RequestBody @Valid MechanicanClaimDto claimDto, HttpServletRequest request)
+    {
         Long mechanicId = (Long) request.getAttribute("userId");
-        ThrowUtils.throwIf(mechanicId == null, ErrorCode.NOT_LOGIN_ERROR, "未登录");
+        ThrowUtils.throwIf(mechanicId == null, ErrorCode.NOT_LOGIN_ERROR, "login required");
         Long recordId = mechanicanMaintenanceRecordService.claimMaintenanceTask(mechanicId, claimDto);
         log.info("Mechanic {} claimed maintenance task {}", mechanicId, recordId);
         return ResultUtils.success(recordId);
@@ -43,9 +43,10 @@ public class MechanicanMaintenanceRecordController {
 
     @PostMapping("/myList")
     public BaseResponse<Page<MechanicanMaintenanceRecordVo>> listMyTasks(
-            @RequestBody @Valid MechanicanQueryDto queryDto, HttpServletRequest request) {
+            @RequestBody @Valid MechanicanQueryDto queryDto, HttpServletRequest request)
+    {
         Long mechanicId = (Long) request.getAttribute("userId");
-        ThrowUtils.throwIf(mechanicId == null, ErrorCode.NOT_LOGIN_ERROR, "未登录");
+        ThrowUtils.throwIf(mechanicId == null, ErrorCode.NOT_LOGIN_ERROR, "lopgin required");
         Page<MechanicanMaintenanceRecordVo> page = mechanicanMaintenanceRecordService
                 .listMechanicMaintenanceRecords(mechanicId, queryDto);
         log.info("Mechanic {} queried maintenance tasks page {}", mechanicId, page);
@@ -53,10 +54,10 @@ public class MechanicanMaintenanceRecordController {
     }
 
     @GetMapping("/{id}")
-    public BaseResponse<MechanicanMaintenanceRecordVo> getTaskDetail(@PathVariable("id") Long id,
-                                                                     HttpServletRequest request) {
+    public BaseResponse<MechanicanMaintenanceRecordVo> getTaskDetail(@PathVariable("id") Long id, HttpServletRequest request)
+    {
         Long mechanicId = (Long) request.getAttribute("userId");
-        ThrowUtils.throwIf(mechanicId == null, ErrorCode.NOT_LOGIN_ERROR, "未登录");
+        ThrowUtils.throwIf(mechanicId == null, ErrorCode.NOT_LOGIN_ERROR, "login required");
         MechanicanMaintenanceRecordVo record = mechanicanMaintenanceRecordService
                 .getMechanicMaintenanceRecordDetail(mechanicId, id);
         log.info("Mechanic {} fetched maintenance task detail {}", mechanicId, id);
@@ -64,10 +65,10 @@ public class MechanicanMaintenanceRecordController {
     }
 
     @PostMapping("/updateStatus")
-    public BaseResponse<Boolean> updateTaskStatus(@RequestBody @Valid MechanicanUpdateDto updateDto,
-                                                  HttpServletRequest request) {
+    public BaseResponse<Boolean> updateTaskStatus(@RequestBody @Valid MechanicanUpdateDto updateDto, HttpServletRequest request)
+    {
         Long mechanicId = (Long) request.getAttribute("userId");
-        ThrowUtils.throwIf(mechanicId == null, ErrorCode.NOT_LOGIN_ERROR, "未登录");
+        ThrowUtils.throwIf(mechanicId == null, ErrorCode.NOT_LOGIN_ERROR, "login required");
         Boolean result = mechanicanMaintenanceRecordService
                 .updateMechanicMaintenanceRecord(mechanicId, updateDto);
         log.info("Mechanic {} updated maintenance task {} to status {}", mechanicId, updateDto.getId(),
