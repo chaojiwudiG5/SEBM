@@ -15,4 +15,5 @@ public interface ManagerService {
     Boolean deleteBorrower(DeleteDto deleteDto);
     Boolean deleteBorrowers(List<Long> ids);
     Page<UserVo> getAllBorrowers(PageDto pageDto);
+    Boolean updateBorrower(UserVo userVo);
 }
