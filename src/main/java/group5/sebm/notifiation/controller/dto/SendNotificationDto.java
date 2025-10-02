@@ -18,9 +18,9 @@ public class SendNotificationDto {
 
     /**
      * 通知代码枚举值
-     * 使用 NotificationCodeEnum
+     * 使用 NotificationEventEnum
      */
-    private Integer notificationCode;
+    private Integer notificationEvent;
     /**
      * 接收者Id
      */
@@ -36,6 +36,5 @@ public class SendNotificationDto {
      * 节点时间戳(毫秒)
      */
     private Long nodeTimestamp;
-
 
 }

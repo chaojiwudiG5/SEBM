@@ -24,7 +24,7 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     public Boolean sendNotification(SendNotificationDto sendNotificationDto) {
-        TemplatePo templatePo = templateService.findTemplateByParams(sendNotificationDto.getNotificationCode());
+        TemplatePo templatePo = templateService.findTemplateByParams(sendNotificationDto.getNotificationEvent());
         if (templatePo == null) {
             log.info("Template not found, request:{}", JSON.toJSONString(sendNotificationDto));
             return false;
