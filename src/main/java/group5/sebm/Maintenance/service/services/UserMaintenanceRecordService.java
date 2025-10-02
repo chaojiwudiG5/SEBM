@@ -1,6 +1,10 @@
 package group5.sebm.Maintenance.service.services;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
+import group5.sebm.Maintenance.controller.dto.UserCreateDto;
+import group5.sebm.Maintenance.controller.dto.UserQueryDto;
+import group5.sebm.Maintenance.controller.vo.UserMaintenanceRecordVo;
 import group5.sebm.Maintenance.entity.UserMaintenanceRecordPo;
 
 /**
@@ -10,4 +14,23 @@ import group5.sebm.Maintenance.entity.UserMaintenanceRecordPo;
 */
 public interface UserMaintenanceRecordService extends IService<UserMaintenanceRecordPo> {
 
+    /**
+     * 创建用户报修单
+     */
+    Long createMaintenanceRecord(Long userId, UserCreateDto createDto);
+
+    /**
+     * 查询当前用户的报修单列表
+     */
+    Page<UserMaintenanceRecordVo> listUserMaintenanceRecords(Long userId, UserQueryDto queryDto);
+
+    /**
+     * 获取报修单详情
+     */
+    UserMaintenanceRecordVo getUserMaintenanceRecordDetail(Long userId, Long recordId);
+
+    /**
+     * 取消报修单
+     */
+    Boolean cancelMaintenanceRecord(Long userId, Long recordId);
 }
