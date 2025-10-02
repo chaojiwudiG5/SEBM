@@ -10,7 +10,7 @@ import group5.sebm.notifiation.controller.dto.CreateTemplateDto;
 import group5.sebm.notifiation.controller.dto.TemplateQueryDto;
 import group5.sebm.notifiation.controller.vo.TemplateVo;
 import group5.sebm.notifiation.converter.TemplateConverter;
-import group5.sebm.notifiation.dao.TemplateDao;
+import group5.sebm.notifiation.dao.TemplateMapper;
 import group5.sebm.notifiation.entity.TemplatePo;
 import group5.sebm.notifiation.service.TemplateService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
  */
 @Slf4j
 @Service
-public class TemplateServiceImpl extends ServiceImpl<TemplateDao, TemplatePo> implements TemplateService {
+public class TemplateServiceImpl extends ServiceImpl<TemplateMapper, TemplatePo> implements TemplateService {
     
     @Autowired
     private TemplateConverter templateConverter;
@@ -51,8 +51,8 @@ public class TemplateServiceImpl extends ServiceImpl<TemplateDao, TemplatePo> im
         boolean insertResult = this.save(templatePo);
         ThrowUtils.throwIf(!insertResult, ErrorCode.OPERATION_ERROR, "模板创建失败");
         
-        log.info("2.create template success, template id：{}, notification code: {}", 
-                templatePo.getId(), createTemplateDto.getNotificationCode());
+        log.info("2.create template success, template id：{}, notification event: {}",
+                templatePo.getId(), createTemplateDto.getNotificationEvent());
         
         // PO 转 VO 并返回
         return templateConverter.toVo(templatePo);

@@ -35,7 +35,7 @@ public class CreateTemplateDto {
     private Integer notificationNode;
 
     /**
-     * 通知节点 (使用NotificationMethodEnum的code值)
+     * 通知方式 (使用NotificationMethodEnum的code值)
      */
     @NotNull(message = "通知方式不能为空")
     private List<Integer> notificationMethod;
@@ -57,13 +57,7 @@ public class CreateTemplateDto {
     private Integer notificationRole;
 
     /**
-     * 通知代码(用户自定义的唯一标识)
-     */
-    @NotNull(message = "通知代码不能为空")
-    private Integer notificationCode;
-
-    /**
-     * 通知事件类型(使用NotificationEventEnum的code值)
+     * 通知code(使用NotificationEventEnum的code值)
      */
     private Integer notificationEvent;
     /**
