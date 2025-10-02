@@ -21,11 +21,6 @@ public enum NotificationNodeEnum {
     BORROW_APPROVAL_SUCCESS(1, "租借审批成功"),
     
     /**
-     * 临近逾期提醒
-     */
-    NEAR_OVERDUE_REMINDER(2, "临近逾期提醒"),
-    
-    /**
      * 到期提醒
      */
     DUE_DATE_REMINDER(3, "到期提醒"),

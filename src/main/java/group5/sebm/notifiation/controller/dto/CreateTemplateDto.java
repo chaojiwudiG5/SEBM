@@ -57,6 +57,22 @@ public class CreateTemplateDto {
     private Integer notificationRole;
 
     /**
+     * 通知代码(用户自定义的唯一标识)
+     */
+    @NotNull(message = "通知代码不能为空")
+    private Integer notificationCode;
+
+    /**
+     * 通知事件类型(使用NotificationEventEnum的code值)
+     */
+    private Integer notificationEvent;
+    /**
+     * 通知事件类型枚举(使用NotificationTypeEnum的code值)
+     * 用于定义通知的时间偏移类型
+     */
+    private Integer notificationType;
+
+    /**
      * 模版描述
      */
     private String templateDesc;

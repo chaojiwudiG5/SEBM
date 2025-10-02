@@ -11,7 +11,7 @@ import lombok.Getter;
 public enum NotificationRoleEnum {
     Admin(0,"Admin"),
     Borrower(1,"Borrower"),
-    Technican(2,"Technican"),;
+    Technican(2,"Technican");
     private final Integer code;
     private final String description;
 

@@ -55,11 +55,6 @@ public class NotificationMessage implements Serializable {
     private Integer maxRetryCount = 3;
     
     /**
-     * 延迟发送时间（秒）
-     */
-    private Long delaySeconds;
-    
-    /**
      * 创建时间
      */
     private LocalDateTime createTime;

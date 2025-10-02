@@ -24,16 +24,18 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     public Boolean sendNotification(SendNotificationDto sendNotificationDto) {
-        TemplatePo templatePo = getTemplateIdByNode(sendNotificationDto.getNotificationNode(), sendNotificationDto.getNotificationRole());
+        TemplatePo templatePo = templateService.findTemplateByParams(sendNotificationDto.getNotificationCode());
         if (templatePo == null) {
             log.info("Template not found, request:{}", JSON.toJSONString(sendNotificationDto));
             return false;
         }
-        // 2. 构建消息
+
+        // 构建消息
         NotificationMessage message = buildNotificationMessage(sendNotificationDto, templatePo);
 
-        // 3. 发送消息
-        return sendMessage(message, sendNotificationDto.getDelaySeconds());
+        // 发送消息（使用模板中配置的延迟时间）
+        Long delaySeconds = templatePo.getRelateTimeOffset();
+        return sendMessage(message, delaySeconds);
     }
 
     /**
@@ -44,9 +46,7 @@ public class NotificationServiceImpl implements NotificationService {
         message.setMessageId(UUID.randomUUID().toString());
         message.setTemplate(templatePo);
         message.setTemplateVars(request.getTemplateVars());
-        message.setDelaySeconds(request.getDelaySeconds());
         message.setCreateTime(LocalDateTime.now());
-
         return message;
     }
 
@@ -59,16 +59,5 @@ public class NotificationServiceImpl implements NotificationService {
         } else {
             return messageProducer.sendImmediateMessage(message);
         }
-    }
-
-    /**
-     * 根据通知节点获取模板ID
-     */
-    private TemplatePo getTemplateIdByNode(Integer notificationNode, Integer notificationRole) {
-        TemplatePo templatePo = templateService.findTemplateByNode(notificationNode, notificationRole);
-        if (templatePo == null) {
-            return null;
-        }
-        return templatePo; // 临时返回默认值
     }
 }

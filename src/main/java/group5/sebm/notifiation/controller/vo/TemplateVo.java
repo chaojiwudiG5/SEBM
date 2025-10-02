@@ -39,6 +39,16 @@ public class TemplateVo {
      * 通知角色
      */
     private Integer notificationRole;
+
+    /**
+     * 通知类型
+     */
+    private Integer notificationType;
+
+    /**
+     * 通知事件
+     */
+    private Integer notificationEvent;
     
     /**
      * 内容

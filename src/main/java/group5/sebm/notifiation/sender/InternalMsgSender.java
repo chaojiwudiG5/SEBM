@@ -3,6 +3,7 @@ package group5.sebm.notifiation.sender;
 import group5.sebm.User.service.UserServiceInterface.UserService;
 import group5.sebm.common.dto.UserDto;
 import group5.sebm.notifiation.enums.NotificationMethodEnum;
+import group5.sebm.notifiation.websocket.NotificationWebSocketHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -23,6 +24,9 @@ public class InternalMsgSender extends ChannelMsgSender {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private NotificationWebSocketHandler webSocketHandler;
 
     // 简单的内存存储，实际项目中应该使用数据库或消息队列
     private final Map<String, StringBuilder> userMessages = new ConcurrentHashMap<>();
@@ -61,10 +65,16 @@ public class InternalMsgSender extends ChannelMsgSender {
                       .append(formattedMessage)
                       .append("\n");
 
-            // 模拟实时推送（实际项目中可以使用 WebSocket、SSE 等）
-            pushToUser(userId.toString(), formattedMessage);
+            // 通过WebSocket实时推送消息
+            boolean webSocketSuccess = pushToUserViaWebSocket(userId.toString(), subject, content);
+            
+            // 如果WebSocket推送失败，记录日志但不影响整体发送结果
+            if (!webSocketSuccess) {
+                log.warn("WebSocket推送失败，但消息已存储到用户消息队列 - 用户ID: {}", userId);
+            }
 
-            log.info("内部消息发送成功 - 用户ID: {}, 用户名: {}, 主题: {}", userId, username, subject);
+            log.info("内部消息发送成功 - 用户ID: {}, 用户名: {}, 主题: {}, WebSocket推送: {}", 
+                    userId, username, subject, webSocketSuccess ? "成功" : "失败");
             return true;
 
         } catch (Exception e) {
@@ -91,19 +101,70 @@ public class InternalMsgSender extends ChannelMsgSender {
     }
 
     /**
-     * 推送消息给用户（模拟实时推送）
+     * 通过WebSocket推送消息给用户
      * @param userId 用户ID
-     * @param message 消息内容
+     * @param subject 消息主题
+     * @param content 消息内容
+     * @return 是否推送成功
      */
-    private void pushToUser(String userId, String message) {
-        // 这里可以集成 WebSocket、Server-Sent Events (SSE) 或消息队列
-        log.info("实时推送消息给用户 {} : {}", userId, message);
+    private boolean pushToUserViaWebSocket(String userId, String subject, String content) {
+        try {
+            // 检查用户是否在线
+            if (!webSocketHandler.isUserOnline(userId)) {
+                log.info("用户 {} 不在线，跳过WebSocket推送", userId);
+                return false;
+            }
 
-        // TODO: 实际项目中可以在这里实现：
-        // 1. WebSocket 推送
-        // 2. SSE 推送
-        // 3. 消息队列发布
-        // 4. 数据库存储未读消息
+            // 通过WebSocket发送通知消息
+            boolean success = webSocketHandler.sendNotificationToUser(userId, subject, content, "internal");
+            
+            if (success) {
+                log.info("WebSocket推送成功 - 用户ID: {}, 主题: {}", userId, subject);
+            } else {
+                log.warn("WebSocket推送失败 - 用户ID: {}", userId);
+            }
+            
+            return success;
+            
+        } catch (Exception e) {
+            log.error("WebSocket推送异常 - 用户ID: {}, 错误: {}", userId, e.getMessage(), e);
+            return false;
+        }
+    }
+
+    /**
+     * 广播消息给所有在线用户
+     * @param subject 消息主题
+     * @param content 消息内容
+     * @return 推送成功的用户数量
+     */
+    public int broadcastMessage(String subject, String content) {
+        try {
+            String message = formatInternalMessage(subject, content, null);
+            int successCount = webSocketHandler.broadcastMessage(message);
+            log.info("广播消息完成 - 主题: {}, 成功推送给 {} 个用户", subject, successCount);
+            return successCount;
+        } catch (Exception e) {
+            log.error("广播消息失败 - 主题: {}, 错误: {}", subject, e.getMessage(), e);
+            return 0;
+        }
+    }
+
+    /**
+     * 获取在线用户数量
+     * @return 在线用户数量
+     */
+    public int getOnlineUserCount() {
+        return webSocketHandler.getOnlineUserCount();
+    }
+
+    /**
+     * 检查用户是否在线
+     * @param userId 用户ID
+     * @return 是否在线
+     */
+    public boolean isUserOnline(String userId) {
+        return webSocketHandler.isUserOnline(userId);
     }
 
     /**
@@ -150,6 +211,8 @@ public class InternalMsgSender extends ChannelMsgSender {
         stats.put("totalMessages", userMessages.values().stream()
                 .mapToInt(sb -> sb.toString().split("\n").length)
                 .sum());
+        stats.put("onlineUsers", webSocketHandler.getOnlineUserCount());
+        stats.put("onlineUserList", webSocketHandler.getOnlineUsers());
         stats.put("timestamp", LocalDateTime.now());
         return stats;
     }

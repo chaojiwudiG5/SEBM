@@ -51,7 +51,8 @@ public class TemplateServiceImpl extends ServiceImpl<TemplateDao, TemplatePo> im
         boolean insertResult = this.save(templatePo);
         ThrowUtils.throwIf(!insertResult, ErrorCode.OPERATION_ERROR, "模板创建失败");
         
-        log.info("2.create template success, template id：{}", templatePo.getId());
+        log.info("2.create template success, template id：{}, notification code: {}", 
+                templatePo.getId(), createTemplateDto.getNotificationCode());
         
         // PO 转 VO 并返回
         return templateConverter.toVo(templatePo);
@@ -89,30 +90,30 @@ public class TemplateServiceImpl extends ServiceImpl<TemplateDao, TemplatePo> im
     }
     
     /**
-     * 根据通知节点查询默认模板
-     * @param notificationNode 通知节点
+     * 根据通知参数查询模板
+     * @param notificationEvent 通知code
      * @return 模板实体
      */
     @Override
-    public TemplatePo findTemplateByNode(Integer notificationNode, Integer notificationRole) {
-        log.info("查询默认模板 - 通知节点: {}", notificationNode);
-        
+    public TemplatePo findTemplateByParams( Integer notificationEvent) {
+        log.info("查询默认模板 - 通知code: {}", notificationEvent);
+
         QueryWrapper<TemplatePo> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("notificationNode", notificationNode)
-                    .eq("notificationRole", notificationRole)
-                    .eq("isDelete", NotificationConstant.NOT_DELETED)
-                    .eq("status", NotificationConstant.TEMPLATE_STATUS_ACTIVE)
-                    .orderByDesc("createTime")
-                    .last("LIMIT 1");
-        
+        queryWrapper.eq("notificationEvent", notificationEvent)
+                .eq("isDelete", NotificationConstant.NOT_DELETED)
+                .eq("status", NotificationConstant.TEMPLATE_STATUS_ACTIVE);
+
+        queryWrapper.orderByDesc("createTime")
+                .last("LIMIT 1");
+
         TemplatePo template = this.getOne(queryWrapper);
-        
+
         if (template == null) {
-            log.warn("未找到通知节点 {} 的默认模板", notificationNode);
+            log.warn("未找到通知 {} 的模板", notificationEvent);
         } else {
             log.info("找到默认模板: ID={}, 标题={}", template.getId(), template.getTemplateTitle());
         }
-        
+
         return template;
     }
     

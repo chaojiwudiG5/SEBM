@@ -29,9 +29,9 @@ public interface TemplateService {
     Page<TemplateVo> getTemplateList(TemplateQueryDto templateQueryDto);
     
     /**
-     * 根据通知节点查询默认模板
-     * @param notificationNode 通知节点
+     * 根据通知参数查询模板
+     * @param notificationEvent 通知code
      * @return 模板实体
      */
-    TemplatePo findTemplateByNode(Integer notificationNode, Integer notificationRole);
+    TemplatePo findTemplateByParams(Integer notificationEvent);
 }

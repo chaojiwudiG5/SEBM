@@ -45,12 +45,24 @@ public class TemplatePo {
      */
     @TableField("notificationRole")
     private String notificationRole;
+
+    /**
+     * 通知类型
+     */
+    @TableField("notificationType")
+    private Integer notificationType;
+
+    /**
+     * 通知事件类型（使用NotificationEventEnum的code值）
+     */
+    @TableField("notificationEvent")
+    private Integer notificationEvent;
     
     /**
      * 相关时间偏移
      */
     @TableField("relateTimeOffset")
-    private Integer relateTimeOffset;
+    private Long relateTimeOffset;
     
     /**
      * 用户ID

@@ -1,6 +1,5 @@
 package group5.sebm.notifiation.controller.dto;
 
-import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -16,23 +15,15 @@ import java.util.Map;
 @AllArgsConstructor
 @NoArgsConstructor
 public class SendNotificationDto {
-    
-    /**
-     * 通知节点枚举值
-     * 使用 NotificationNodeEnum
-     */
-    private Integer notificationNode;
 
     /**
-     * 通知角色枚举值
-     * 使用 NotificationRoleEnum
+     * 通知代码枚举值
+     * 使用 NotificationCodeEnum
      */
-    private Integer notificationRole;
-    
+    private Integer notificationCode;
     /**
      * 接收者Id
      */
-    @NotBlank(message = "接收者不能为空")
     private Long userId;
 
     /**
@@ -42,20 +33,9 @@ public class SendNotificationDto {
     private Map<String, Object> templateVars;
 
     /**
-     * 延迟时间
+     * 节点时间戳(毫秒)
      */
-    private Long delaySeconds;
+    private Long nodeTimestamp;
 
-    /**
-     * 验证请求参数
-     * @return 是否有效
-     */
-    public boolean isValid() {
-        // 必须提供事件代码或通知节点代码之一
-        if (notificationNode == null || userId == null || notificationRole == null) {
-            return false;
-        }
-        return true;
-    }
 
 }
