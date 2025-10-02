@@ -5,6 +5,7 @@ import group5.sebm.notifiation.controller.dto.CreateTemplateDto;
 import group5.sebm.notifiation.controller.dto.TemplateQueryDto;
 import group5.sebm.notifiation.controller.vo.TemplateVo;
 import group5.sebm.notifiation.entity.TemplatePo;
+import group5.sebm.notifiation.service.dto.TemplateDto;
 import jakarta.servlet.http.HttpServletRequest;
 
 
@@ -31,7 +32,7 @@ public interface TemplateService {
     /**
      * 根据通知参数查询模板
      * @param notificationEvent 通知code
-     * @return 模板实体
+     * @return 模板DTO
      */
-    TemplatePo findTemplateByParams(Integer notificationEvent);
+    TemplateDto findTemplateByParams(Integer notificationEvent);
 }

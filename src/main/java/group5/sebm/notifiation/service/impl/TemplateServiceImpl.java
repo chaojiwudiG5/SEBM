@@ -13,6 +13,7 @@ import group5.sebm.notifiation.converter.TemplateConverter;
 import group5.sebm.notifiation.dao.TemplateMapper;
 import group5.sebm.notifiation.entity.TemplatePo;
 import group5.sebm.notifiation.service.TemplateService;
+import group5.sebm.notifiation.service.dto.TemplateDto;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -92,10 +93,10 @@ public class TemplateServiceImpl extends ServiceImpl<TemplateMapper, TemplatePo>
     /**
      * 根据通知参数查询模板
      * @param notificationEvent 通知code
-     * @return 模板实体
+     * @return 模板DTO
      */
     @Override
-    public TemplatePo findTemplateByParams( Integer notificationEvent) {
+    public TemplateDto findTemplateByParams(Integer notificationEvent) {
         log.info("查询默认模板 - 通知code: {}", notificationEvent);
 
         QueryWrapper<TemplatePo> queryWrapper = new QueryWrapper<>();
@@ -110,11 +111,11 @@ public class TemplateServiceImpl extends ServiceImpl<TemplateMapper, TemplatePo>
 
         if (template == null) {
             log.warn("未找到通知 {} 的模板", notificationEvent);
-        } else {
-            log.info("找到默认模板: ID={}, 标题={}", template.getId(), template.getTemplateTitle());
+            return null;
         }
-
-        return template;
+        log.info("找到默认模板: ID={}, 标题={}", template.getId(), template.getTemplateTitle());
+        // PO 转 DTO
+        return templateConverter.toDto(template);
     }
     
     /**

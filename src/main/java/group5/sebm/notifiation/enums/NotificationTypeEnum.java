@@ -15,17 +15,17 @@ public enum NotificationTypeEnum {
      * 提前通知类型（目标时间 = 节点时间戳 - 偏移量）
      */
 
-    ADVANCE_TYPE(1, "提前通知"),
+    ADVANCE_TYPE(-1, "提前通知"),
 
     /**
      * 即时通知类型（目标时间 = 节点时间戳）
      */
-    IMMEDIATE_TYPE(2, "即时通知"),
+    IMMEDIATE_TYPE(0, "即时通知"),
 
     /**
      * 延迟通知类型（目标时间 = 节点时间戳 + 偏移量）
      */
-    DELAY_TYPE(3, "延迟通知");
+    DELAY_TYPE(1, "延迟通知");
 
     /**
      * 事件类型代码

@@ -6,6 +6,7 @@ import group5.sebm.exception.ThrowUtils;
 import group5.sebm.notifiation.controller.dto.CreateTemplateDto;
 import group5.sebm.notifiation.controller.vo.TemplateVo;
 import group5.sebm.notifiation.entity.TemplatePo;
+import group5.sebm.notifiation.service.dto.TemplateDto;
 import jakarta.servlet.http.HttpServletRequest;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -39,6 +40,13 @@ public interface TemplateConverter {
      */
     //@Mapping(target = "notificationNodeDesc", source = "notificationNode", qualifiedByName = "mapNotificationNodeDesc")
     TemplateVo toVo(TemplatePo templatePo);
+
+    /**
+     * TemplatePo 转 TemplateDto
+     * @param templatePo 模板PO
+     * @return 模板DTO
+     */
+    TemplateDto toDto(TemplatePo templatePo);
 
     /**
      * 从 HttpServletRequest 中获取当前用户ID

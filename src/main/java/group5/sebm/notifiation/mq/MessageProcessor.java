@@ -91,7 +91,7 @@ public class MessageProcessor {
             if (method == null) {
                 continue;
             }
-            messageSenderService.sendNotification(method, message.getUserId(), template.getTemplateTitle(), template.getContent());
+            messageSenderService.sendNotification(method, message.getUserId(), template.getTemplateTitle(), template.getTemplateContent());
         }
     }
 }

@@ -33,7 +33,7 @@ public class SendNotificationDto {
     private Map<String, Object> templateVars;
 
     /**
-     * 节点时间戳(毫秒)
+     * 节点时间戳(秒)
      */
     private Long nodeTimestamp;
 
