@@ -261,7 +261,7 @@ public class BorrowRecordServiceImpl extends ServiceImpl<BorrowRecordMapper, Bor
       // 构建发送通知DTO
       SendNotificationDto sendNotificationDto = SendNotificationDto.builder()
           .notificationEvent(
-              NotificationEventEnum.BORROW_APPLICATION_SUBMITTED.getCode()) // 使用借用申请提交成功事件
+              NotificationEventEnum.BORROW_APPLICATION_APPROVED.getCode()) // 使用借用申请提交成功事件
           .userId(user.getId())
           .templateVars(templateVars)
           .nodeTimestamp(System.currentTimeMillis() / 1000) // 当前时间戳（秒）
@@ -275,7 +275,7 @@ public class BorrowRecordServiceImpl extends ServiceImpl<BorrowRecordMapper, Bor
     } catch (Exception e) {
       log.error("发送借用成功通知失败: userId={}, deviceId={}, error={}",
           user.getId(), device.getId(), e.getMessage(), e);
-      // 通知发送失败不影响主业务流程，只记录日志
+      throw new BusinessException(ErrorCode.SYSTEM_ERROR, "发送借用成功通知失败");
     }
   }
 
@@ -311,7 +311,6 @@ public class BorrowRecordServiceImpl extends ServiceImpl<BorrowRecordMapper, Bor
     } catch (Exception e) {
       log.error("发送归还成功通知失败, userId: {}, deviceId: {}, borrowRecordId: {}, error: {}",
           user.getId(), device.getId(), borrowRecord.getId(), e.getMessage());
-      throw new BusinessException(ErrorCode.SYSTEM_ERROR, "发送归还成功通知失败");
     }
   }
 }

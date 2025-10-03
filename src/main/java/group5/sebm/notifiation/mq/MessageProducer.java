@@ -35,7 +35,6 @@ public class MessageProducer {
             if (message.getCreateTime() == null) {
                 message.setCreateTime(LocalDateTime.now());
             }
-
             // 发送消息到RocketMQ
             rocketMQTemplate.syncSend(
                     NOTIFICATION_TOPIC + ":" + IMMEDIATE_TAG,
