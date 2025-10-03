@@ -11,24 +11,19 @@ import lombok.Getter;
 public enum NotificationNodeEnum {
     
     /**
-     * 租借申请提交成功
+     * 租借成功
      */
-    BORROW_REQUEST_SUCCESS(0, "租借申请提交成功"),
-    
-    /**
-     * 租借审批成功
-     */
-    BORROW_APPROVAL_SUCCESS(1, "租借审批成功"),
+    BORROW_SUCCESS(1, "租借审批成功"),
     
     /**
      * 到期提醒
      */
-    DUE_DATE_REMINDER(3, "到期提醒"),
+    DUE_DATE_REMINDER(3, "到期提醒");
     
     /**
      * 租借审批不成功
      */
-    BORROW_APPROVAL_FAILED(-1, "租借审批不成功");
+    //BORROW_APPROVAL_FAILED(-1, "租借审批不成功");
     
     /**
      * 节点代码
