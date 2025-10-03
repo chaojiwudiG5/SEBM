@@ -11,6 +11,7 @@ import org.springframework.cache.annotation.EnableCaching;
 @MapperScan("group5.sebm.BorrowRecord.dao")
 @MapperScan("group5.sebm.Maintenance.dao")
 @MapperScan("group5.sebm.Reservation.dao")
+@MapperScan( "group5.sebm.notifiation.dao")
 @EnableCaching
 public class SebmApplication {
 
