@@ -11,14 +11,9 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum NotificationEventEnum {
     /**
-     * 租借审批提交成功
-     */
-    BORROW_APPLICATION_SUBMITTED(1001, "租借审批提交成功", NotificationNodeEnum.BORROW_APPROVAL_SUCCESS),
-
-    /**
      * 租借审批通过
      */
-    BORROW_APPLICATION_APPROVED(1002, "租借审批通过", NotificationNodeEnum.BORROW_APPROVAL_SUCCESS),
+    BORROW_APPLICATION_APPROVED(1002, "租借成功", NotificationNodeEnum.BORROW_SUCCESS),
 
     /**
      * 即将逾期通知
