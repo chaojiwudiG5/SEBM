@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import group5.sebm.common.vo.DeviceVo;
 import group5.sebm.Device.service.services.DeviceService;
 import group5.sebm.Maintenance.controller.dto.UserCreateDto;
 import group5.sebm.Maintenance.controller.dto.UserQueryDto;
@@ -49,8 +50,8 @@ public class UserMaintenanceRecordServiceImpl extends ServiceImpl<UserMaintenanc
         record.setUpdateTime(now);
         this.save(record);
         //2.修改设备状态为报修中
-        boolean success = deviceService.updateDeviceStatus(createDto.getDeviceId(), 2);
-        ThrowUtils.throwIf(!success, ErrorCode.OPERATION_ERROR, "create maintenance record failed");
+        DeviceVo deviceVo = deviceService.updateDeviceStatus(createDto.getDeviceId(), 2);
+        ThrowUtils.throwIf(deviceVo == null, ErrorCode.OPERATION_ERROR, "create maintenance record failed");
         return record.getId();
     }
 
@@ -117,7 +118,7 @@ public class UserMaintenanceRecordServiceImpl extends ServiceImpl<UserMaintenanc
         update.setUpdateTime(new Date());
         boolean success = this.update(update, updateWrapper);
         //3.修改设备状态为可用
-        success = success && deviceService.updateDeviceStatus(record.getDeviceId(), 0);
+        success = success && (deviceService.updateDeviceStatus(record.getDeviceId(), 0) != null);
         ThrowUtils.throwIf(!success, ErrorCode.OPERATION_ERROR, "delete maintenance record failed");
         return true;
     }

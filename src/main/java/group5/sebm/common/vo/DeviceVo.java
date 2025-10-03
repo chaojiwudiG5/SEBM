@@ -1,4 +1,4 @@
-package group5.sebm.Device.controller.vo;
+package group5.sebm.common.vo;
 
 import lombok.Data;
 
