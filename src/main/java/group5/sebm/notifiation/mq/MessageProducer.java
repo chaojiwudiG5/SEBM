@@ -1,7 +1,6 @@
 package group5.sebm.notifiation.mq;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.amqp.core.MessagePostProcessor;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -78,14 +77,10 @@ public class MessageProducer {
                     "notification.delay.exchange",
                     "notification.delay",
                     message,
-                    new MessagePostProcessor() {
-                        @Override
-                        public org.springframework.amqp.core.Message postProcessMessage(
-                                org.springframework.amqp.core.Message message) {
-                            // 设置延迟时间（毫秒）- 使用延迟消息插件的header
-                            message.getMessageProperties().setHeader("x-delay", delayMillis);
-                            return message;
-                        }
+                    msg -> {
+                        // 设置延迟时间（毫秒）- 使用延迟消息插件的header
+                        msg.getMessageProperties().setHeader("x-delay", delayMillis);
+                        return msg;
                     }
             );
 
