@@ -34,6 +34,26 @@ spring:
             required: true
           ssl:
             trust: smtp.gmail.com
+
+  # RabbitMQ configuration for Railway deployment
+  rabbitmq:
+    host: 66.33.22.232
+    port: 31077
+    username: LrVun3erXvpa84on
+    password: aPJvTJhUWLIDQ1N6H.qYsupbxr~6bzSY
+    virtual-host: /
+    connection-timeout: 15000
+    publisher-confirm-type: correlated
+    publisher-returns: true
+    listener:
+      simple:
+        acknowledge-mode: manual
+        retry:
+          enabled: true
+          max-attempts: 3
+          initial-interval: 1000
+          max-interval: 10000
+          multiplier: 2
 server:
   port: 29578
 # springdoc-openapi
@@ -54,19 +74,6 @@ mybatis-plus:
   global-config:
     db-config:
       id-type: auto
-
-# RocketMQ configuration
-rocketmq:
-  name-server: ${ROCKETMQ_NAME_SERVER:nameserver-production.up.railway.app}
-  producer:
-    group: ${ROCKETMQ_PRODUCER_GROUP:sebm-producer-group}
-    send-message-timeout: 3000
-    retry-times-when-send-failed: 2
-    retry-times-when-send-async-failed: 2
-    max-message-size: 4194304
-    compress-message-body-threshold: 4096
-  consumer:
-    group: ${ROCKETMQ_CONSUMER_GROUP:sebm-consumer-group}
 
 tencent:
   cos:
