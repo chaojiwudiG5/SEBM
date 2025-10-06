@@ -131,32 +131,4 @@ public class RabbitMQConfig {
                 .noargs();
     }
 
-    // ==================== 死信队列配置 ====================
-    
-    /**
-     * 死信交换器
-     */
-    @Bean
-    public TopicExchange deadLetterExchange() {
-        return new TopicExchange("notification.dlx", true, false);
-    }
-
-    /**
-     * 死信队列
-     */
-    @Bean
-    public Queue deadLetterQueue() {
-        return QueueBuilder.durable("notification.dlx.queue").build();
-    }
-
-    /**
-     * 死信队列绑定
-     */
-    @Bean
-    public Binding deadLetterBinding() {
-        return BindingBuilder
-                .bind(deadLetterQueue())
-                .to(deadLetterExchange())
-                .with("notification.dlx.*");
-    }
 }
