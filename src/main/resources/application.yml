@@ -37,11 +37,13 @@ spring:
 
   # RabbitMQ configuration for Railway deployment
   rabbitmq:
-    host: 66.33.22.232
-    port: 31077
+    host: rabbitmq.railway.internal
+    port: 5672
     username: LrVun3erXvpa84on
-    password: aPJvTJhUWLIDQ1N6H.qYsupbxr~6bzSY
+    password: "aPJvTJhUWLIDQ1N6H.qYsupbxr~6bzSY"
     virtual-host: /
+    ssl:
+       enabled: false
     connection-timeout: 15000
     publisher-confirm-type: correlated
     publisher-returns: true
