@@ -1,7 +1,7 @@
 package group5.sebm.notifiation.config;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.TypeReference;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.ibatis.type.BaseTypeHandler;
 import org.apache.ibatis.type.JdbcType;
 
@@ -17,9 +17,15 @@ import java.util.List;
  */
 public class ListTypeHandler extends BaseTypeHandler<List<Integer>> {
 
+    private final ObjectMapper objectMapper = new ObjectMapper();
+
     @Override
     public void setNonNullParameter(PreparedStatement ps, int i, List<Integer> parameter, JdbcType jdbcType) throws SQLException {
-        ps.setString(i, JSON.toJSONString(parameter));
+        try {
+            ps.setString(i, objectMapper.writeValueAsString(parameter));
+        } catch (Exception e) {
+            throw new SQLException("Failed to serialize List<Integer> to JSON", e);
+        }
     }
 
     @Override
@@ -50,7 +56,7 @@ public class ListTypeHandler extends BaseTypeHandler<List<Integer>> {
             return null;
         }
         try {
-            return JSON.parseObject(json, new TypeReference<List<Integer>>() {});
+            return objectMapper.readValue(json, new TypeReference<List<Integer>>() {});
         } catch (Exception e) {
             // 如果解析失败，返回null
             return null;
