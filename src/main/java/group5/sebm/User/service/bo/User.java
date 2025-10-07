@@ -63,6 +63,27 @@ public class User {
      */
     protected Date createTime;
 
+    /**
+     * 状态 0 - 正常
+     */
+    protected Integer userStatus;
+    /**
+     * 年龄
+     */
+    protected Integer age;
+
+    /**
+     * 等级
+     */
+    protected Integer level;
+
+
+    /**
+     * 验证两次输入的密码是否一致
+     * @param password 密码
+     * @param checkPassword 确认密码
+     * @return 是否一致
+     */
     public boolean validateTwicePassword(String password, String checkPassword) {
         return password != null && password.equals(checkPassword);
     }
