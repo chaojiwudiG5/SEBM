@@ -50,15 +50,14 @@ public class MessageProcessor {
      * @return 是否有效
      */
     private boolean validateMessage(NotificationMessage message) {
-        if (message == null) {
-            log.error("消息为空");
+        if (message == null || message.getUserId() == null) {
+            log.error("接收者为空: messageId={}", message.getMessageId());
             return false;
         }
 
         TemplatePo template = message.getTemplate();
         
-        if (template == null || template.getUserId() == null) {
-            log.error("接收者为空: messageId={}", message.getMessageId());
+        if (template == null) {
             return false;
         }
         

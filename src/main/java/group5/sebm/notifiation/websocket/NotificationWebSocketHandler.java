@@ -1,5 +1,7 @@
 package group5.sebm.notifiation.websocket;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.alibaba.fastjson.JSON;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -21,6 +23,9 @@ public class NotificationWebSocketHandler implements WebSocketHandler {
 
     // 存储用户ID和WebSocket会话的映射关系
     private final Map<String, WebSocketSession> userSessions = new ConcurrentHashMap<>();
+    
+    // JSON解析器
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
@@ -235,7 +240,7 @@ public class NotificationWebSocketHandler implements WebSocketHandler {
     private void handleClientMessage(WebSocketSession session, String payload) {
         try {
             // 解析客户端消息
-            Map<String, Object> message = JSON.parseObject(payload, Map.class);
+            Map<String, Object> message = objectMapper.readValue(payload, new TypeReference<Map<String, Object>>() {});
             String type = (String) message.get("type");
             
             switch (type) {

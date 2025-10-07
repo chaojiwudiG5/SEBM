@@ -64,7 +64,7 @@ public class EmailSender extends ChannelMsgSender {
             // 发送邮件
             mailSender.send(message);
             
-            log.info("邮件发送成功 - 用户ID: {}, 邮箱: {}, 主题: {}", userId, null, subject);
+            log.info("邮件发送成功 - 用户ID: {}, 邮箱: {}, 主题: {}", userId, email, subject);
             return true;
             
         } catch (Exception e) {
@@ -78,7 +78,7 @@ public class EmailSender extends ChannelMsgSender {
      * @param userId
      * @return
      */
-    public String getUserContactInfo(Long userId){
+    public String getUserContactInfo(Long userId) {
         UserDto userDto = userService.getCurrentUserDtoFromID(userId);
         if(Objects.nonNull(userDto)){
             return userDto.getEmail();
