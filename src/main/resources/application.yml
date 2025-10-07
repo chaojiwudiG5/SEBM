@@ -17,6 +17,23 @@ spring:
       port: 13462
       username: default
       password: ekseulHMMJJMoAFIOLchTXsnRDbpMHff
+
+  # Mail configuration
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${MAIL_USERNAME:sebm.notification@gmail.com}
+    password: ${MAIL_PASSWORD:vuxi nfwf jpmc koow}
+    default-encoding: UTF-8
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+          ssl:
+            trust: smtp.gmail.com
 server:
   port: 29578
 # springdoc-openapi
@@ -37,6 +54,20 @@ mybatis-plus:
   global-config:
     db-config:
       id-type: auto
+
+# RocketMQ configuration
+rocketmq:
+  name-server: ${ROCKETMQ_NAME_SERVER:localhost:9876}
+  producer:
+    group: ${ROCKETMQ_PRODUCER_GROUP:sebm-producer-group}
+    send-message-timeout: 3000
+    retry-times-when-send-failed: 2
+    retry-times-when-send-async-failed: 2
+    max-message-size: 4194304
+    compress-message-body-threshold: 4096
+  consumer:
+    group: ${ROCKETMQ_CONSUMER_GROUP:sebm-consumer-group}
+
 tencent:
   cos:
     secretId: ${TENCENT_SECRET_ID:default}

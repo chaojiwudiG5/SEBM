@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebSocket通知测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .container {
+            border: 1px solid #ddd;
+            padding: 20px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        .connected {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .disconnected {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        .messages {
+            height: 300px;
+            overflow-y: auto;
+            border: 1px solid #ccc;
+            padding: 10px;
+            background-color: #f9f9f9;
+        }
+        .message {
+            margin: 5px 0;
+            padding: 5px;
+            border-left: 3px solid #007bff;
+            background-color: white;
+        }
+        button {
+            padding: 8px 16px;
+            margin: 5px;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        .btn-primary {
+            background-color: #007bff;
+            color: white;
+        }
+        .btn-success {
+            background-color: #28a745;
+            color: white;
+        }
+        .btn-danger {
+            background-color: #dc3545;
+            color: white;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+    <h1>WebSocket通知测试页面</h1>
+    
+    <div class="container">
+        <h3>连接状态</h3>
+        <div id="status" class="status disconnected">未连接</div>
+        <div>
+            <input type="text" id="userId" placeholder="输入用户ID" value="1">
+            <button class="btn-primary" onclick="connect()">连接</button>
+            <button class="btn-danger" onclick="disconnect()">断开</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <h3>消息列表</h3>
+        <div id="messages" class="messages"></div>
+        <button class="btn-primary" onclick="clearMessages()">清空消息</button>
+    </div>
+
+    <div class="container">
+        <h3>发送测试消息</h3>
+        <input type="text" id="testMessage" placeholder="输入测试消息" value="Hello WebSocket!">
+        <button class="btn-success" onclick="sendTestMessage()">发送测试消息</button>
+    </div>
+
+    <div class="container">
+        <h3>发送心跳</h3>
+        <button class="btn-primary" onclick="sendPing()">发送心跳</button>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+    <script>
+        let socket = null;
+        let userId = null;
+
+        function connect() {
+            userId = document.getElementById('userId').value;
+            if (!userId) {
+                alert('请输入用户ID');
+                return;
+            }
+
+            const url = `ws://localhost:29578/ws/notification?userId=${userId}`;
+            
+            try {
+                socket = new SockJS(url);
+                
+                socket.onopen = function() {
+                    updateStatus('已连接', 'connected');
+                    addMessage('系统', 'WebSocket连接已建立', 'system');
+                };
+
+                socket.onmessage = function(event) {
+                    try {
+                        const data = JSON.parse(event.data);
+                        addMessage(data.subject || '消息', data.content || event.data, data.type || 'message');
+                    } catch (e) {
+                        addMessage('消息', event.data, 'message');
+                    }
+                };
+
+                socket.onclose = function() {
+                    updateStatus('连接已关闭', 'disconnected');
+                    addMessage('系统', 'WebSocket连接已关闭', 'system');
+                };
+
+                socket.onerror = function(error) {
+                    updateStatus('连接错误', 'disconnected');
+                    addMessage('错误', 'WebSocket连接错误: ' + error, 'error');
+                };
+
+            } catch (error) {
+                alert('连接失败: ' + error.message);
+            }
+        }
+
+        function disconnect() {
+            if (socket) {
+                socket.close();
+                socket = null;
+            }
+        }
+
+        function sendTestMessage() {
+            if (!socket) {
+                alert('请先连接WebSocket');
+                return;
+            }
+            
+            const message = document.getElementById('testMessage').value;
+            socket.send(JSON.stringify({
+                type: 'test',
+                message: message,
+                timestamp: new Date().toISOString()
+            }));
+            addMessage('发送', message, 'sent');
+        }
+
+        function sendPing() {
+            if (!socket) {
+                alert('请先连接WebSocket');
+                return;
+            }
+            
+            socket.send(JSON.stringify({
+                type: 'ping',
+                timestamp: new Date().toISOString()
+            }));
+            addMessage('发送', '心跳包', 'sent');
+        }
+
+        function updateStatus(text, className) {
+            const statusDiv = document.getElementById('status');
+            statusDiv.textContent = text;
+            statusDiv.className = `status ${className}`;
+        }
+
+        function addMessage(subject, content, type) {
+            const messagesDiv = document.getElementById('messages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message';
+            
+            const timestamp = new Date().toLocaleTimeString();
+            messageDiv.innerHTML = `
+                <strong>[${timestamp}] ${subject}:</strong> ${content}
+            `;
+            
+            messagesDiv.appendChild(messageDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        function clearMessages() {
+            document.getElementById('messages').innerHTML = '';
+        }
+
+        // 页面加载完成后自动连接（可选）
+        // window.onload = function() {
+        //     connect();
+        // };
+    </script>
+</body>
+</html>
