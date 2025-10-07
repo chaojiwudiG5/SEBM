@@ -57,7 +57,7 @@ mybatis-plus:
 
 # RocketMQ configuration
 rocketmq:
-  name-server: ${ROCKETMQ_NAME_SERVER:nameserver-production.up.railway.app}
+  name-server: ${ROCKETMQ_NAME_SERVER:nameserver-production.up.railway.app:9876}
   producer:
     group: ${ROCKETMQ_PRODUCER_GROUP:sebm-producer-group}
     send-message-timeout: 3000
