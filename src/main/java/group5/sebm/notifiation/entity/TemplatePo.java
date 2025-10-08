@@ -29,9 +29,9 @@ public class TemplatePo {
     private String templateTitle;
     
     /**
-     * 模板类型
+     * 通知方式
      */
-    @TableField("notificationMethod")
+    @TableField(value = "notificationMethod", typeHandler = group5.sebm.notifiation.config.ListTypeHandler.class)
     private List<Integer> notificationMethod;
     
     /**
@@ -53,7 +53,7 @@ public class TemplatePo {
     private Integer notificationType;
 
     /**
-     * 通知事件类型（使用NotificationEventEnum的code值）
+     * 通知事件描述（用户自定义填写）
      */
     @TableField("notificationEvent")
     private Integer notificationEvent;

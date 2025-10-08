@@ -2,6 +2,7 @@ package group5.sebm.notifiation.config;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import org.apache.ibatis.type.BaseTypeHandler;
 import org.apache.ibatis.type.JdbcType;
 
@@ -9,6 +10,7 @@ import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Types;
 import java.util.List;
 
 /**
@@ -17,14 +19,33 @@ import java.util.List;
  */
 public class ListTypeHandler extends BaseTypeHandler<List<Integer>> {
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper;
+    
+    public ListTypeHandler() {
+        this.objectMapper = new ObjectMapper();
+        // 配置ObjectMapper以确保正确的JSON输出
+        this.objectMapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
+    }
 
     @Override
     public void setNonNullParameter(PreparedStatement ps, int i, List<Integer> parameter, JdbcType jdbcType) throws SQLException {
         try {
-            ps.setString(i, objectMapper.writeValueAsString(parameter));
+            if (parameter == null || parameter.isEmpty()) {
+                ps.setNull(i, Types.VARCHAR);
+                return;
+            }
+            
+            String jsonString = objectMapper.writeValueAsString(parameter);
+            // 确保JSON字符串是有效的UTF-8编码
+            if (jsonString == null || jsonString.trim().isEmpty()) {
+                ps.setNull(i, Types.VARCHAR);
+                return;
+            }
+            
+            // 使用setObject方法，让JDBC驱动处理类型转换
+            ps.setObject(i, jsonString, Types.VARCHAR);
         } catch (Exception e) {
-            throw new SQLException("Failed to serialize List<Integer> to JSON", e);
+            throw new SQLException("Failed to serialize List<Integer> to JSON: " + parameter, e);
         }
     }
 

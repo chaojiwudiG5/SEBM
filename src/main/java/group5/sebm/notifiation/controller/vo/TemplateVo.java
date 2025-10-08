@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * 通知模板响应VO
@@ -26,9 +27,14 @@ public class TemplateVo {
     private String templateTitle;
     
     /**
-     * 模板类型
+     * 通知节点
      */
-    private String templateType;
+    private String notificationNode;
+    
+    /**
+     * 通知方式
+     */
+    private List<Integer> notificationMethod;
     
     /**
      * 通知描述
@@ -38,7 +44,7 @@ public class TemplateVo {
     /**
      * 通知角色
      */
-    private Integer notificationRole;
+    private String notificationRole;
 
     /**
      * 通知类型

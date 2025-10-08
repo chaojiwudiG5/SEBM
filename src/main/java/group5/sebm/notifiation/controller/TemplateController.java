@@ -10,6 +10,7 @@ import group5.sebm.exception.ErrorCode;
 import group5.sebm.exception.ThrowUtils;
 import group5.sebm.notifiation.controller.dto.CreateTemplateDto;
 import group5.sebm.notifiation.controller.dto.TemplateQueryDto;
+import group5.sebm.notifiation.controller.dto.UpdateTemplateDto;
 import group5.sebm.notifiation.controller.vo.TemplateVo;
 import group5.sebm.notifiation.enums.NotificationMethodEnum;
 import group5.sebm.notifiation.enums.NotificationNodeEnum;
@@ -53,6 +54,50 @@ public class TemplateController {
         
         TemplateVo templateVo = templateService.createTemplate(createTemplateDto, request);
         log.info("createTemplate Dto: {}, Vo: {}", createTemplateDto, templateVo);
+        
+        return ResultUtils.success(templateVo);
+    }
+
+    /**
+     * 禁用模版 - 仅限管理员
+     * @param templateId 模版ID
+     * @param request HTTP请求对象
+     * @return 操作结果
+     */
+    @PostMapping("/disable/{templateId}")
+    @AuthCheck(mustRole = UserRoleEnum.ADMIN)
+    @Operation(summary = "禁用模版", description = "管理员禁用指定模版")
+    public BaseResponse<Boolean> disableTemplate(@PathVariable Long templateId,
+                                                HttpServletRequest request) {
+        log.info("禁用模版，ID：{}", templateId);
+        
+        // 参数验证
+        ThrowUtils.throwIf(templateId == null || templateId <= 0, ErrorCode.PARAMS_ERROR, "模版ID不能为空");
+        
+        Boolean result = templateService.disableTemplate(templateId, request);
+        log.info("禁用模版结果：{}", result);
+        
+        return ResultUtils.success(result);
+    }
+
+    /**
+     * 更新通知模板 - 仅限管理员
+     * @param updateTemplateDto 更新模板请求DTO
+     * @param request HTTP请求对象
+     * @return 更新后的模板信息
+     */
+    @PostMapping("/update")
+    @AuthCheck(mustRole = UserRoleEnum.ADMIN)
+    @Operation(summary = "更新通知模板", description = "管理员更新现有通知模板")
+    public BaseResponse<TemplateVo> updateTemplate(@RequestBody @Valid UpdateTemplateDto updateTemplateDto,
+                                                  HttpServletRequest request) {
+        log.info("更新模版，参数：{}", updateTemplateDto);
+        
+        // 参数验证
+        validateUpdateTemplateParams(updateTemplateDto);
+        
+        TemplateVo templateVo = templateService.updateTemplate(updateTemplateDto, request);
+        log.info("updateTemplate Dto: {}, Vo: {}", updateTemplateDto, templateVo);
         
         return ResultUtils.success(templateVo);
     }
@@ -107,9 +152,6 @@ public class TemplateController {
                 createTemplateDto.getTemplateTitle().length() > NotificationConstant.MAX_TEMPLATE_TITLE_LENGTH,
                 ErrorCode.PARAMS_ERROR);
         
-        // 验证模板类型
-        ThrowUtils.throwIf(!StringUtils.hasText(createTemplateDto.getTemplateType()), ErrorCode.PARAMS_ERROR);
-        
         // 验证模板内容长度
         ThrowUtils.throwIf(!StringUtils.hasText(createTemplateDto.getContent()) || 
                 createTemplateDto.getContent().length() > NotificationConstant.MAX_TEMPLATE_CONTENT_LENGTH,
@@ -128,5 +170,49 @@ public class TemplateController {
         // 验证传入的通知方式是否合法
         ThrowUtils.throwIf(!NotificationMethodEnum.isValidCode(createTemplateDto.getNotificationMethod()),
                 ErrorCode.PARAMS_ERROR);
+    }
+
+    /**
+     * 验证更新模板的参数
+     * @param updateTemplateDto 更新模板请求DTO
+     */
+    private void validateUpdateTemplateParams(UpdateTemplateDto updateTemplateDto) {
+        // 验证模版ID
+        ThrowUtils.throwIf(updateTemplateDto.getId() == null || updateTemplateDto.getId() <= 0,
+                ErrorCode.PARAMS_ERROR, "模版ID不能为空");
+        
+        // 验证通知节点是否有效
+        ThrowUtils.throwIf(!NotificationNodeEnum.isValidCode(updateTemplateDto.getNotificationNode()),
+                ErrorCode.PARAMS_ERROR, "通知节点无效");
+
+        // 验证通知角色是否有效（如果提供）
+        if (updateTemplateDto.getNotificationRole() != null) {
+            ThrowUtils.throwIf(!NotificationRoleEnum.isValidCode(updateTemplateDto.getNotificationRole()),
+                    ErrorCode.PARAMS_ERROR, "通知角色无效");
+        }
+        
+        // 验证模板标题长度
+        ThrowUtils.throwIf(!StringUtils.hasText(updateTemplateDto.getTemplateTitle()) || 
+                updateTemplateDto.getTemplateTitle().length() > NotificationConstant.MAX_TEMPLATE_TITLE_LENGTH,
+                ErrorCode.PARAMS_ERROR, "模板标题长度无效");
+        
+        // 验证模板内容长度
+        ThrowUtils.throwIf(!StringUtils.hasText(updateTemplateDto.getContent()) || 
+                updateTemplateDto.getContent().length() > NotificationConstant.MAX_TEMPLATE_CONTENT_LENGTH,
+                ErrorCode.PARAMS_ERROR, "模板内容长度无效");
+        
+        // 验证时间偏移量（如果不为空）
+        if (updateTemplateDto.getRelateTimeOffset() != null) {
+            ThrowUtils.throwIf(updateTemplateDto.getRelateTimeOffset() < NotificationConstant.MIN_TIME_OFFSET,
+                    ErrorCode.PARAMS_ERROR, "时间偏移量不能小于0");
+            
+            // 限制最大时间偏移量
+            ThrowUtils.throwIf(updateTemplateDto.getRelateTimeOffset() > NotificationConstant.MAX_TIME_OFFSET_SECONDS,
+                    ErrorCode.PARAMS_ERROR, "时间偏移量不能超过7天");
+        }
+
+        // 验证传入的通知方式是否合法
+        ThrowUtils.throwIf(!NotificationMethodEnum.isValidCode(updateTemplateDto.getNotificationMethod()),
+                ErrorCode.PARAMS_ERROR, "通知方式无效");
     }
 }

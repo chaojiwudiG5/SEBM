@@ -9,12 +9,18 @@ import lombok.NoArgsConstructor;
 import java.util.List;
 
 /**
- * 创建通知模板请求DTO
+ * 更新通知模板请求DTO
  */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class CreateTemplateDto {
+public class UpdateTemplateDto {
+    
+    /**
+     * 模板ID
+     */
+    @NotNull(message = "模板ID不能为空")
+    private Long id;
     
     /**
      * 模板标题

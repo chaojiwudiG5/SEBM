@@ -22,7 +22,8 @@ public class NotificationConstant {
     public static final int MAX_TIME_OFFSET_SECONDS = 604800;
 
     // Business status constants
-    public static final String TEMPLATE_STATUS_ACTIVE = "active";
+    public static final String TEMPLATE_STATUS_ACTIVE = "1";
+    public static final String TEMPLATE_STATUS_DISABLED = "0";
 
     public static final Integer NOT_DELETED = 0;
 

@@ -7,7 +7,7 @@
     <resultMap id="BaseResultMap" type="group5.sebm.notifiation.entity.TemplatePo">
         <id property="id" column="id" jdbcType="BIGINT"/>
         <result property="templateTitle" column="templateTitle" jdbcType="VARCHAR"/>
-        <result property="notificationMethod" column="notificationMethod" jdbcType="INTEGER"
+        <result property="notificationMethod" column="notificationMethod" jdbcType="VARCHAR"
                 typeHandler="group5.sebm.notifiation.config.ListTypeHandler"/>
         <result property="notificationNode" column="notificationNode" jdbcType="VARCHAR"/>
         <result property="notificationRole" column="notificationRole" jdbcType="VARCHAR"/>

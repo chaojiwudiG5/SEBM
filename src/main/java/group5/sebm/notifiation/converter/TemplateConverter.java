@@ -31,6 +31,11 @@ public interface TemplateConverter {
     @Mapping(target = "status", constant = "1")
     @Mapping(target = "createTime", expression = "java(getCurrentTime())")
     @Mapping(target = "updateTime", expression = "java(getCurrentTime())")
+    @Mapping(target = "notificationNode", source = "createTemplateDto.notificationNode", qualifiedByName = "integerToString")
+    @Mapping(target = "notificationRole", source = "createTemplateDto.notificationRole", qualifiedByName = "integerToString")
+    @Mapping(target = "relateTimeOffset", source = "createTemplateDto.relateTimeOffset", qualifiedByName = "integerToLong")
+    @Mapping(target = "templateContent", source = "createTemplateDto.content")
+    @Mapping(target = "templateDesc", source = "createTemplateDto.templateDesc")
     TemplatePo toPo(CreateTemplateDto createTemplateDto, HttpServletRequest request);
 
     /**
@@ -38,7 +43,8 @@ public interface TemplateConverter {
      * @param templatePo 模板PO
      * @return 模板VO
      */
-    //@Mapping(target = "notificationNodeDesc", source = "notificationNode", qualifiedByName = "mapNotificationNodeDesc")
+   @Mapping(target = "content", source = "templateContent")
+    @Mapping(target = "templateDesc", source = "templateDesc")
     TemplateVo toVo(TemplatePo templatePo);
 
     /**
@@ -67,5 +73,25 @@ public interface TemplateConverter {
      */
     default LocalDateTime getCurrentTime() {
         return LocalDateTime.now();
+    }
+
+    /**
+     * Integer转String
+     * @param value Integer值
+     * @return String值
+     */
+    @Named("integerToString")
+    default String integerToString(Integer value) {
+        return value != null ? value.toString() : null;
+    }
+
+    /**
+     * Integer转Long
+     * @param value Integer值
+     * @return Long值
+     */
+    @Named("integerToLong")
+    default Long integerToLong(Integer value) {
+        return value != null ? value.longValue() : null;
     }
 }

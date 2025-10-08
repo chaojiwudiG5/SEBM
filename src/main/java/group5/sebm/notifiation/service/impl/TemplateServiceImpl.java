@@ -8,6 +8,7 @@ import group5.sebm.exception.ErrorCode;
 import group5.sebm.exception.ThrowUtils;
 import group5.sebm.notifiation.controller.dto.CreateTemplateDto;
 import group5.sebm.notifiation.controller.dto.TemplateQueryDto;
+import group5.sebm.notifiation.controller.dto.UpdateTemplateDto;
 import group5.sebm.notifiation.controller.vo.TemplateVo;
 import group5.sebm.notifiation.converter.TemplateConverter;
 import group5.sebm.notifiation.dao.TemplateMapper;
@@ -22,7 +23,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -58,6 +61,85 @@ public class TemplateServiceImpl extends ServiceImpl<TemplateMapper, TemplatePo>
         
         // PO 转 VO 并返回
         return templateConverter.toVo(templatePo);
+    }
+
+    /**
+     * 禁用模版
+     * @param templateId 模版ID
+     * @param request HTTP请求对象
+     * @return 操作结果
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public Boolean disableTemplate(Long templateId, HttpServletRequest request) {
+        log.info("禁用模版，ID：{}", templateId);
+        
+        // 1. 检查模版是否存在
+        TemplatePo templatePo = this.getById(templateId);
+        ThrowUtils.throwIf(templatePo == null, ErrorCode.NOT_FOUND_ERROR, "模版不存在");
+        
+        // 2. 检查模版是否已经被禁用
+        ThrowUtils.throwIf(NotificationConstant.TEMPLATE_STATUS_DISABLED.equals(templatePo.getStatus()), 
+                ErrorCode.OPERATION_ERROR, "模版已经被禁用");
+        
+        // 3. 创建更新对象，只更新状态和时间，避免更新JSON字段
+        TemplatePo updatePo = new TemplatePo();
+        updatePo.setId(templateId);
+        updatePo.setStatus(NotificationConstant.TEMPLATE_STATUS_DISABLED);
+        updatePo.setUpdateTime(LocalDateTime.now());
+        
+        // 4. 保存更新
+        boolean updateResult = this.updateById(updatePo);
+        ThrowUtils.throwIf(!updateResult, ErrorCode.OPERATION_ERROR, "模版禁用失败");
+        
+        log.info("模版禁用成功，ID：{}", templateId);
+        return true;
+    }
+
+    /**
+     * 更新通知模板
+     * @param updateTemplateDto 更新模板请求DTO
+     * @param request HTTP请求对象
+     * @return 更新后的模板VO
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public TemplateVo updateTemplate(UpdateTemplateDto updateTemplateDto, HttpServletRequest request) {
+        log.info("更新模版，参数：{}", updateTemplateDto);
+        
+        // 1. 检查模版是否存在
+        TemplatePo existingTemplate = this.getById(updateTemplateDto.getId());
+        ThrowUtils.throwIf(existingTemplate == null, ErrorCode.NOT_FOUND_ERROR, "模版不存在");
+        
+        // 2. 检查模版是否已被删除
+        ThrowUtils.throwIf(NotificationConstant.NOT_DELETED != existingTemplate.getIsDelete(), 
+                ErrorCode.NOT_FOUND_ERROR, "模版已被删除");
+        
+        // 3. DTO 转 PO，只更新需要更新的字段
+        TemplatePo updatePo = new TemplatePo();
+        updatePo.setId(updateTemplateDto.getId());
+        updatePo.setTemplateTitle(updateTemplateDto.getTemplateTitle());
+        updatePo.setNotificationMethod(updateTemplateDto.getNotificationMethod());
+        updatePo.setNotificationNode(updateTemplateDto.getNotificationNode().toString());
+        updatePo.setNotificationRole(updateTemplateDto.getNotificationRole() != null ? 
+                updateTemplateDto.getNotificationRole().toString() : null);
+        updatePo.setNotificationType(updateTemplateDto.getNotificationType());
+        updatePo.setNotificationEvent(updateTemplateDto.getNotificationEvent());
+        updatePo.setRelateTimeOffset(updateTemplateDto.getRelateTimeOffset() != null ? 
+                updateTemplateDto.getRelateTimeOffset().longValue() : null);
+        updatePo.setTemplateContent(updateTemplateDto.getContent());
+        updatePo.setTemplateDesc(updateTemplateDto.getTemplateDesc());
+        updatePo.setUpdateTime(LocalDateTime.now());
+        
+        // 4. 执行更新
+        boolean updateResult = this.updateById(updatePo);
+        ThrowUtils.throwIf(!updateResult, ErrorCode.OPERATION_ERROR, "模版更新失败");
+        
+        log.info("模版更新成功，ID：{}", updateTemplateDto.getId());
+        
+        // 5. 查询更新后的模版并转换为VO
+        TemplatePo updatedTemplate = this.getById(updateTemplateDto.getId());
+        return templateConverter.toVo(updatedTemplate);
     }
 
     /**
@@ -162,14 +244,29 @@ public class TemplateServiceImpl extends ServiceImpl<TemplateMapper, TemplatePo>
             queryWrapper.eq("notificationMethod", templateQueryDto.getNotificationMethod());
         }
         
-        // 模板状态
-        if (StringUtils.hasText(templateQueryDto.getStatus())) {
-            queryWrapper.eq("status", templateQueryDto.getStatus());
+        // 通知事件
+        if (Objects.nonNull(templateQueryDto.getNotificationEvent())) {
+            queryWrapper.like("notificationEvent", templateQueryDto.getNotificationEvent());
+        }
+        
+        // 通知类型
+        if (templateQueryDto.getNotificationType() != null) {
+            queryWrapper.eq("notificationType", templateQueryDto.getNotificationType());
+        }
+        
+        // 通知角色
+        if (templateQueryDto.getNotificationRole() != null) {
+            queryWrapper.eq("notificationRole", templateQueryDto.getNotificationRole().toString());
         }
         
         // 创建者ID
         if (templateQueryDto.getUserId() != null) {
             queryWrapper.eq("userId", templateQueryDto.getUserId());
+        }
+
+        // 状态
+        if (templateQueryDto.getStatus() != null) {
+            queryWrapper.eq("status", templateQueryDto.getStatus());
         }
         
         return queryWrapper;
