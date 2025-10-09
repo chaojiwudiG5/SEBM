@@ -3,7 +3,9 @@ package group5.sebm.notifiation.mq;
 import cn.hutool.core.collection.CollectionUtil;
 import group5.sebm.notifiation.entity.TemplatePo;
 import group5.sebm.notifiation.enums.NotificationMethodEnum;
+import group5.sebm.notifiation.enums.NotificationRecordStatusEnum;
 import group5.sebm.notifiation.service.MessageSenderService;
+import group5.sebm.notifiation.service.NotificationRecordService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -19,6 +21,9 @@ public class MessageProcessor {
 
     @Autowired
     private MessageSenderService messageSenderService;
+    
+    @Autowired
+    private NotificationRecordService notificationRecordService;
 
     
     /**
@@ -85,12 +90,42 @@ public class MessageProcessor {
         if(CollectionUtil.isEmpty(notificationMethods)) {
             return;
         }
-        for (Integer notificationMethod : notificationMethods) {
-            NotificationMethodEnum method = NotificationMethodEnum.parseMethod(notificationMethod);
-            if (method == null) {
-                continue;
+        
+        // 记录通知发送状态（默认为成功）
+        NotificationRecordStatusEnum recordStatus = NotificationRecordStatusEnum.SUCCESS;
+        
+        try {
+            for (Integer notificationMethod : notificationMethods) {
+                NotificationMethodEnum method = NotificationMethodEnum.parseMethod(notificationMethod);
+                if (method == null) {
+                    continue;
+                }
+                messageSenderService.sendNotification(method, message.getUserId(), template.getTemplateTitle(), template.getTemplateContent());
             }
-            messageSenderService.sendNotification(method, message.getUserId(), template.getTemplateTitle(), template.getTemplateContent());
+        } catch (Exception e) {
+            log.error("发送通知失败: messageId={}, error={}", message.getMessageId(), e.getMessage(), e);
+            recordStatus = NotificationRecordStatusEnum.FAILED;
+        }
+        
+        // 保存或更新通知记录
+        if (message.getRecordId() != null) {
+            // 延时通知：更新已有记录的状态
+            boolean updated = notificationRecordService.updateRecordStatus(
+                    message.getRecordId(),
+                    recordStatus.getCode()
+            );
+            if (updated) {
+                log.info("延迟通知状态已更新: recordId={}, status={}", 
+                        message.getRecordId(), recordStatus.getDesc());
+            }
+        } else {
+            // 即时通知：创建新记录
+            notificationRecordService.saveNotificationRecord(
+                    message.getUserId(),
+                    template.getTemplateTitle(),
+                    template.getTemplateContent(),
+                    recordStatus.getCode()
+            );
         }
     }
 }

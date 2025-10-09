@@ -81,6 +81,28 @@ public class TemplateController {
     }
 
     /**
+     * 启用模版 - 仅限管理员
+     * @param templateId 模版ID
+     * @param request HTTP请求对象
+     * @return 操作结果
+     */
+    @PostMapping("/enable/{templateId}")
+    @AuthCheck(mustRole = UserRoleEnum.ADMIN)
+    @Operation(summary = "启用模版", description = "管理员启用指定模版")
+    public BaseResponse<Boolean> enableTemplate(@PathVariable Long templateId,
+                                               HttpServletRequest request) {
+        log.info("启用模版，ID：{}", templateId);
+        
+        // 参数验证
+        ThrowUtils.throwIf(templateId == null || templateId <= 0, ErrorCode.PARAMS_ERROR, "模版ID不能为空");
+        
+        Boolean result = templateService.enableTemplate(templateId, request);
+        log.info("启用模版结果：{}", result);
+        
+        return ResultUtils.success(result);
+    }
+
+    /**
      * 更新通知模板 - 仅限管理员
      * @param updateTemplateDto 更新模板请求DTO
      * @param request HTTP请求对象

@@ -31,6 +31,14 @@ public interface TemplateService {
     Boolean disableTemplate(Long templateId, HttpServletRequest request);
 
     /**
+     * 启用模版
+     * @param templateId 模版ID
+     * @param request HTTP请求对象
+     * @return 操作结果
+     */
+    Boolean enableTemplate(Long templateId, HttpServletRequest request);
+
+    /**
      * 更新通知模板
      * @param updateTemplateDto 更新模板请求DTO
      * @param request HTTP请求对象，用于获取当前用户信息

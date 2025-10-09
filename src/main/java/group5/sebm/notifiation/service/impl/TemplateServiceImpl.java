@@ -97,6 +97,39 @@ public class TemplateServiceImpl extends ServiceImpl<TemplateMapper, TemplatePo>
     }
 
     /**
+     * 启用模版
+     * @param templateId 模版ID
+     * @param request HTTP请求对象
+     * @return 操作结果
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public Boolean enableTemplate(Long templateId, HttpServletRequest request) {
+        log.info("启用模版，ID：{}", templateId);
+        
+        // 1. 检查模版是否存在
+        TemplatePo templatePo = this.getById(templateId);
+        ThrowUtils.throwIf(templatePo == null, ErrorCode.NOT_FOUND_ERROR, "模版不存在");
+        
+        // 2. 检查模版是否已经被启用
+        ThrowUtils.throwIf(NotificationConstant.TEMPLATE_STATUS_ACTIVE.equals(templatePo.getStatus()), 
+                ErrorCode.OPERATION_ERROR, "模版已经是启用状态");
+        
+        // 3. 创建更新对象，只更新状态和时间
+        TemplatePo updatePo = new TemplatePo();
+        updatePo.setId(templateId);
+        updatePo.setStatus(NotificationConstant.TEMPLATE_STATUS_ACTIVE);
+        updatePo.setUpdateTime(LocalDateTime.now());
+        
+        // 4. 保存更新
+        boolean updateResult = this.updateById(updatePo);
+        ThrowUtils.throwIf(!updateResult, ErrorCode.OPERATION_ERROR, "模版启用失败");
+        
+        log.info("模版启用成功，ID：{}", templateId);
+        return true;
+    }
+
+    /**
      * 更新通知模板
      * @param updateTemplateDto 更新模板请求DTO
      * @param request HTTP请求对象

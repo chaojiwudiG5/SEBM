@@ -1,5 +1,7 @@
 package group5.sebm.notifiation.mq;
 
+import group5.sebm.notifiation.enums.NotificationRecordStatusEnum;
+import group5.sebm.notifiation.service.NotificationRecordService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +21,9 @@ public class MessageProducer {
 
     @Autowired
     private RabbitTemplate rabbitTemplate;
+    
+    @Autowired
+    private NotificationRecordService notificationRecordService;
 
     /**
      * 发送即时通知消息
@@ -69,6 +74,19 @@ public class MessageProducer {
                 message.setCreateTime(LocalDateTime.now());
             }
 
+            // 先创建通知记录，状态为"待发送"
+            Long recordId = notificationRecordService.createNotificationRecord(
+                    message.getUserId(),
+                    message.getTemplate().getTemplateTitle(),
+                    message.getTemplate().getTemplateContent(),
+                    NotificationRecordStatusEnum.PENDING.getCode()
+            );
+            
+            if (recordId != null) {
+                message.setRecordId(recordId);
+                log.info("延迟通知记录已创建: recordId={}, messageId={}", recordId, message.getMessageId());
+            }
+
             // 使用延迟消息插件发送消息
             // 延迟时间以毫秒为单位
             long delayMillis = delaySeconds * 1000;
@@ -111,6 +129,19 @@ public class MessageProducer {
                 message.setCreateTime(LocalDateTime.now());
             }
 
+            // 先创建通知记录，状态为"待发送"
+            Long recordId = notificationRecordService.createNotificationRecord(
+                    message.getUserId(),
+                    message.getTemplate().getTemplateTitle(),
+                    message.getTemplate().getTemplateContent(),
+                    NotificationRecordStatusEnum.PENDING.getCode()
+            );
+            
+            if (recordId != null) {
+                message.setRecordId(recordId);
+                log.info("延迟通知记录已创建(V2): recordId={}, messageId={}", recordId, message.getMessageId());
+            }
+
             // 使用延迟消息插件发送消息（Lambda方式）
             rabbitTemplate.convertAndSend(
                     "notification.delay.exchange",
@@ -148,6 +179,19 @@ public class MessageProducer {
             }
             if (message.getCreateTime() == null) {
                 message.setCreateTime(LocalDateTime.now());
+            }
+
+            // 先创建通知记录，状态为"待发送"
+            Long recordId = notificationRecordService.createNotificationRecord(
+                    message.getUserId(),
+                    message.getTemplate().getTemplateTitle(),
+                    message.getTemplate().getTemplateContent(),
+                    NotificationRecordStatusEnum.PENDING.getCode()
+            );
+            
+            if (recordId != null) {
+                message.setRecordId(recordId);
+                log.info("延迟通知记录已创建(毫秒级): recordId={}, messageId={}", recordId, message.getMessageId());
             }
 
             // 使用延迟消息插件发送消息，支持毫秒级精度

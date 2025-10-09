@@ -58,4 +58,9 @@ public class NotificationMessage implements Serializable {
      * 创建时间
      */
     private LocalDateTime createTime;
+    
+    /**
+     * 通知记录ID（用于延时通知更新状态）
+     */
+    private Long recordId;
 }
