@@ -1,13 +1,24 @@
 package group5.sebm.notifiation.service.impl;
 
+import cn.hutool.core.util.StrUtil;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import group5.sebm.exception.BusinessException;
+import group5.sebm.exception.ErrorCode;
+import group5.sebm.notifiation.controller.dto.NotificationRecordQueryDto;
+import group5.sebm.notifiation.controller.vo.NotificationRecordVo;
 import group5.sebm.notifiation.dao.NotificationRecordMapper;
 import group5.sebm.notifiation.entity.NotificationRecordPo;
+import group5.sebm.notifiation.enums.NotificationRecordStatusEnum;
 import group5.sebm.notifiation.service.NotificationRecordService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 通知记录服务实现类
@@ -30,22 +41,22 @@ public class NotificationRecordServiceImpl extends ServiceImpl<NotificationRecor
                     .createTime(LocalDateTime.now())
                     .updateTime(LocalDateTime.now())
                     .build();
-            
+
             boolean result = this.save(record);
-            
+
             if (result) {
                 log.info("通知记录保存成功: userId={}, title={}, status={}", userId, title, status);
             } else {
                 log.error("通知记录保存失败: userId={}, title={}", userId, title);
             }
-            
+
             return result;
         } catch (Exception e) {
             log.error("保存通知记录时发生异常: userId={}, error={}", userId, e.getMessage(), e);
         }
         return false;
     }
-    
+
     @Override
     public Long createNotificationRecord(Long userId, String title, String content, Integer status) {
         try {
@@ -59,11 +70,11 @@ public class NotificationRecordServiceImpl extends ServiceImpl<NotificationRecor
                     .createTime(LocalDateTime.now())
                     .updateTime(LocalDateTime.now())
                     .build();
-            
+
             boolean result = this.save(record);
-            
+
             if (result) {
-                log.info("通知记录创建成功: recordId={}, userId={}, title={}, status={}", 
+                log.info("通知记录创建成功: recordId={}, userId={}, title={}, status={}",
                         record.getId(), userId, title, status);
                 return record.getId();
             } else {
@@ -75,7 +86,7 @@ public class NotificationRecordServiceImpl extends ServiceImpl<NotificationRecor
             return null;
         }
     }
-    
+
     @Override
     public boolean updateRecordStatus(Long recordId, Integer status) {
         try {
@@ -84,24 +95,179 @@ public class NotificationRecordServiceImpl extends ServiceImpl<NotificationRecor
                 log.error("通知记录不存在: recordId={}", recordId);
                 return false;
             }
-            
+
             record.setStatus(status);
             record.setSendTime(LocalDateTime.now());
             record.setUpdateTime(LocalDateTime.now());
-            
+
             boolean result = this.updateById(record);
-            
+
             if (result) {
                 log.info("通知记录状态更新成功: recordId={}, status={}", recordId, status);
             } else {
                 log.error("通知记录状态更新失败: recordId={}", recordId);
             }
-            
+
             return result;
         } catch (Exception e) {
             log.error("更新通知记录状态时发生异常: recordId={}, error={}", recordId, e.getMessage(), e);
             return false;
         }
+    }
+
+    @Override
+    public Page<NotificationRecordVo> queryNotificationRecords(NotificationRecordQueryDto queryDto) {
+        try {
+            // 验证用户ID（必填）
+            if (queryDto.getUserId() == null) {
+                throw new BusinessException(ErrorCode.PARAMS_ERROR, "用户ID不能为空");
+            }
+
+            // 构建查询条件
+            QueryWrapper<NotificationRecordPo> queryWrapper = new QueryWrapper<>();
+            queryWrapper.eq("isDelete", 0)
+                    .eq("userId", queryDto.getUserId());
+
+            // 根据状态查询
+            if (queryDto.getStatus() != null) {
+                queryWrapper.eq("status", queryDto.getStatus());
+            }
+
+            // 根据标题关键词查询
+            if (StrUtil.isNotBlank(queryDto.getTitleKeyword())) {
+                queryWrapper.like("title", queryDto.getTitleKeyword());
+            }
+
+            // 按创建时间降序排列
+            queryWrapper.orderByDesc("createTime");
+
+            // 分页查询
+            Page<NotificationRecordPo> page = new Page<>(queryDto.getPageNumber(), queryDto.getPageSize());
+            Page<NotificationRecordPo> resultPage = this.page(page, queryWrapper);
+
+            // 转换为 VO
+            Page<NotificationRecordVo> voPage = new Page<>(resultPage.getCurrent(), resultPage.getSize(), resultPage.getTotal());
+            List<NotificationRecordVo> voList = resultPage.getRecords().stream()
+                    .map(this::convertToVo)
+                    .collect(Collectors.toList());
+            voPage.setRecords(voList);
+
+            log.info("查询通知记录成功: userId={}, total={}, current={}, size={}",
+                    queryDto.getUserId(), voPage.getTotal(), voPage.getCurrent(), voPage.getSize());
+            return voPage;
+
+        } catch (BusinessException e) {
+            throw e;
+        } catch (Exception e) {
+            log.error("查询通知记录时发生异常: queryDto={}, error={}", queryDto, e.getMessage(), e);
+            throw new BusinessException(ErrorCode.SYSTEM_ERROR, "查询通知记录失败");
+        }
+    }
+
+    @Override
+    public boolean deleteNotificationRecord(Long id) {
+        try {
+            NotificationRecordPo record = this.getById(id);
+            if (record == null) {
+                log.error("通知记录不存在: id={}", id);
+                throw new BusinessException(ErrorCode.NOT_FOUND_ERROR, "通知记录不存在");
+            }
+
+            record.setIsDelete(1);
+            record.setUpdateTime(LocalDateTime.now());
+            boolean result = this.updateById(record);
+
+            if (result) {
+                log.info("删除通知记录成功: id={}", id);
+            } else {
+                log.error("删除通知记录失败: id={}", id);
+            }
+
+            return result;
+        } catch (BusinessException e) {
+            throw e;
+        } catch (Exception e) {
+            log.error("删除通知记录时发生异常: id={}, error={}", id, e.getMessage(), e);
+            throw new BusinessException(ErrorCode.SYSTEM_ERROR, "删除通知记录失败");
+        }
+    }
+
+    @Override
+    public boolean batchDeleteNotificationRecords(List<Long> ids) {
+        try {
+            if (ids == null || ids.isEmpty()) {
+                throw new BusinessException(ErrorCode.PARAMS_ERROR, "ID列表不能为空");
+            }
+
+            UpdateWrapper<NotificationRecordPo> updateWrapper = new UpdateWrapper<>();
+            updateWrapper.in("id", ids)
+                    .eq("isDelete", 0)
+                    .set("isDelete", 1)
+                    .set("updateTime", LocalDateTime.now());
+
+            boolean result = this.update(updateWrapper);
+
+            if (result) {
+                log.info("批量删除通知记录成功: count={}", ids.size());
+            } else {
+                log.error("批量删除通知记录失败: ids={}", ids);
+            }
+
+            return result;
+        } catch (BusinessException e) {
+            throw e;
+        } catch (Exception e) {
+            log.error("批量删除通知记录时发生异常: ids={}, error={}", ids, e.getMessage(), e);
+            throw new BusinessException(ErrorCode.SYSTEM_ERROR, "批量删除通知记录失败");
+        }
+    }
+
+    @Override
+    public boolean clearUserNotifications(Long userId) {
+        try {
+            if (userId == null) {
+                throw new BusinessException(ErrorCode.PARAMS_ERROR, "用户ID不能为空");
+            }
+
+            UpdateWrapper<NotificationRecordPo> updateWrapper = new UpdateWrapper<>();
+            updateWrapper.eq("userId", userId)
+                    .eq("isDelete", 0)
+                    .set("isDelete", 1)
+                    .set("updateTime", LocalDateTime.now());
+
+            boolean result = this.update(updateWrapper);
+
+            if (result) {
+                log.info("清空用户通知记录成功: userId={}", userId);
+            } else {
+                log.warn("清空用户通知记录失败或无记录: userId={}", userId);
+            }
+
+            return result;
+        } catch (BusinessException e) {
+            throw e;
+        } catch (Exception e) {
+            log.error("清空用户通知记录时发生异常: userId={}, error={}", userId, e.getMessage(), e);
+            throw new BusinessException(ErrorCode.SYSTEM_ERROR, "清空用户通知记录失败");
+        }
+    }
+
+    /**
+     * 将 Po 转换为 Vo
+     */
+    private NotificationRecordVo convertToVo(NotificationRecordPo po) {
+        NotificationRecordStatusEnum statusEnum = NotificationRecordStatusEnum.getByCode(po.getStatus());
+
+        return NotificationRecordVo.builder()
+                .id(po.getId())
+                .userId(po.getUserId())
+                .title(po.getTitle())
+                .content(po.getContent())
+                .status(po.getStatus())
+                .statusDesc(statusEnum != null ? statusEnum.getDesc() : "未知")
+                .sendTime(po.getSendTime())
+                .createTime(po.getCreateTime())
+                .build();
     }
 }
 

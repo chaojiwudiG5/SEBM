@@ -30,5 +30,20 @@ public enum NotificationRecordStatusEnum {
         this.code = code;
         this.desc = desc;
     }
+    
+    /**
+     * 根据状态码获取枚举
+     */
+    public static NotificationRecordStatusEnum getByCode(Integer code) {
+        if (code == null) {
+            return null;
+        }
+        for (NotificationRecordStatusEnum status : NotificationRecordStatusEnum.values()) {
+            if (status.getCode().equals(code)) {
+                return status;
+            }
+        }
+        return null;
+    }
 }
 

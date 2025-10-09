@@ -1,7 +1,12 @@
 package group5.sebm.notifiation.service;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
+import group5.sebm.notifiation.controller.dto.NotificationRecordQueryDto;
+import group5.sebm.notifiation.controller.vo.NotificationRecordVo;
 import group5.sebm.notifiation.entity.NotificationRecordPo;
+
+import java.util.List;
 
 /**
  * 通知记录服务接口
@@ -35,5 +40,34 @@ public interface NotificationRecordService extends IService<NotificationRecordPo
      * @return 是否更新成功
      */
     boolean updateRecordStatus(Long recordId, Integer status);
+
+    /**
+     * 分页查询通知记录
+     * @param queryDto 查询条件
+     * @return 通知记录分页数据
+     */
+    Page<NotificationRecordVo> queryNotificationRecords(NotificationRecordQueryDto queryDto);
+
+    /**
+     * 删除单个通知记录（软删除）
+     * @param id 记录ID
+     * @return 是否删除成功
+     */
+    boolean deleteNotificationRecord(Long id);
+
+    /**
+     * 批量删除通知记录（软删除）
+     * @param ids 记录ID列表
+     * @return 是否删除成功
+     */
+    boolean batchDeleteNotificationRecords(List<Long> ids);
+
+    /**
+     * 清空用户所有通知记录（软删除）
+     * @param userId 用户ID
+     * @return 是否清空成功
+     */
+    boolean clearUserNotifications(Long userId);
+
 }
 
