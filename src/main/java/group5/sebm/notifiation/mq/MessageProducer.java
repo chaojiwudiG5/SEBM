@@ -1,6 +1,7 @@
 package group5.sebm.notifiation.mq;
 
 import group5.sebm.notifiation.enums.NotificationRecordStatusEnum;
+import group5.sebm.notifiation.service.NotificationRateLimiter;
 import group5.sebm.notifiation.service.NotificationRecordService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -25,6 +26,9 @@ public class MessageProducer {
     @Autowired
     private NotificationRecordService notificationRecordService;
 
+    @Autowired
+    private NotificationRateLimiter rateLimiter;
+
     /**
      * 发送即时通知消息
      * @param message 通知消息
@@ -32,6 +36,12 @@ public class MessageProducer {
      */
     public boolean sendImmediateMessage(NotificationMessage message) {
         try {
+            // 限流检查
+            if (!rateLimiter.allowNotification(message.getUserId())) {
+                log.warn("用户 {} 触发限流，拒绝发送即时通知", message.getUserId());
+                return false;
+            }
+
             // 设置消息ID和创建时间
             if (message.getMessageId() == null) {
                 message.setMessageId(UUID.randomUUID().toString());
@@ -66,6 +76,12 @@ public class MessageProducer {
      */
     public boolean sendDelayMessage(NotificationMessage message, long delaySeconds) {
         try {
+            // 限流检查
+            if (!rateLimiter.allowNotification(message.getUserId())) {
+                log.warn("用户 {} 触发限流，拒绝发送延迟通知", message.getUserId());
+                return false;
+            }
+
             // 设置消息ID和创建时间
             if (message.getMessageId() == null) {
                 message.setMessageId(UUID.randomUUID().toString());
@@ -108,110 +124,6 @@ public class MessageProducer {
 
         } catch (Exception e) {
             log.error("延迟通知消息发送失败: messageId={}, error={}",
-                    message.getMessageId(), e.getMessage(), e);
-        }
-        return false;
-    }
-
-    /**
-     * 发送延迟通知消息 - 使用延迟消息插件API（更简洁的方式）
-     * @param message 通知消息
-     * @param delaySeconds 延迟时间（秒）
-     * @return 是否发送成功
-     */
-    public boolean sendDelayMessageV2(NotificationMessage message, long delaySeconds) {
-        try {
-            // 设置消息ID和创建时间
-            if (message.getMessageId() == null) {
-                message.setMessageId(UUID.randomUUID().toString());
-            }
-            if (message.getCreateTime() == null) {
-                message.setCreateTime(LocalDateTime.now());
-            }
-
-            // 先创建通知记录，状态为"待发送"
-            Long recordId = notificationRecordService.createNotificationRecord(
-                    message.getUserId(),
-                    message.getTemplate().getTemplateTitle(),
-                    message.getTemplate().getTemplateContent(),
-                    NotificationRecordStatusEnum.PENDING.getCode()
-            );
-            
-            if (recordId != null) {
-                message.setRecordId(recordId);
-                log.info("延迟通知记录已创建(V2): recordId={}, messageId={}", recordId, message.getMessageId());
-            }
-
-            // 使用延迟消息插件发送消息（Lambda方式）
-            rabbitTemplate.convertAndSend(
-                    "notification.delay.exchange",
-                    "notification.delay",
-                    message,
-                    msg -> {
-                        // 设置延迟时间（毫秒）- 使用延迟消息插件的header
-                        msg.getMessageProperties().setHeader("x-delay", delaySeconds * 1000);
-                        return msg;
-                    }
-            );
-
-            log.info("延迟通知消息发送成功(V2): messageId={}, userId={}, delaySeconds={}",
-                    message.getMessageId(), message.getUserId(), delaySeconds);
-            return true;
-
-        } catch (Exception e) {
-            log.error("延迟通知消息发送失败(V2): messageId={}, error={}",
-                    message.getMessageId(), e.getMessage(), e);
-        }
-        return false;
-    }
-
-    /**
-     * 发送延迟通知消息 - 支持毫秒级精度
-     * @param message 通知消息
-     * @param delayMillis 延迟时间（毫秒）
-     * @return 是否发送成功
-     */
-    public boolean sendDelayMessageMillis(NotificationMessage message, long delayMillis) {
-        try {
-            // 设置消息ID和创建时间
-            if (message.getMessageId() == null) {
-                message.setMessageId(UUID.randomUUID().toString());
-            }
-            if (message.getCreateTime() == null) {
-                message.setCreateTime(LocalDateTime.now());
-            }
-
-            // 先创建通知记录，状态为"待发送"
-            Long recordId = notificationRecordService.createNotificationRecord(
-                    message.getUserId(),
-                    message.getTemplate().getTemplateTitle(),
-                    message.getTemplate().getTemplateContent(),
-                    NotificationRecordStatusEnum.PENDING.getCode()
-            );
-            
-            if (recordId != null) {
-                message.setRecordId(recordId);
-                log.info("延迟通知记录已创建(毫秒级): recordId={}, messageId={}", recordId, message.getMessageId());
-            }
-
-            // 使用延迟消息插件发送消息，支持毫秒级精度
-            rabbitTemplate.convertAndSend(
-                    "notification.delay.exchange",
-                    "notification.delay",
-                    message,
-                    msg -> {
-                        // 设置延迟时间（毫秒）- 使用延迟消息插件的header
-                        msg.getMessageProperties().setHeader("x-delay", delayMillis);
-                        return msg;
-                    }
-            );
-
-            log.info("延迟通知消息发送成功(毫秒级): messageId={}, userId={}, delayMillis={}",
-                    message.getMessageId(), message.getUserId(), delayMillis);
-            return true;
-
-        } catch (Exception e) {
-            log.error("延迟通知消息发送失败(毫秒级): messageId={}, error={}",
                     message.getMessageId(), e.getMessage(), e);
         }
         return false;

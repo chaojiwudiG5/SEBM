@@ -119,23 +119,41 @@ public class NotificationRecordServiceImpl extends ServiceImpl<NotificationRecor
     public Page<NotificationRecordVo> queryNotificationRecords(NotificationRecordQueryDto queryDto) {
         try {
             // 验证用户ID（必填）
-            if (queryDto.getUserId() == null) {
+            if (queryDto.getUserId() == null && queryDto.getQueryRole() == 1) {
                 throw new BusinessException(ErrorCode.PARAMS_ERROR, "用户ID不能为空");
             }
 
             // 构建查询条件
             QueryWrapper<NotificationRecordPo> queryWrapper = new QueryWrapper<>();
-            queryWrapper.eq("isDelete", 0)
-                    .eq("userId", queryDto.getUserId());
 
-            // 根据状态查询
-            if (queryDto.getStatus() != null) {
-                queryWrapper.eq("status", queryDto.getStatus());
+            queryWrapper.eq("status", NotificationRecordStatusEnum.SUCCESS.getCode());
+
+            if(queryDto.getQueryRole() == 1){
+                 queryWrapper.eq("isDelete", 0);
+            }
+
+            if(queryDto.getUserId() != null) {
+                queryWrapper .eq("userId", queryDto.getUserId());
             }
 
             // 根据标题关键词查询
             if (StrUtil.isNotBlank(queryDto.getTitleKeyword())) {
                 queryWrapper.like("title", queryDto.getTitleKeyword());
+            }
+
+            // 根据创建时间范围查询（秒级时间戳转换为LocalDateTime）
+            if (queryDto.getStartTime() != null) {
+                LocalDateTime startDateTime = LocalDateTime.ofEpochSecond(
+                    queryDto.getStartTime(), 0, java.time.ZoneOffset.ofHours(8)
+                );
+                queryWrapper.ge("createTime", startDateTime);
+            }
+            
+            if (queryDto.getEndTime() != null) {
+                LocalDateTime endDateTime = LocalDateTime.ofEpochSecond(
+                    queryDto.getEndTime(), 0, java.time.ZoneOffset.ofHours(8)
+                );
+                queryWrapper.le("createTime", endDateTime);
             }
 
             // 按创建时间降序排列
