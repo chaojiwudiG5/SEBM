@@ -17,5 +17,7 @@ public class BorrowConstant {
 
     public static final double RADIUS = 20;
 
+    // todo test del mattina
+
 
 }
