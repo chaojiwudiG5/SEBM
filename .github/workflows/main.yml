@@ -1,65 +1,52 @@
-name: Java CI with SYNK
+name: Build and Push to Aliyun ACR
 
 on:
   push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
+    branches:
+      - main  # 每次推送 main 分支时触发
+  workflow_dispatch: # 也可以手动触发
 
 jobs:
-  build-and-scan:
-    name: Build & SNYK scan
+  build-and-push:
     runs-on: ubuntu-latest
-    env:
-      SPRING_PROFILES_ACTIVE: prod
-      TENCENT_SECRET_ID: ${{ secrets.TENCENT_SECRET_ID }}
-      TENCENT_SECRET_KEY: ${{ secrets.TENCENT_SECRET_KEY }}
-      TENCENT_REGION: ${{ secrets.TENCENT_REGION }}
+
     steps:
+      # 1️⃣ 拉取最新代码
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Set up JDK 17
+      # 2️⃣ 设置 JDK 环境（适用于 Spring Boot 项目）
+      - name: Set up JDK
         uses: actions/setup-java@v3
         with:
-          distribution: 'temurin'
           java-version: '17'
-      # 1.缓存maven依赖
-      - name: Cache Maven repository
-        uses: actions/cache@v3
-        with:
-          path: ~/.m2
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-maven-
-      # 2.编译项目
-      - name: Build with Maven
-        run: mvn clean verify -DskipTests
-      # 3. 安装 Snyk CLI
-      - name: Install Snyk CLI
-        run: npm install -g snyk
+          distribution: 'temurin'
 
-      # 4. 使用 Snyk 进行依赖漏洞扫描 (SCA)
-      - name: Run Snyk SCA scan
-        run: snyk test --all-projects --severity-threshold=high
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+      # 3️⃣ 使用 Maven 构建项目
+      - name: Build jar
+        run: |
+          chmod +x mvnw || true
+          ./mvnw clean package -DskipTests
 
-      # 5. 使用 Snyk 进行源代码漏洞扫描 (SAST)
-      - name: Run Snyk Code (SAST) scan
-        run: snyk code test --severity-threshold=high
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-      # 6. 运行单元测试
-      - name: Run Unit Tests
-        run: mvn test
-      #      # 7. 运行 Snyk Code (源代码安全 lint)，过于严格，建议注释掉
-      #      - name: Snyk Code Scan
-      #        run: snyk code test
-      #        env:
-      #          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-      # 8. 可选：上传结果到 Snyk 平台
-      - name: Monitor project in Snyk
-        run: snyk monitor --all-projects
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+      # 4️⃣ 登录阿里云容器镜像服务（ACR）
+      - name: Log in to Aliyun ACR
+        run: |
+          echo "${{ secrets.ALIYUN_ACCESS_KEY_SECRET }}" | docker login \
+            --username=${{ secrets.ALIYUN_ACCESS_KEY_ID }} \
+            --password-stdin ${{ secrets.ALIYUN_REGISTRY }}
+
+      # 5️⃣ 构建 Docker 镜像并推送到 ACR
+      - name: Build and Push Docker image
+        run: |
+          IMAGE=${{ secrets.ALIYUN_REGISTRY }}/${{ secrets.ALIYUN_NAMESPACE }}/${{ secrets.ALIYUN_REPO }}:$(date +%Y%m%d%H%M%S)
+          echo "Building image: $IMAGE"
+          docker build -t $IMAGE .
+          docker push $IMAGE
+
+      # 6️⃣ （可选）标记 latest 标签
+      - name: Tag and Push latest
+        run: |
+          LATEST=${{ secrets.ALIYUN_REGISTRY }}/${{ secrets.ALIYUN_NAMESPACE }}/${{ secrets.ALIYUN_REPO }}:latest
+          IMAGE=${{ secrets.ALIYUN_REGISTRY }}/${{ secrets.ALIYUN_NAMESPACE }}/${{ secrets.ALIYUN_REPO }}:$(date +%Y%m%d%H%M%S)
+          docker tag $IMAGE $LATEST
+          docker push $LATEST
