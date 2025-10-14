@@ -50,6 +50,12 @@ public class NotificationRecordPo {
      */
     @TableField("status")
     private Integer status;
+
+    /**
+     * 已读状态 (0-未读, 1-已读)
+     */
+    @TableField("readStatus")
+    private Integer readStatus;
     
     /**
      * 发送时间

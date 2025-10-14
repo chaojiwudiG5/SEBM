@@ -1,6 +1,8 @@
 package group5.sebm.notifiation.config;
 
+import group5.sebm.notifiation.websocket.LoggingHandshakeInterceptor;
 import group5.sebm.notifiation.websocket.NotificationWebSocketHandler;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.socket.config.annotation.EnableWebSocket;
@@ -13,16 +15,28 @@ import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry
  */
 @Configuration
 @EnableWebSocket
+@Slf4j
 public class WebSocketConfig implements WebSocketConfigurer {
 
     @Autowired
     private NotificationWebSocketHandler notificationWebSocketHandler;
 
+    @Autowired
+    private LoggingHandshakeInterceptor loggingHandshakeInterceptor;
+
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
-        // 注册WebSocket处理器，支持跨域
+        // 1) 原生 WebSocket 端点（推荐前端使用原生 WebSocket 直接连接该端点）
         registry.addHandler(notificationWebSocketHandler, "/ws/notification")
-                .setAllowedOrigins("*") // 允许所有来源，生产环境应该限制具体域名
-                .withSockJS(); // 启用SockJS支持，提供降级方案
+                .addInterceptors(loggingHandshakeInterceptor)
+                .setAllowedOrigins("*");
+
+        // 2) SockJS 端点（如需兼容旧环境，可使用 SockJS 客户端连接）
+        registry.addHandler(notificationWebSocketHandler, "/ws/notification/sockjs")
+                .addInterceptors(loggingHandshakeInterceptor)
+                .setAllowedOrigins("*")
+                .withSockJS();
+
+        log.info("WebSocket 已注册: native=/ws/notification, sockjs=/ws/notification/sockjs, cors=*, interceptors=[LoggingHandshakeInterceptor]");
     }
 }

@@ -63,11 +63,25 @@ public interface NotificationRecordService extends IService<NotificationRecordPo
     boolean batchDeleteNotificationRecords(List<Long> ids);
 
     /**
-     * 清空用户所有通知记录（软删除）
+     * 清空用户所有已读消息（软删除）
      * @param userId 用户ID
      * @return 是否清空成功
      */
     boolean clearUserNotifications(Long userId);
+
+    /**
+     * 批量标记消息为已读
+     * @param ids 记录ID列表
+     * @return 是否标记成功
+     */
+    boolean batchMarkAsRead(List<Long> ids);
+
+    /**
+     * 标记用户所有未读消息为已读
+     * @param userId 用户ID
+     * @return 是否标记成功
+     */
+    boolean markAllAsRead(Long userId);
 
 }
 

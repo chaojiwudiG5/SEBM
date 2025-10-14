@@ -36,6 +36,7 @@ public class NotificationRecordServiceImpl extends ServiceImpl<NotificationRecor
                     .title(title)
                     .content(content)
                     .status(status)
+                    .readStatus(0) // 默认未读
                     .sendTime(LocalDateTime.now())
                     .isDelete(0)
                     .createTime(LocalDateTime.now())
@@ -65,6 +66,7 @@ public class NotificationRecordServiceImpl extends ServiceImpl<NotificationRecor
                     .title(title)
                     .content(content)
                     .status(status)
+                    .readStatus(0) // 默认未读
                     .sendTime(null) // 待发送状态，发送时间为空
                     .isDelete(0)
                     .createTime(LocalDateTime.now())
@@ -134,6 +136,15 @@ public class NotificationRecordServiceImpl extends ServiceImpl<NotificationRecor
 
             if(queryDto.getUserId() != null) {
                 queryWrapper .eq("userId", queryDto.getUserId());
+            }
+
+            if(queryDto.getReadStatus() != null) {
+                if (queryDto.getReadStatus() == 0) {
+                    // 兼容历史数据：将 readStatus 为空视为未读
+                    queryWrapper.and(w -> w.eq("readStatus", 0).or().isNull("readStatus"));
+                } else {
+                    queryWrapper.eq("readStatus", queryDto.getReadStatus());
+                }
             }
 
             // 根据标题关键词查询
@@ -250,15 +261,16 @@ public class NotificationRecordServiceImpl extends ServiceImpl<NotificationRecor
             UpdateWrapper<NotificationRecordPo> updateWrapper = new UpdateWrapper<>();
             updateWrapper.eq("userId", userId)
                     .eq("isDelete", 0)
+                    .eq("readStatus", 1) // 只删除已读消息
                     .set("isDelete", 1)
                     .set("updateTime", LocalDateTime.now());
 
             boolean result = this.update(updateWrapper);
 
             if (result) {
-                log.info("清空用户通知记录成功: userId={}", userId);
+                log.info("清空用户已读消息成功: userId={}", userId);
             } else {
-                log.warn("清空用户通知记录失败或无记录: userId={}", userId);
+                log.warn("清空用户已读消息失败或无已读消息: userId={}", userId);
             }
 
             return result;
@@ -267,6 +279,67 @@ public class NotificationRecordServiceImpl extends ServiceImpl<NotificationRecor
         } catch (Exception e) {
             log.error("清空用户通知记录时发生异常: userId={}, error={}", userId, e.getMessage(), e);
             throw new BusinessException(ErrorCode.SYSTEM_ERROR, "清空用户通知记录失败");
+        }
+    }
+
+    @Override
+    public boolean batchMarkAsRead(List<Long> ids) {
+        try {
+            if (ids == null || ids.isEmpty()) {
+                throw new BusinessException(ErrorCode.PARAMS_ERROR, "ID列表不能为空");
+            }
+
+            UpdateWrapper<NotificationRecordPo> updateWrapper = new UpdateWrapper<>();
+            updateWrapper.in("id", ids)
+                    .eq("isDelete", 0)
+                    .set("readStatus", 1)
+                    .set("updateTime", LocalDateTime.now());
+
+            boolean result = this.update(updateWrapper);
+
+            if (result) {
+                log.info("批量标记消息为已读成功: count={}", ids.size());
+            } else {
+                log.error("批量标记消息为已读失败: ids={}", ids);
+            }
+
+            return result;
+        } catch (BusinessException e) {
+            throw e;
+        } catch (Exception e) {
+            log.error("批量标记消息为已读时发生异常: ids={}, error={}", ids, e.getMessage(), e);
+            throw new BusinessException(ErrorCode.SYSTEM_ERROR, "批量标记消息为已读失败");
+        }
+    }
+
+    @Override
+    public boolean markAllAsRead(Long userId) {
+        try {
+            if (userId == null) {
+                throw new BusinessException(ErrorCode.PARAMS_ERROR, "用户ID不能为空");
+            }
+
+            UpdateWrapper<NotificationRecordPo> updateWrapper = new UpdateWrapper<>();
+            updateWrapper.eq("userId", userId)
+                    .eq("isDelete", 0)
+                    .and(wrapper -> wrapper.eq("readStatus", 0).or().isNull("readStatus"))
+                    .set("readStatus", 1)
+                    .set("updateTime", LocalDateTime.now());
+
+            boolean result = this.update(updateWrapper);
+
+            if (result) {
+                log.info("标记用户所有未读消息为已读成功: userId={}", userId);
+            } else {
+                log.warn("标记用户所有未读消息为已读失败或无未读消息: userId={}", userId);
+            }
+
+            return result;
+        } catch (BusinessException e) {
+            throw e;
+        } catch (Exception e) {
+            log.error("标记用户所有未读消息为已读时发生异常: userId={}, error={}", userId, e.getMessage(), e);
+            throw new BusinessException(ErrorCode.SYSTEM_ERROR, "标记用户所有未读消息为已读失败");
         }
     }
 
@@ -283,6 +356,7 @@ public class NotificationRecordServiceImpl extends ServiceImpl<NotificationRecor
                 .content(po.getContent())
                 .status(po.getStatus())
                 .statusDesc(statusEnum != null ? statusEnum.getDesc() : "未知")
+                .readStatus(po.getReadStatus())
                 .sendTime(po.getSendTime())
                 .createTime(po.getCreateTime())
                 .build();

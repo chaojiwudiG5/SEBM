@@ -83,7 +83,7 @@ public class NotificationRecordController {
     }
     
     /**
-     * 清空用户所有通知记录
+     * 清空用户所有已读消息（软删除）
      * @param userId 用户ID
      * @return 清空结果
      */
@@ -91,10 +91,10 @@ public class NotificationRecordController {
     public BaseResponse<Boolean> clearUserNotifications(@RequestParam Long userId) {
         try {
             boolean result = notificationRecordService.clearUserNotifications(userId);
-            log.info("清空用户通知记录: userId={}, result={}", userId, result);
+            log.info("清空用户已读消息: userId={}, result={}", userId, result);
             return ResultUtils.success(result);
         } catch (Exception e) {
-            log.error("清空用户通知记录失败: userId={}, error={}", userId, e.getMessage(), e);
+            log.error("清空用户已读消息失败: userId={}, error={}", userId, e.getMessage(), e);
         }
         return ResultUtils.success(false);
     }
@@ -141,6 +141,7 @@ public class NotificationRecordController {
             QueryWrapper<NotificationRecordPo> queryWrapper = new QueryWrapper<>();
             queryWrapper.eq("userId", userId)
                     .eq("status", 1)
+                    .eq("readStatus", 0)
                     .eq("isDelete", 0);
             
             long count = notificationRecordService.count(queryWrapper);
@@ -151,5 +152,40 @@ public class NotificationRecordController {
             log.error("获取用户未读通知数量失败: userId={}, error={}", userId, e.getMessage(), e);
         }
         return ResultUtils.success(0L);
+    }
+
+    /**
+     * 批量标记消息为已读
+     * @param batchDeleteDto 批量操作参数（复用，包含ids）
+     * @return 标记结果
+     */
+    @PostMapping("/batchMarkAsRead")
+    public BaseResponse<Boolean> batchMarkAsRead(@RequestBody @Valid BatchDeleteDto batchDeleteDto) {
+        try {
+            boolean result = notificationRecordService.batchMarkAsRead(batchDeleteDto.getIds());
+            log.info("批量标记消息为已读: count={}, result={}", batchDeleteDto.getIds().size(), result);
+            return ResultUtils.success(result);
+        } catch (Exception e) {
+            log.error("批量标记消息为已读失败: ids={}, error={}", 
+                    batchDeleteDto.getIds(), e.getMessage(), e);
+        }
+        return ResultUtils.success(false);
+    }
+
+    /**
+     * 标记用户所有未读消息为已读
+     * @param userId 用户ID
+     * @return 标记结果
+     */
+    @PostMapping("/markAllAsRead")
+    public BaseResponse<Boolean> markAllAsRead(@RequestParam Long userId) {
+        try {
+            boolean result = notificationRecordService.markAllAsRead(userId);
+            log.info("标记用户所有未读消息为已读: userId={}, result={}", userId, result);
+            return ResultUtils.success(result);
+        } catch (Exception e) {
+            log.error("标记用户所有未读消息为已读失败: userId={}, error={}", userId, e.getMessage(), e);
+        }
+        return ResultUtils.success(false);
     }
 }

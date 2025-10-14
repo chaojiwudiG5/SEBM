@@ -47,6 +47,11 @@ public class NotificationRecordVo {
     private String statusDesc;
     
     /**
+     * 已读状态 (0-未读, 1-已读)
+     */
+    private Integer readStatus;
+    
+    /**
      * 发送时间
      */
     private LocalDateTime sendTime;

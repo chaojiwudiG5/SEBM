@@ -32,10 +32,12 @@ public class NotificationWebSocketHandler implements WebSocketHandler {
         String userId = getUserIdFromSession(session);
         if (userId != null) {
             userSessions.put(userId, session);
-            log.info("用户 {} 建立WebSocket连接成功", userId);
-            
-            // 发送连接成功消息
-            sendMessage(session, createSystemMessage("连接成功", "WebSocket连接已建立"));
+            log.info("用户 {} 建立WebSocket连接成功, sessionId={}, remote={}, uri={}",
+                    userId,
+                    session.getId(),
+                    session.getRemoteAddress(),
+                    session.getUri());
+            // 按需发送系统消息：已移除默认的“连接成功”下行推送，避免前端收到冗余提示
         } else {
             log.warn("无法获取用户ID，关闭连接");
             session.close();
@@ -57,7 +59,8 @@ public class NotificationWebSocketHandler implements WebSocketHandler {
     @Override
     public void handleTransportError(WebSocketSession session, Throwable exception) throws Exception {
         String userId = getUserIdFromSession(session);
-        log.error("用户 {} WebSocket传输错误: {}", userId, exception.getMessage(), exception);
+        log.error("用户 {} WebSocket传输错误: {}, sessionId={}, remote={}",
+                userId, exception.getMessage(), session.getId(), session.getRemoteAddress(), exception);
         
         // 移除失效的会话
         if (userId != null) {
@@ -70,7 +73,8 @@ public class NotificationWebSocketHandler implements WebSocketHandler {
         String userId = getUserIdFromSession(session);
         if (userId != null) {
             userSessions.remove(userId);
-            log.info("用户 {} WebSocket连接已关闭: {}", userId, closeStatus);
+            log.info("用户 {} WebSocket连接已关闭: {}, sessionId={}, remote={}",
+                    userId, closeStatus, session.getId(), session.getRemoteAddress());
         }
     }
 

@@ -31,6 +31,11 @@ public class NotificationRecordQueryDto extends PageDto {
     private Integer queryRole;
 
     /**
+     * 已读状态，0-未读，1-已读
+     */
+    private Integer readStatus;
+
+    /**
      * 秒级时间戳
      */
     private Long startTime;
