@@ -37,8 +37,8 @@ spring:
 
   # RabbitMQ configuration for Railway deployment
   rabbitmq:
-    host: rabbitmq-delayed-access.railway.internal
-    port: 5672
+    host: hopper.proxy.rlwy.net
+    port: 50343
     username: test
     password: test
     virtual-host: /
@@ -77,10 +77,10 @@ mybatis-plus:
     db-config:
       id-type: auto
 
-tencent:
-  cos:
-    secretId: ${TENCENT_SECRET_ID:default}
-    secretKey: ${TENCENT_SECRET_KEY:default}
-    region: ${TENCENT_REGION:default}
-    bucketName: sebm-1354340785
-    durationSeconds: 900
+aliyun:
+  oss:
+    endpoint: oss-ap-southeast-1.aliyuncs.com
+    accessKeyId: ${OSS_ACCESS_KEY_ID}
+    accessKeySecret: ${OSS_ACCESS_KEY_SECRET}
+    bucketName: sebm
+

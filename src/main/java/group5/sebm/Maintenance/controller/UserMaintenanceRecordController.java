@@ -13,6 +13,7 @@ import group5.sebm.exception.ThrowUtils;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -32,24 +33,24 @@ public class UserMaintenanceRecordController {
     private final UserMaintenanceRecordService userMaintenanceRecordService;
 
     @PostMapping("/report")
-    public BaseResponse<Long> createMaintenanceRecord(@RequestBody @Valid UserCreateDto createDto, HttpServletRequest request)
+    public BaseResponse<UserMaintenanceRecordVo> createMaintenanceRecord(@RequestBody @Valid UserCreateDto createDto, HttpServletRequest request)
     {
         Long userId = (Long) request.getAttribute("userId");
         ThrowUtils.throwIf(userId == null, ErrorCode.NOT_LOGIN_ERROR, "login required");
-        Long recordId = userMaintenanceRecordService.createMaintenanceRecord(userId, createDto);
-        log.info("User {} created maintenance record {}", userId, recordId);
-        return ResultUtils.success(recordId);
+        UserMaintenanceRecordVo record = userMaintenanceRecordService.createMaintenanceRecord(userId, createDto);
+        log.info("User {} created maintenance record {}", userId, record);
+        return ResultUtils.success(record);
     }
 
     @PostMapping("/myList")
-    public BaseResponse<Page<UserMaintenanceRecordVo>> listMyRecords(@RequestBody @Valid UserQueryDto queryDto, HttpServletRequest request)
+    public BaseResponse<List<UserMaintenanceRecordVo>> listMyRecords(@RequestBody @Valid UserQueryDto queryDto, HttpServletRequest request)
     {
         Long userId = (Long) request.getAttribute("userId");
         ThrowUtils.throwIf(userId == null, ErrorCode.NOT_LOGIN_ERROR, "login required");
         Page<UserMaintenanceRecordVo> page = userMaintenanceRecordService
                 .listUserMaintenanceRecords(userId, queryDto);
         log.info("User {} queried maintenance records page {}", userId, page);
-        return ResultUtils.success(page);
+        return ResultUtils.success(page.getRecords());
     }
 
     @GetMapping("/{id}")

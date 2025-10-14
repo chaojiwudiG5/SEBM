@@ -11,7 +11,7 @@ public class UserMaintenanceRecordVo {
 
     private Long id;
 
-    private Long deviceId;
+    private String deviceName;
 
     private Long userId;
 

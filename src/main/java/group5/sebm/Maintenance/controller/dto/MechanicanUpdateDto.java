@@ -22,7 +22,7 @@ public class MechanicanUpdateDto {
      * 新状态：0-待处理，1-处理中，2-已修复，3-无法修复
      */
     @NotNull(message = "status cannot be null")
-    @Min(value = 0, message = "illegal status value")
+    @Min(value = 2, message = "illegal status value")
     @Max(value = 3, message = "illegal status value")
     private Integer status;
 
@@ -41,5 +41,6 @@ public class MechanicanUpdateDto {
     /**
      * 关联的用户报修单ID，可用于同步状态
      */
+    @NotNull(message = "userMaintenanceRecordId cannot be null")
     private Long userMaintenanceRecordId;
 }

@@ -24,4 +24,6 @@ public class MechanicanMaintenanceRecordVo {
     private Date createTime;
 
     private Date updateTime;
+
+    private Long userMaintenanceRecordId;
 }

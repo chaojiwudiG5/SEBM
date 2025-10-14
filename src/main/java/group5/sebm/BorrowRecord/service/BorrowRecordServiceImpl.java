@@ -13,6 +13,7 @@ import group5.sebm.BorrowRecord.entity.BorrowRecordPo;
 import group5.sebm.Device.entity.DevicePo;
 import group5.sebm.User.service.UserServiceInterface.BorrowerService;
 import group5.sebm.common.constant.BorrowConstant;
+import group5.sebm.common.dto.BorrowRecordDto;
 import group5.sebm.common.dto.UserDto;
 import group5.sebm.common.enums.BorrowStatusEnum;
 import group5.sebm.BorrowRecord.service.services.BorrowRecordService;
@@ -53,6 +54,16 @@ public class BorrowRecordServiceImpl extends ServiceImpl<BorrowRecordMapper, Bor
   private final DeviceService deviceService;
 
   private final NotificationService notificationService;
+
+  @Override
+  public BorrowRecordDto getBorrowRecordById(Long borrowRecordId) {
+    BorrowRecordPo borrowRecordPo = borrowRecordMapper.selectById(borrowRecordId);
+    ThrowUtils.throwIf(borrowRecordPo == null, ErrorCode.NOT_FOUND_ERROR,
+        "Borrow record not found");
+    BorrowRecordDto borrowRecordDto = new BorrowRecordDto();
+    BeanUtils.copyProperties(borrowRecordPo, borrowRecordDto);
+    return borrowRecordDto;
+  }
 
   @Override
   @Transactional(rollbackFor = BusinessException.class)
@@ -175,17 +186,13 @@ public class BorrowRecordServiceImpl extends ServiceImpl<BorrowRecordMapper, Bor
     ThrowUtils.throwIf(currentUser == null, ErrorCode.NOT_FOUND_ERROR, "No user");
     boolean inGeofence = GeoFenceUtils.isInGeofence(borrowRecordReturnDto.getLongitude(),
         borrowRecordReturnDto.getLatitude(), BorrowConstant.CENTER_LONGITUDE_HOME,
-        BorrowConstant.CENTER_LATITUDE_HOME, BorrowConstant.RADIUS) ||
-        GeoFenceUtils.isInGeofence(borrowRecordReturnDto.getLongitude(),
-            borrowRecordReturnDto.getLatitude(),
-            BorrowConstant.CENTER_LONGITUDE_SCHOOL, BorrowConstant.CENTER_LATITUDE_SCHOOL,
-            BorrowConstant.RADIUS);
-    ;
+        BorrowConstant.CENTER_LATITUDE_HOME, BorrowConstant.RADIUS);
     ThrowUtils.throwIf(!inGeofence, ErrorCode.FORBIDDEN_ERROR,
         "Out of geofence,please return in the storeroom");
     //2. 更新记录
     BorrowRecordPo borrowRecord = borrowRecordMapper.selectById(borrowRecordReturnDto.getId());
-    ThrowUtils.throwIf(userId.longValue() != borrowRecord.getUserId().longValue(), ErrorCode.FORBIDDEN_ERROR,"No permission");
+    ThrowUtils.throwIf(userId.longValue() != borrowRecord.getUserId().longValue(),
+        ErrorCode.FORBIDDEN_ERROR, "No permission");
     ThrowUtils.throwIf(borrowRecord == null, ErrorCode.NOT_FOUND_ERROR, "No borrow record");
     borrowRecord.setReturnTime(borrowRecordReturnDto.getReturnTime());
     borrowRecord.setStatus(BorrowStatusEnum.RETURNED.getCode());

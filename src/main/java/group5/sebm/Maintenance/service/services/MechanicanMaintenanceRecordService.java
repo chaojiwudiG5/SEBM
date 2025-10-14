@@ -3,6 +3,7 @@ package group5.sebm.Maintenance.service.services;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
+import group5.sebm.Maintenance.controller.dto.MechanicRecordQueryDto;
 import group5.sebm.Maintenance.controller.dto.MechanicanClaimDto;
 import group5.sebm.Maintenance.controller.dto.MechanicanQueryDto;
 import group5.sebm.Maintenance.controller.dto.MechanicanUpdateDto;
@@ -19,7 +20,7 @@ public interface MechanicanMaintenanceRecordService extends IService<MechanicanM
     /**
      * 技工认领报修单生成维修任务
      */
-    Long claimMaintenanceTask(Long mechanicId, MechanicanClaimDto claimDto);
+    Long addMaintenanceTask(Long mechanicId, Long userMaintenanceRecordId);
 
     /**
      * 分页查询技工自己的维修任务
@@ -29,7 +30,7 @@ public interface MechanicanMaintenanceRecordService extends IService<MechanicanM
     /**
      * 查看维修任务详情
      */
-    MechanicanMaintenanceRecordVo getMechanicMaintenanceRecordDetail(Long mechanicId, Long recordId);
+    MechanicanMaintenanceRecordVo getMechanicMaintenanceRecordDetail(MechanicRecordQueryDto queryDto);
 
     /**
      * 更新维修任务状态

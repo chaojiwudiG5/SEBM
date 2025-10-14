@@ -2,9 +2,15 @@ package group5.sebm.Maintenance.service;
 
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import group5.sebm.BorrowRecord.controller.vo.BorrowRecordVo;
+import group5.sebm.BorrowRecord.service.services.BorrowRecordService;
+import group5.sebm.common.dto.BorrowRecordDto;
+import group5.sebm.common.dto.UserMaintenanceRecordDto;
+import group5.sebm.common.enums.DeviceStatusEnum;
 import group5.sebm.common.vo.DeviceVo;
 import group5.sebm.Device.service.services.DeviceService;
 import group5.sebm.Maintenance.controller.dto.UserCreateDto;
@@ -24,104 +30,142 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 /**
-* @author Luoimo
-* @description 针对表【userMaintenanceRecord(设备维修报单表)】的数据库操作Service实现
-* @createDate 2025-09-26 13:41:45
-*/
+ * @author Luoimo
+ * @description 针对表【userMaintenanceRecord(设备维修报单表)】的数据库操作Service实现
+ * @createDate 2025-09-26 13:41:45
+ */
 @Service
 @AllArgsConstructor
-public class UserMaintenanceRecordServiceImpl extends ServiceImpl<UserMaintenanceRecordMapper, UserMaintenanceRecordPo>
+public class UserMaintenanceRecordServiceImpl extends
+    ServiceImpl<UserMaintenanceRecordMapper, UserMaintenanceRecordPo>
     implements UserMaintenanceRecordService {
 
-    private final DeviceService deviceService;
+  private final DeviceService deviceService;
 
-    @Override
-    public Long createMaintenanceRecord(Long userId, UserCreateDto createDto) {
-        Date now = new Date();
-        //1.保存报修单
-        UserMaintenanceRecordPo record = new UserMaintenanceRecordPo();
-        record.setUserId(userId);
-        record.setDeviceId(createDto.getDeviceId());
-        record.setDescription(createDto.getDescription());
-        record.setImage(createDto.getImage());
-        record.setStatus(0);
-        record.setIsDelete(0);
-        record.setCreateTime(now);
-        record.setUpdateTime(now);
-        this.save(record);
-        //2.修改设备状态为报修中
-        DeviceVo deviceVo = deviceService.updateDeviceStatus(createDto.getDeviceId(), 2);
-        ThrowUtils.throwIf(deviceVo == null, ErrorCode.OPERATION_ERROR, "create maintenance record failed");
-        return record.getId();
+  private final BorrowRecordService borrowRecordService;
+
+  @Override
+  public UserMaintenanceRecordDto updateStatus(Long recordId, Integer status) {
+    //1.查询报修单
+    UserMaintenanceRecordPo record = this.getById(recordId);
+    ThrowUtils.throwIf(record == null, ErrorCode.NOT_FOUND_ERROR,
+        "user maintenance record not found");
+    //2.校验状态是否合法
+    ThrowUtils.throwIf(record.getStatus() != 0, ErrorCode.OPERATION_ERROR,
+        "maintenance record cannot be updated");
+    //3.修改状态
+    record.setStatus(status);
+    record.setUpdateTime(new Date());
+    boolean success = this.updateById(record);
+    ThrowUtils.throwIf(!success, ErrorCode.OPERATION_ERROR,
+        "update maintenance record status failed");
+    //4.返回DTO
+    UserMaintenanceRecordDto dto = new UserMaintenanceRecordDto();
+    BeanUtils.copyProperties(record, dto);
+    return dto;
+  }
+
+  @Override
+  public UserMaintenanceRecordDto getUserMaintenanceRecordDto(Long recordId) {
+    //1.查询报修单
+    UserMaintenanceRecordPo record = this.getById(recordId);
+    ThrowUtils.throwIf(record == null, ErrorCode.NOT_FOUND_ERROR,
+        "user maintenance record not found");
+    //2.转换成DTO
+    UserMaintenanceRecordDto dto = new UserMaintenanceRecordDto();
+    BeanUtils.copyProperties(record, dto);
+    //3.返回DTO
+    return dto;
+  }
+
+  @Override
+  public UserMaintenanceRecordVo createMaintenanceRecord(Long userId, UserCreateDto createDto) {
+    //1.校验借用记录是否存在
+    BorrowRecordDto borrowRecordDto = borrowRecordService.getBorrowRecordById(
+        createDto.getBorrowRecordId());
+    //2.校验设备是否被该用户借出
+    ThrowUtils.throwIf(userId.longValue() != borrowRecordDto.getUserId().longValue(),
+        ErrorCode.NO_AUTH_ERROR, "Device is not borrowed by this user");
+    //3.创建报修单
+    UserMaintenanceRecordPo record = new UserMaintenanceRecordPo();
+    BeanUtils.copyProperties(createDto, record);
+    record.setUserId(userId);
+    record.setDeviceId(borrowRecordDto.getDeviceId());
+    //4.保存报修单
+    boolean success = this.save(record);
+    ThrowUtils.throwIf(!success, ErrorCode.OPERATION_ERROR, "create maintenance record failed");
+    //5.修改设备状态为维修中
+    deviceService.updateDeviceStatus(borrowRecordDto.getDeviceId(),
+        DeviceStatusEnum.MAINTENANCE.getCode());
+    //6.返回报修单
+    UserMaintenanceRecordVo vo = new UserMaintenanceRecordVo();
+    BeanUtils.copyProperties(record, vo);
+    return vo;
+  }
+
+  @Override
+  public Page<UserMaintenanceRecordVo> listUserMaintenanceRecords(Long userId,
+      UserQueryDto queryDto) {
+    //1.分页查询报修单
+    QueryWrapper<UserMaintenanceRecordPo> queryWrapper = new QueryWrapper<>();
+    queryWrapper.eq("userId", userId);
+    if (queryDto.getStatus() != null) {
+      queryWrapper.eq("status", queryDto.getStatus());
     }
+    Page<UserMaintenanceRecordPo> page = this.page(
+        new Page<>(queryDto.getPageNumber(), queryDto.getPageSize()), queryWrapper);
+    //2.转换成VO
+    Page<UserMaintenanceRecordVo> voPage = new Page<>();
+    BeanUtils.copyProperties(page, voPage);
+    voPage.setRecords(page.getRecords().stream().map(record -> {
+      UserMaintenanceRecordVo vo = new UserMaintenanceRecordVo();
+      BeanUtils.copyProperties(record, vo);
+      DeviceVo deviceVo = deviceService.getDeviceById(record.getDeviceId());
+      vo.setDeviceName(deviceVo.getDeviceName());
+      return vo;
+    }).collect(Collectors.toList()));
+    return voPage;
+  }
 
-    @Override
-    public Page<UserMaintenanceRecordVo> listUserMaintenanceRecords(Long userId, UserQueryDto queryDto) {
-        Page<UserMaintenanceRecordPo> page = new Page<>(queryDto.getPageNumber(), queryDto.getPageSize());
-        LambdaQueryWrapper<UserMaintenanceRecordPo> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(UserMaintenanceRecordPo::getUserId, userId)
-                .eq(UserMaintenanceRecordPo::getIsDelete, 0)
-                .orderByDesc(UserMaintenanceRecordPo::getCreateTime);
-        if (queryDto.getDeviceId() != null) {
-            wrapper.eq(UserMaintenanceRecordPo::getDeviceId, queryDto.getDeviceId());
-        }
-        if (queryDto.getStatus() != null) {
-            wrapper.eq(UserMaintenanceRecordPo::getStatus, queryDto.getStatus());
-        }
-        Page<UserMaintenanceRecordPo> poPage = this.page(page, wrapper);
+  @Override
+  public UserMaintenanceRecordVo getUserMaintenanceRecordDetail(Long userId, Long recordId) {
+    LambdaQueryWrapper<UserMaintenanceRecordPo> wrapper = new LambdaQueryWrapper<>();
+    wrapper.eq(UserMaintenanceRecordPo::getId, recordId)
+        .eq(UserMaintenanceRecordPo::getUserId, userId)
+        .eq(UserMaintenanceRecordPo::getIsDelete, 0);
+    UserMaintenanceRecordPo record = this.getOne(wrapper);
+    ThrowUtils.throwIf(record == null, ErrorCode.NOT_FOUND_ERROR,
+        "user maintenance record not found");
+    UserMaintenanceRecordVo vo = new UserMaintenanceRecordVo();
+    BeanUtils.copyProperties(record, vo);
+    return vo;
+  }
 
-        var voList = poPage.getRecords().stream()
-                .map(po -> {
-                    UserMaintenanceRecordVo vo = new UserMaintenanceRecordVo();
-                    BeanUtils.copyProperties(po, vo);
-                    return vo;
-                })
-                .collect(Collectors.toList());
-
-        // 4) 组装 Page<Vo> 返回
-        Page<UserMaintenanceRecordVo> voPage =
-                new Page<>(poPage.getCurrent(), poPage.getSize(), poPage.getTotal());
-        voPage.setRecords(voList);
-        return voPage;
-    }
-
-    @Override
-    public UserMaintenanceRecordVo getUserMaintenanceRecordDetail(Long userId, Long recordId) {
-        LambdaQueryWrapper<UserMaintenanceRecordPo> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(UserMaintenanceRecordPo::getId, recordId)
-                .eq(UserMaintenanceRecordPo::getUserId, userId)
-                .eq(UserMaintenanceRecordPo::getIsDelete, 0);
-        UserMaintenanceRecordPo record = this.getOne(wrapper);
-        ThrowUtils.throwIf(record == null, ErrorCode.NOT_FOUND_ERROR, "user maintenance record not found");
-        UserMaintenanceRecordVo vo = new UserMaintenanceRecordVo();
-        BeanUtils.copyProperties(record, vo);
-        return vo;
-    }
-
-    @Override
-    public Boolean cancelMaintenanceRecord(Long userId, Long recordId) {
-        LambdaQueryWrapper<UserMaintenanceRecordPo> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(UserMaintenanceRecordPo::getId, recordId)
-                .eq(UserMaintenanceRecordPo::getUserId, userId)
-                .eq(UserMaintenanceRecordPo::getIsDelete, 0);
-        UserMaintenanceRecordPo record = this.getOne(queryWrapper);
-        ThrowUtils.throwIf(record == null, ErrorCode.NOT_FOUND_ERROR, "user maintenance record not found");
-        ThrowUtils.throwIf(!Objects.equals(record.getStatus(), 0), ErrorCode.OPERATION_ERROR,
-                "maintenance record cannot be cancelled");
-        //1.构建更新条件
-        LambdaUpdateWrapper<UserMaintenanceRecordPo> updateWrapper = new LambdaUpdateWrapper<>();
-        updateWrapper.eq(UserMaintenanceRecordPo::getId, recordId)
-                .eq(UserMaintenanceRecordPo::getUserId, userId);
-        //2.逻辑删除报修单
-        UserMaintenanceRecordPo update = new UserMaintenanceRecordPo();
-        update.setIsDelete(1);
-        update.setUpdateTime(new Date());
-        boolean success = this.update(update, updateWrapper);
-        //3.修改设备状态为可用
-        success = success && (deviceService.updateDeviceStatus(record.getDeviceId(), 0) != null);
-        ThrowUtils.throwIf(!success, ErrorCode.OPERATION_ERROR, "delete maintenance record failed");
-        return true;
-    }
+  @Override
+  public Boolean cancelMaintenanceRecord(Long userId, Long recordId) {
+    LambdaQueryWrapper<UserMaintenanceRecordPo> queryWrapper = new LambdaQueryWrapper<>();
+    queryWrapper.eq(UserMaintenanceRecordPo::getId, recordId)
+        .eq(UserMaintenanceRecordPo::getUserId, userId)
+        .eq(UserMaintenanceRecordPo::getIsDelete, 0);
+    UserMaintenanceRecordPo record = this.getOne(queryWrapper);
+    ThrowUtils.throwIf(record == null, ErrorCode.NOT_FOUND_ERROR,
+        "user maintenance record not found");
+    ThrowUtils.throwIf(!Objects.equals(record.getStatus(), 0), ErrorCode.OPERATION_ERROR,
+        "maintenance record cannot be cancelled");
+    //1.构建更新条件
+    LambdaUpdateWrapper<UserMaintenanceRecordPo> updateWrapper = new LambdaUpdateWrapper<>();
+    updateWrapper.eq(UserMaintenanceRecordPo::getId, recordId)
+        .eq(UserMaintenanceRecordPo::getUserId, userId);
+    //2.逻辑删除报修单
+    UserMaintenanceRecordPo update = new UserMaintenanceRecordPo();
+    update.setIsDelete(1);
+    update.setUpdateTime(new Date());
+    boolean success = this.update(update, updateWrapper);
+    //3.修改设备状态为可用
+    success = success && (deviceService.updateDeviceStatus(record.getDeviceId(), 0) != null);
+    ThrowUtils.throwIf(!success, ErrorCode.OPERATION_ERROR, "delete maintenance record failed");
+    return true;
+  }
 
 }
 

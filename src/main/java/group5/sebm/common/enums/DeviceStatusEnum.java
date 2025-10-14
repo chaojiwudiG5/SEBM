@@ -15,7 +15,7 @@ public enum DeviceStatusEnum {
     AVAILABLE(0, "Available"),
     BORROWED(1, "Borrowed"),
     MAINTENANCE(2, "Maintenance"),
-    RESERVED(3, "Reserved");
+    BROKEN(3, "Broken");
 
     private final int code;
     private final String description;

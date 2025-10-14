@@ -9,6 +9,7 @@ import group5.sebm.BorrowRecord.controller.dto.BorrowRecordReturnDto;
 import group5.sebm.BorrowRecord.controller.dto.BorrowRecordRenewDto;
 import group5.sebm.BorrowRecord.controller.vo.BorrowRecordVo;
 import group5.sebm.BorrowRecord.entity.BorrowRecordPo;
+import group5.sebm.common.dto.BorrowRecordDto;
 import jakarta.servlet.http.HttpServletRequest;
 
 /**
@@ -17,6 +18,7 @@ import jakarta.servlet.http.HttpServletRequest;
 * @createDate 2025-09-26 11:27:18
 */
 public interface BorrowRecordService extends IService<BorrowRecordPo> {
+  BorrowRecordDto getBorrowRecordById(Long borrowRecordId);
 
   BorrowRecordVo borrowDevice(BorrowRecordAddDto borrowRecordAddDto, Long userId);
 

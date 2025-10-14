@@ -12,10 +12,10 @@ import lombok.Data;
 public class UserCreateDto {
 
     /**
-     * 设备ID
+     * 借用记录ID
      */
-    @NotNull(message = "deviceId cannot be null")
-    private Long deviceId;
+    @NotNull(message = "borrow record ID cannot be null")
+    private Long borrowRecordId;
 
     /**
      * 故障描述

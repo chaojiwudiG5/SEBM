@@ -15,10 +15,4 @@ public class MechanicanClaimDto {
      */
     @NotNull(message = "userMaintenanceRecordId cannot be null")
     private Long userMaintenanceRecordId;
-
-    /**
-     * 维修备注
-     */
-    @Size(max = 500, message = "description cannot exceed 500 characters")
-    private String description;
 }

@@ -23,12 +23,6 @@ public class UserQueryDto {
     @NotNull(message = "pageSize cannot be null")
     @Min(value = 1, message = "pageSize must be greater than or equal to 1")
     private Integer pageSize;
-
-    /**
-     * 设备ID筛选
-     */
-    private Long deviceId;
-
     /**
      * 状态筛选
      */
