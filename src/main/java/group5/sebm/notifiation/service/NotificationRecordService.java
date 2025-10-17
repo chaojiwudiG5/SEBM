@@ -2,6 +2,7 @@ package group5.sebm.notifiation.service;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
+import group5.sebm.notifiation.controller.dto.AdminNotificationQueryDto;
 import group5.sebm.notifiation.controller.dto.NotificationRecordQueryDto;
 import group5.sebm.notifiation.controller.vo.NotificationRecordVo;
 import group5.sebm.notifiation.entity.NotificationRecordPo;
@@ -19,9 +20,10 @@ public interface NotificationRecordService extends IService<NotificationRecordPo
      * @param title 通知标题
      * @param content 通知内容
      * @param status 发送状态
+     * @param notificationRole 通知角色
      * @return 是否保存成功
      */
-    boolean saveNotificationRecord(Long userId, String title, String content, Integer status);
+    boolean saveNotificationRecord(Long userId, String title, String content, Integer status, Integer notificationRole);
     
     /**
      * 创建通知记录并返回记录ID
@@ -29,9 +31,10 @@ public interface NotificationRecordService extends IService<NotificationRecordPo
      * @param title 通知标题
      * @param content 通知内容
      * @param status 发送状态
+     * @param notificationRole 通知角色
      * @return 记录ID，失败返回null
      */
-    Long createNotificationRecord(Long userId, String title, String content, Integer status);
+    Long createNotificationRecord(Long userId, String title, String content, Integer status, Integer notificationRole);
     
     /**
      * 更新通知记录状态
@@ -82,6 +85,13 @@ public interface NotificationRecordService extends IService<NotificationRecordPo
      * @return 是否标记成功
      */
     boolean markAllAsRead(Long userId);
+
+    /**
+     * 管理员查询所有已发送的通知记录（不受用户删除状态影响）
+     * @param queryDto 查询条件
+     * @return 通知记录分页数据
+     */
+    Page<NotificationRecordVo> queryAllSentNotifications(AdminNotificationQueryDto queryDto);
 
 }
 

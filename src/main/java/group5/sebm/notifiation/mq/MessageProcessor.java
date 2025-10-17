@@ -124,7 +124,8 @@ public class MessageProcessor {
                     message.getUserId(),
                     template.getTemplateTitle(),
                     template.getTemplateContent(),
-                    recordStatus.getCode()
+                    recordStatus.getCode(),
+                    template.getNotificationRole()
             );
         }
     }

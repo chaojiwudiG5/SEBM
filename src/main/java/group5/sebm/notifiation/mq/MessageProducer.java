@@ -95,7 +95,8 @@ public class MessageProducer {
                     message.getUserId(),
                     message.getTemplate().getTemplateTitle(),
                     message.getTemplate().getTemplateContent(),
-                    NotificationRecordStatusEnum.PENDING.getCode()
+                    NotificationRecordStatusEnum.PENDING.getCode(),
+                    message.getTemplate().getNotificationRole()
             );
             
             if (recordId != null) {

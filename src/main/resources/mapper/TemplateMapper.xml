@@ -10,7 +10,7 @@
         <result property="notificationMethod" column="notificationMethod" jdbcType="VARCHAR"
                 typeHandler="group5.sebm.notifiation.config.ListTypeHandler"/>
         <result property="notificationNode" column="notificationNode" jdbcType="VARCHAR"/>
-        <result property="notificationRole" column="notificationRole" jdbcType="VARCHAR"/>
+        <result property="notificationRole" column="notificationRole" jdbcType="INTEGER"/>
         <result property="notificationType" column="notificationType" jdbcType="INTEGER"/>
         <result property="notificationEvent" column="notificationEvent" jdbcType="INTEGER"/>
         <result property="relateTimeOffset" column="relateTimeOffset" jdbcType="BIGINT"/>

@@ -9,9 +9,9 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum NotificationRoleEnum {
-    Admin(0,"管理员"),
-    Borrower(1,"借用人"),
-    Technican(2,"技工");
+    ADMIN(0,"管理员"),
+    USER(1,"用户"),
+    TECHNICIAN(2,"技工");
     private final Integer code;
     private final String description;
 

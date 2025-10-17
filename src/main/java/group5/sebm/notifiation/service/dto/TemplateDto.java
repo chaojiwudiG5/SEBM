@@ -39,7 +39,7 @@ public class TemplateDto {
     /**
      * 通知角色
      */
-    private String notificationRole;
+    private Integer notificationRole;
 
     /**
      * 通知类型

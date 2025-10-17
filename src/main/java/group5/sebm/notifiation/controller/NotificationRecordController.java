@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import group5.sebm.common.BaseResponse;
 import group5.sebm.common.ResultUtils;
 import group5.sebm.common.dto.DeleteDto;
+import group5.sebm.notifiation.controller.dto.AdminNotificationQueryDto;
 import group5.sebm.notifiation.controller.dto.BatchDeleteDto;
 import group5.sebm.notifiation.controller.dto.NotificationRecordQueryDto;
 import group5.sebm.notifiation.controller.vo.NotificationRecordVo;
@@ -187,5 +188,25 @@ public class NotificationRecordController {
             log.error("标记用户所有未读消息为已读失败: userId={}, error={}", userId, e.getMessage(), e);
         }
         return ResultUtils.success(false);
+    }
+
+    /**
+     * 管理员查询所有已发送的通知记录（不受用户删除状态影响）
+     * @param queryDto 查询条件
+     * @return 通知记录分页数据
+     */
+    @PostMapping("/admin/listAll")
+    public BaseResponse<Page<NotificationRecordVo>> queryAllSentNotifications(
+            @RequestBody @Valid AdminNotificationQueryDto queryDto) {
+        
+        try {
+            Page<NotificationRecordVo> result = notificationRecordService.queryAllSentNotifications(queryDto);
+            log.info("管理员查询所有已发送通知: userId={}, isDelete={}, total={}", 
+                    queryDto.getUserId(), queryDto.getIsDelete(), result.getTotal());
+            return ResultUtils.success(result);
+        } catch (Exception e) {
+            log.error("管理员查询所有已发送通知失败: queryDto={}, error={}", queryDto, e.getMessage(), e);
+        }
+        return ResultUtils.success(null);
     }
 }

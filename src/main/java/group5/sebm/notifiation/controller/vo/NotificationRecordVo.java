@@ -52,6 +52,11 @@ public class NotificationRecordVo {
     private Integer readStatus;
     
     /**
+     * 通知角色 (0-管理员, 1-用户, 2-技工)
+     */
+    private Integer notificationRole;
+    
+    /**
      * 发送时间
      */
     private LocalDateTime sendTime;
