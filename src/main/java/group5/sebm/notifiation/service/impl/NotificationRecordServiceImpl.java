@@ -147,6 +147,11 @@ public class NotificationRecordServiceImpl extends ServiceImpl<NotificationRecor
                 queryWrapper.like("title", queryDto.getTitleKeyword());
             }
 
+            // 增加已读查询
+            if(queryDto.getReadStatus()!=null){
+                queryWrapper.eq("readStatus", queryDto.getReadStatus());
+            }
+
             // 根据创建时间范围查询（秒级时间戳转换为LocalDateTime）
             if (queryDto.getStartTime() != null) {
                 LocalDateTime startDateTime = LocalDateTime.ofEpochSecond(
