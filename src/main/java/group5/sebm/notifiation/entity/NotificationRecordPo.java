@@ -12,7 +12,9 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 
 /**
- * 通知记录实体类
+ * 通知记录表实体类（明细表）
+ * 记录每个用户收到的每种通知方式及其状态
+ * 一个通知任务可以发给多个用户，每个用户可以通过多种方式接收
  */
 @Data
 @Builder
@@ -22,35 +24,35 @@ import java.time.LocalDateTime;
 public class NotificationRecordPo {
     
     /**
-     * 记录ID
+     * 主键ID
      */
     @TableId(value = "id", type = IdType.AUTO)
     private Long id;
     
     /**
-     * 用户ID
+     * 通知任务ID（关联 notificationTask 表）
+     */
+    @TableField("notificationTaskId")
+    private Long notificationTaskId;
+    
+    /**
+     * 用户ID（接收通知的用户）
      */
     @TableField("userId")
     private Long userId;
     
     /**
-     * 通知标题
+     * 通知方式 (1-邮件, 2-短信, 3-站内信)
      */
-    @TableField("title")
-    private String title;
+    @TableField("notificationMethod")
+    private Integer notificationMethod;
     
     /**
-     * 通知内容
-     */
-    @TableField("content")
-    private String content;
-    
-    /**
-     * 发送状态 (0-待发送, 1-发送成功, 2-发送失败)
+     * 发送状态 (0-未发送, 1-发送成功, 2-发送失败)
      */
     @TableField("status")
     private Integer status;
-
+    
     /**
      * 已读状态 (0-未读, 1-已读)
      */
@@ -58,10 +60,10 @@ public class NotificationRecordPo {
     private Integer readStatus;
     
     /**
-     * 通知角色 (0-管理员, 1-用户, 2-技工)
+     * 是否删除 (0-未删除, 1-已删除)
      */
-    @TableField("notificationRole")
-    private Integer notificationRole;
+    @TableField("isDelete")
+    private Integer isDelete;
     
     /**
      * 发送时间
@@ -70,10 +72,10 @@ public class NotificationRecordPo {
     private LocalDateTime sendTime;
     
     /**
-     * 是否删除 (0-未删除, 1-已删除)
+     * 失败原因或错误信息
      */
-    @TableField("isDelete")
-    private Integer isDelete;
+    @TableField("errorMsg")
+    private String errorMsg;
     
     /**
      * 创建时间
@@ -87,4 +89,3 @@ public class NotificationRecordPo {
     @TableField("updateTime")
     private LocalDateTime updateTime;
 }
-

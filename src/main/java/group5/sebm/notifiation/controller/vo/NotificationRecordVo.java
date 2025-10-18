@@ -22,27 +22,42 @@ public class NotificationRecordVo {
     private Long id;
     
     /**
+     * 通知任务ID
+     */
+    private Long notificationTaskId;
+    
+    /**
      * 用户ID
      */
     private Long userId;
     
     /**
-     * 通知标题
+     * 通知标题（来自任务表）
      */
     private String title;
     
     /**
-     * 通知内容
+     * 通知内容（来自任务表）
      */
     private String content;
     
     /**
-     * 发送状态 (0-待发送, 1-发送成功, 2-发送失败)
+     * 通知角色（来自任务表）
+     */
+    private Integer notificationRole;
+    
+    /**
+     * 通知方式 (1-邮件, 2-短信, 3-站内信)
+     */
+    private Integer notificationMethod;
+    
+    /**
+     * 发送状态 (0-未发送, 1-发送成功, 2-发送失败)
      */
     private Integer status;
     
     /**
-     * 状态描述
+     * 发送状态描述
      */
     private String statusDesc;
     
@@ -52,14 +67,19 @@ public class NotificationRecordVo {
     private Integer readStatus;
     
     /**
-     * 通知角色 (0-管理员, 1-用户, 2-技工)
+     * 已读状态描述
      */
-    private Integer notificationRole;
+    private String readStatusDesc;
     
     /**
      * 发送时间
      */
     private LocalDateTime sendTime;
+    
+    /**
+     * 错误信息
+     */
+    private String errorMsg;
     
     /**
      * 创建时间

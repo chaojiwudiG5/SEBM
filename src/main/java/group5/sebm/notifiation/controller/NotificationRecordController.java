@@ -176,16 +176,19 @@ public class NotificationRecordController {
     /**
      * 标记用户所有未读消息为已读
      * @param userId 用户ID
+     * @param userRole 用户角色（0-普通用户，1-管理员，2-技工）
      * @return 标记结果
      */
     @PostMapping("/markAllAsRead")
-    public BaseResponse<Boolean> markAllAsRead(@RequestParam Long userId) {
+    public BaseResponse<Boolean> markAllAsRead(
+            @RequestParam Long userId,
+            @RequestParam Integer userRole) {
         try {
-            boolean result = notificationRecordService.markAllAsRead(userId);
-            log.info("标记用户所有未读消息为已读: userId={}, result={}", userId, result);
+            boolean result = notificationRecordService.markAllAsRead(userId, userRole);
+            log.info("标记用户所有未读消息为已读: userId={}, userRole={}, result={}", userId, userRole, result);
             return ResultUtils.success(result);
         } catch (Exception e) {
-            log.error("标记用户所有未读消息为已读失败: userId={}, error={}", userId, e.getMessage(), e);
+            log.error("标记用户所有未读消息为已读失败: userId={}, userRole={}, error={}", userId, userRole, e.getMessage(), e);
         }
         return ResultUtils.success(false);
     }
