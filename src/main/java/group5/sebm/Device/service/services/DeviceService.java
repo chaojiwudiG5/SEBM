@@ -5,7 +5,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import group5.sebm.Device.controller.dto.DeviceAddDto;
 import group5.sebm.Device.controller.dto.DeviceQueryDto;
 import group5.sebm.Device.controller.dto.DeviceUpdateDto;
-import group5.sebm.Device.controller.vo.DeviceVo;
+import group5.sebm.common.vo.DeviceVo;
 import group5.sebm.Device.entity.DevicePo;
 import group5.sebm.common.dto.DeleteDto;
 
@@ -24,7 +24,7 @@ public interface DeviceService extends IService<DevicePo> {
 
   DeviceVo updateDevice(DeviceUpdateDto deviceUpdateDto);
 
-  Boolean updateDeviceStatus(Long deviceId, Integer status);
+  DeviceVo updateDeviceStatus(Long deviceId, Integer status);
 
   Boolean deleteDevice( DeleteDto deleteDto);
 }

@@ -6,7 +6,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import group5.sebm.Device.controller.dto.DeviceAddDto;
 import group5.sebm.Device.controller.dto.DeviceQueryDto;
 import group5.sebm.Device.controller.dto.DeviceUpdateDto;
-import group5.sebm.Device.controller.vo.DeviceVo;
+import group5.sebm.common.vo.DeviceVo;
 import group5.sebm.Device.dao.DeviceMapper;
 import group5.sebm.Device.entity.DevicePo;
 import group5.sebm.Device.service.services.DeviceService;
@@ -187,7 +187,7 @@ public class DeviceServiceImpl extends ServiceImpl<DeviceMapper, DevicePo>
           @CacheEvict(value = "deviceList", allEntries = true)
       }
   )
-  public Boolean updateDeviceStatus(Long deviceId, Integer status) {
+  public DeviceVo updateDeviceStatus(Long deviceId, Integer status) {
     //1. 根据id查询设备
     DevicePo device = deviceMapper.selectById(deviceId);
     //2. 更新设备状态
@@ -195,7 +195,9 @@ public class DeviceServiceImpl extends ServiceImpl<DeviceMapper, DevicePo>
     //3. 更新数据库
     deviceMapper.updateById(device);
     //4. 返回成功
-    return true;
+    DeviceVo vo = new DeviceVo();
+    BeanUtils.copyProperties(device, vo); // 复制属性
+    return vo;
   }
 
 

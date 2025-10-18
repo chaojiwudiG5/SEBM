@@ -22,7 +22,7 @@ public class MessageConsumer {
     @RabbitListener(queues = "notification.immediate.queue")
     public void handleImmediateMessage(NotificationMessage message, Message amqpMessage) {
         try {
-            log.info("接收到即时通知消息: messageId={}, userId={}", 
+            log.info("接收到即时通知消息: messageId={}, userId={}",
                     message.getMessageId(), message.getUserId());
 
             // 处理通知消息
@@ -31,7 +31,7 @@ public class MessageConsumer {
             log.info("即时通知消息处理完成: messageId={}", message.getMessageId());
 
         } catch (Exception e) {
-            log.error("即时通知消息处理异常: messageId={}, error={}", 
+            log.error("即时通知消息处理异常: messageId={}, error={}",
                     message.getMessageId(), e.getMessage(), e);
             // 这里可以添加重试逻辑
             throw e; // 重新抛出异常，让RabbitMQ进行重试
@@ -44,7 +44,7 @@ public class MessageConsumer {
     @RabbitListener(queues = "notification.delay.queue")
     public void handleDelayMessage(NotificationMessage message, Message amqpMessage) {
         try {
-            log.info("接收到延迟通知消息: messageId={}, userId={}", 
+            log.info("接收到延迟通知消息: messageId={}, userId={}",
                     message.getMessageId(), message.getUserId());
 
             // 处理通知消息
@@ -53,7 +53,7 @@ public class MessageConsumer {
             log.info("延迟通知消息处理完成: messageId={}", message.getMessageId());
 
         } catch (Exception e) {
-            log.error("延迟通知消息处理异常: messageId={}, error={}", 
+            log.error("延迟通知消息处理异常: messageId={}, error={}",
                     message.getMessageId(), e.getMessage(), e);
             // 这里可以添加重试逻辑
             throw e; // 重新抛出异常，让RabbitMQ进行重试

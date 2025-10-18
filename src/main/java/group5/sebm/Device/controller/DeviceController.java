@@ -4,17 +4,14 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import group5.sebm.Device.controller.dto.DeviceAddDto;
 import group5.sebm.Device.controller.dto.DeviceQueryDto;
 import group5.sebm.Device.controller.dto.DeviceUpdateDto;
-import group5.sebm.Device.controller.vo.DeviceVo;
-import group5.sebm.Device.entity.DevicePo;
+import group5.sebm.common.vo.DeviceVo;
 import group5.sebm.Device.service.services.DeviceService;
-import group5.sebm.User.controller.dto.PageDto;
 import group5.sebm.annotation.AuthCheck;
 import group5.sebm.common.BaseResponse;
 import group5.sebm.common.ResultUtils;
 import group5.sebm.common.dto.DeleteDto;
 import group5.sebm.common.enums.UserRoleEnum;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -66,8 +63,8 @@ public class DeviceController {
   }
 
   @PostMapping("/updateDeviceStatus")
-  public BaseResponse<Boolean> updateDeviceStatus(Long deviceId, Integer status) {
-    Boolean result = deviceService.updateDeviceStatus(deviceId, status);
+  public BaseResponse<DeviceVo> updateDeviceStatus(Long deviceId, Integer status) {
+    DeviceVo result = deviceService.updateDeviceStatus(deviceId, status);
     log.info("UpdateDeviceStatus called with deviceId: {}, status: {}, result: {}", deviceId,
         status, result);
     return ResultUtils.success(result); // 返回更新的状态
