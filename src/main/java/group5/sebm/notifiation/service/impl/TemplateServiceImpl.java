@@ -13,7 +13,6 @@ import group5.sebm.notifiation.controller.vo.TemplateVo;
 import group5.sebm.notifiation.converter.TemplateConverter;
 import group5.sebm.notifiation.dao.TemplateMapper;
 import group5.sebm.notifiation.entity.TemplatePo;
-import group5.sebm.notifiation.enums.NotificationEventEnum;
 import group5.sebm.notifiation.service.TemplateService;
 import group5.sebm.notifiation.service.dto.TemplateDto;
 import jakarta.servlet.http.HttpServletRequest;
@@ -214,40 +213,40 @@ public class TemplateServiceImpl extends ServiceImpl<TemplateMapper, TemplatePo>
     public TemplateDto findTemplateByParams(Integer notificationEvent) {
         log.info("查询默认模板 - 通知code: {}", notificationEvent);
 
-//
-//        QueryWrapper<TemplatePo> queryWrapper = new QueryWrapper<>();
-//        queryWrapper.eq("notificationEvent", notificationEvent)
-//                .eq("isDelete", NotificationConstant.NOT_DELETED)
-//                .eq("status", NotificationConstant.TEMPLATE_STATUS_ACTIVE);
-//
-//        queryWrapper.orderByDesc("createTime")
-//                .last("LIMIT 1");
-//
-//        TemplatePo template = this.getOne(queryWrapper);
-//
-//        if (template == null) {
-//            log.warn("未找到通知 {} 的模板", notificationEvent);
-//            return null;
-//        }
-//        log.info("找到默认模板: ID={}, 标题={}", template.getId(), template.getTemplateTitle());
-//        // PO 转 DTO
-//        return templateConverter.toDto(template);
 
-        // 写死返回值，用于测试
-        TemplateDto templateDto = new TemplateDto();
-        templateDto.setId(1L);
-        templateDto.setTemplateTitle("测试模板");
-        templateDto.setNotificationMethod(List.of(1, 3)); // 邮件和站内信
-        templateDto.setNotificationNode("BORROW_REQUEST_SUCCESS");
-        templateDto.setNotificationRole(1); // 用户
-        templateDto.setNotificationType(0); // 即时通知
-        templateDto.setNotificationEvent(NotificationEventEnum.BORROW_APPLICATION_APPROVED.getCode());
-        templateDto.setRelateTimeOffset(0L);
-        templateDto.setContent("您的设备租借已成功，租借时长两小时");
-        templateDto.setTemplateDesc("测试模板描述");
+        QueryWrapper<TemplatePo> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("notificationEvent", notificationEvent)
+                .eq("isDelete", NotificationConstant.NOT_DELETED)
+                .eq("status", NotificationConstant.TEMPLATE_STATUS_ACTIVE);
+
+        queryWrapper.orderByDesc("createTime")
+                .last("LIMIT 1");
+
+        TemplatePo template = this.getOne(queryWrapper);
+
+        if (template == null) {
+            log.warn("未找到通知 {} 的模板", notificationEvent);
+            return null;
+        }
+        log.info("找到默认模板: ID={}, 标题={}", template.getId(), template.getTemplateTitle());
+        // PO 转 DTO
+        return templateConverter.toDto(template);
+
+//        // 写死返回值，用于测试
+//        TemplateDto templateDto = new TemplateDto();
+//        templateDto.setId(1L);
+//        templateDto.setTemplateTitle("测试模板");
+//        templateDto.setNotificationMethod(List.of(1, 3)); // 邮件和站内信
+//        templateDto.setNotificationNode("BORROW_REQUEST_SUCCESS");
+//        templateDto.setNotificationRole(1); // 用户
+//        templateDto.setNotificationType(0); // 即时通知
+//        templateDto.setNotificationEvent(NotificationEventEnum.BORROW_APPLICATION_APPROVED.getCode());
+//        templateDto.setRelateTimeOffset(0L);
+//        templateDto.setContent("您的设备租借已成功，租借时长两小时");
+//        templateDto.setTemplateDesc("测试模板描述");
         
-        log.info("返回写死的模板: ID={}, 标题={}", templateDto.getId(), templateDto.getTemplateTitle());
-        return templateDto;
+//        log.info("返回写死的模板: ID={}, 标题={}", templateDto.getId(), templateDto.getTemplateTitle());
+//        return templateDto;
     }
     
     /**

@@ -13,12 +13,18 @@ public enum NotificationNodeEnum {
     /**
      * 租借成功
      */
-    BORROW_SUCCESS(1, "租借审批成功"),
+    BORROW_SUCCESS(1, "租借成功"),
     
     /**
      * 到期提醒
      */
-    DUE_DATE_REMINDER(3, "到期提醒");
+    DUE_DATE_REMINDER(3, "到期提醒"),
+
+    /**
+     * 归还成功
+     */
+    RETURN_SUCCESS(4, "归还成功")
+    ;
     
     /**
      * 租借审批不成功

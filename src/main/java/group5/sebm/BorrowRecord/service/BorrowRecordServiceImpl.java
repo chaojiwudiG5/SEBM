@@ -10,30 +10,31 @@ import group5.sebm.BorrowRecord.controller.dto.BorrowRecordReturnDto;
 import group5.sebm.BorrowRecord.controller.vo.BorrowRecordVo;
 import group5.sebm.BorrowRecord.dao.BorrowRecordMapper;
 import group5.sebm.BorrowRecord.entity.BorrowRecordPo;
+import group5.sebm.BorrowRecord.service.services.BorrowRecordService;
 import group5.sebm.Device.entity.DevicePo;
+import group5.sebm.Device.service.services.DeviceService;
 import group5.sebm.User.service.UserServiceInterface.BorrowerService;
 import group5.sebm.common.constant.BorrowConstant;
 import group5.sebm.common.dto.BorrowRecordDto;
 import group5.sebm.common.dto.UserDto;
 import group5.sebm.common.enums.BorrowStatusEnum;
-import group5.sebm.BorrowRecord.service.services.BorrowRecordService;
-import group5.sebm.Device.service.services.DeviceService;
 import group5.sebm.common.enums.DeviceStatusEnum;
+import group5.sebm.exception.BusinessException;
 import group5.sebm.exception.ErrorCode;
 import group5.sebm.exception.ThrowUtils;
 import group5.sebm.notifiation.controller.dto.SendNotificationDto;
 import group5.sebm.notifiation.enums.NotificationEventEnum;
 import group5.sebm.notifiation.service.NotificationService;
 import group5.sebm.utils.GeoFenceUtils;
-import group5.sebm.exception.BusinessException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -236,7 +237,8 @@ public class BorrowRecordServiceImpl extends ServiceImpl<BorrowRecordMapper, Bor
               NotificationEventEnum.UPCOMING_OVERDUE_NOTICE.getCode()) // 使用借用即将到期提醒事件
           .userId(user.getId())
           .templateVars(templateVars)
-          .nodeTimestamp(System.currentTimeMillis() / 1000) // 当前时间戳（秒）
+              // 即时消息无需设置时间戳
+          //.nodeTimestamp(System.currentTimeMillis() / 1000) // 当前时间戳（秒）
           .build();
       // 发送通知
       Boolean success = notificationService.sendNotification(sendNotificationDto);
@@ -271,7 +273,7 @@ public class BorrowRecordServiceImpl extends ServiceImpl<BorrowRecordMapper, Bor
               NotificationEventEnum.BORROW_APPLICATION_APPROVED.getCode()) // 使用借用申请提交成功事件
           .userId(user.getId())
           .templateVars(templateVars)
-          .nodeTimestamp(System.currentTimeMillis() / 1000) // 当前时间戳（秒）
+          //.nodeTimestamp(System.currentTimeMillis() / 1000) // 当前时间戳（秒）
           .build();
 
       // 发送通知
@@ -304,10 +306,10 @@ public class BorrowRecordServiceImpl extends ServiceImpl<BorrowRecordMapper, Bor
       // 构建发送通知DTO - 这里可以创建一个新的归还成功事件
       SendNotificationDto sendNotificationDto = SendNotificationDto.builder()
           .notificationEvent(
-              NotificationEventEnum.BORROW_APPLICATION_APPROVED.getCode()) // 暂时使用审批通过事件
+              NotificationEventEnum.RETURN_SUCCESS_NOTICE.getCode()) // 暂时使用审批通过事件
           .userId(user.getId())
           .templateVars(templateVars)
-          .nodeTimestamp(System.currentTimeMillis() / 1000)
+          //.nodeTimestamp(System.currentTimeMillis() / 1000)
           .build();
 
       // 发送通知

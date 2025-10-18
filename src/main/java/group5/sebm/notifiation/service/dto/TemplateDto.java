@@ -64,7 +64,7 @@ public class TemplateDto {
     /**
      * 内容
      */
-    private String content;
+    private String templateContent;
 
     /**
      * 模版描述

@@ -624,6 +624,9 @@ public class NotificationRecordServiceImpl extends ServiceImpl<NotificationRecor
     private NotificationRecordVo convertToVo(NotificationRecordPo record, NotificationTaskPo task) {
         NotificationRecordStatusEnum statusEnum = NotificationRecordStatusEnum.getByCode(record.getStatus());
         
+        // sendTime 和 createTime 保持一致，优先使用 sendTime，如果为空则使用 createTime
+        LocalDateTime unifiedTime = record.getSendTime() != null ? record.getSendTime() : record.getCreateTime();
+        
         NotificationRecordVo.NotificationRecordVoBuilder builder = NotificationRecordVo.builder()
                 .id(record.getId())
                 .notificationTaskId(record.getNotificationTaskId())
@@ -633,9 +636,9 @@ public class NotificationRecordServiceImpl extends ServiceImpl<NotificationRecor
                 .statusDesc(statusEnum != null ? statusEnum.getDesc() : "未知")
                 .readStatus(record.getReadStatus())
                 .readStatusDesc(record.getReadStatus() == 1 ? "已读" : "未读")
-                .sendTime(record.getSendTime())
+                .sendTime(unifiedTime)
                 .errorMsg(record.getErrorMsg())
-                .createTime(record.getCreateTime());
+                .createTime(unifiedTime);
         
         // 添加任务信息
         if (task != null) {

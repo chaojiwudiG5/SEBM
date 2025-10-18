@@ -23,6 +23,11 @@ public class NotificationTaskServiceImpl extends ServiceImpl<NotificationTaskMap
     @Override
     public Long createTask(String title, String content, Integer notificationRole) {
         try {
+            // 如果 content 为 null，使用空字符串
+            if (content == null) {
+                content = "";
+            }
+            
             NotificationTaskPo task = NotificationTaskPo.builder()
                     .title(title)
                     .content(content)
@@ -47,4 +52,6 @@ public class NotificationTaskServiceImpl extends ServiceImpl<NotificationTaskMap
     }
 
 }
+
+
 

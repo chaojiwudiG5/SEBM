@@ -23,7 +23,12 @@ public enum NotificationEventEnum {
     /**
      * 到期通知
      */
-    DUE_DATE_NOTICE(1004, "到期通知", NotificationNodeEnum.DUE_DATE_REMINDER);
+    DUE_DATE_NOTICE(1004, "到期通知", NotificationNodeEnum.DUE_DATE_REMINDER),
+
+    /**
+     * 到期通知
+     */
+    RETURN_SUCCESS_NOTICE(1005, "归还成功", NotificationNodeEnum.RETURN_SUCCESS),;
 
     /**
      * 事件代码

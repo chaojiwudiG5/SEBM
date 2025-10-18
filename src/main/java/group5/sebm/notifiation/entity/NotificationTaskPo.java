@@ -1,5 +1,6 @@
 package group5.sebm.notifiation.entity;
 
+import com.baomidou.mybatisplus.annotation.FieldStrategy;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
@@ -37,7 +38,7 @@ public class NotificationTaskPo {
     /**
      * 通知内容
      */
-    @TableField("content")
+    @TableField(value = "content", insertStrategy = FieldStrategy.ALWAYS)
     private String content;
     
     /**
