@@ -53,4 +53,15 @@
         ORDER BY userId, notificationMethod
     </select>
 
+    <!-- 标记指定角色的所有未读消息为已读 -->
+    <update id="markAllAsReadByRole">
+        UPDATE notificationRecord nr
+        INNER JOIN notificationTask nt ON nr.notificationTaskId = nt.id
+        SET nr.readStatus = 1,
+            nr.updateTime = NOW()
+        WHERE nt.notificationRole = #{notificationRole}
+          AND nr.isDelete = 0
+          AND (nr.readStatus = 0 OR nr.readStatus IS NULL)
+    </update>
+
 </mapper>

@@ -14,7 +14,6 @@ import group5.sebm.notifiation.dao.NotificationRecordMapper;
 import group5.sebm.notifiation.dao.NotificationTaskMapper;
 import group5.sebm.notifiation.entity.NotificationRecordPo;
 import group5.sebm.notifiation.entity.NotificationTaskPo;
-import group5.sebm.notifiation.enums.NotificationMethodEnum;
 import group5.sebm.notifiation.enums.NotificationRecordStatusEnum;
 import group5.sebm.notifiation.service.NotificationRecordService;
 import lombok.AllArgsConstructor;
@@ -37,6 +36,7 @@ import java.util.stream.Collectors;
 public class NotificationRecordServiceImpl extends ServiceImpl<NotificationRecordMapper, NotificationRecordPo>
         implements NotificationRecordService {
     
+    private final NotificationRecordMapper notificationRecordMapper;
     private final NotificationTaskMapper notificationTaskMapper;
     
     @Override
@@ -221,36 +221,34 @@ public class NotificationRecordServiceImpl extends ServiceImpl<NotificationRecor
             
             if (userRole == null) {
                 // 如果前端没有传入，则默认普通用户
-                userRole = 0;
+                userRole = 1;
             }
             
-            UpdateWrapper<NotificationRecordPo> updateWrapper = new UpdateWrapper<>();
-            
-            // 如果是管理员（userRole=1），则标记所有管理员角色的通知为已读
+            // 如果是管理员（userRole=1），则标记所有发给管理员角色的通知为已读
             if (userRole == 1) {
-                // 需要关联查询任务表来判断角色，这里简化处理：标记该用户的所有未读
-                updateWrapper.eq("userId", userId);
-                log.info("管理员标记所有未读消息为已读: userId={}", userId);
+                // 通过关联查询任务表来判断角色，标记所有发给管理员的通知为已读
+                int affectedRows = notificationRecordMapper.markAllAsReadByRole(0);
+                log.info("管理员标记所有发给管理员角色的未读消息为已读: affectedRows={}", affectedRows);
+                return affectedRows > 0;
             } else {
-                // 普通用户或技工：按userId标记
-                updateWrapper.eq("userId", userId);
-                log.info("用户标记自己的未读消息为已读: userId={}, userRole={}", userId, userRole);
+                // 普通用户或技工：按userId标记该用户的所有未读消息
+                UpdateWrapper<NotificationRecordPo> updateWrapper = new UpdateWrapper<>();
+                updateWrapper.eq("userId", userId)
+                        .eq("isDelete", 0)
+                        .and(wrapper -> wrapper.eq("readStatus", 0).or().isNull("readStatus"))
+                        .set("readStatus", 1)
+                        .set("updateTime", LocalDateTime.now());
+                
+                boolean result = this.update(updateWrapper);
+                
+                if (result) {
+                    log.info("用户标记自己的未读消息为已读成功: userId={}, userRole={}", userId, userRole);
+                } else {
+                    log.warn("用户标记自己的未读消息为已读失败或无未读消息: userId={}, userRole={}", userId, userRole);
+                }
+                
+                return result;
             }
-            
-            updateWrapper.eq("isDelete", 0)
-                    .and(wrapper -> wrapper.eq("readStatus", 0).or().isNull("readStatus"))
-                    .set("readStatus", 1)
-                    .set("updateTime", LocalDateTime.now());
-            
-            boolean result = this.update(updateWrapper);
-            
-            if (result) {
-                log.info("标记所有未读消息为已读成功: userId={}, userRole={}", userId, userRole);
-            } else {
-                log.warn("标记所有未读消息为已读失败或无未读消息: userId={}, userRole={}", userId, userRole);
-            }
-            
-            return result;
         } catch (Exception e) {
             log.error("标记所有未读消息为已读时发生异常: userId={}, userRole={}, error={}", 
                     userId, userRole, e.getMessage(), e);
@@ -369,7 +367,7 @@ public class NotificationRecordServiceImpl extends ServiceImpl<NotificationRecor
             QueryWrapper<NotificationRecordPo> queryWrapper = new QueryWrapper<>();
             
             queryWrapper.eq("status", NotificationRecordStatusEnum.SUCCESS.getCode())
-                    .eq("isDelete", 0);
+                    .eq("isDelete", 0).eq("notificationMethod", 3);
 
             // 根据queryRole查询不同维度的数据
             if(queryDto.getQueryRole() == 0) {

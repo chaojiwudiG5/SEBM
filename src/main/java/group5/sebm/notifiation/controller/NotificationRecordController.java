@@ -156,6 +156,24 @@ public class NotificationRecordController {
     }
 
     /**
+     * 标记单条消息为已读
+     * @param deleteDto 删除参数（复用，包含id）
+     * @return 标记结果
+     */
+    @PostMapping("/markAsRead")
+    public BaseResponse<Boolean> markAsRead(@RequestBody @Valid DeleteDto deleteDto) {
+        try {
+            boolean result = notificationRecordService.markAsRead(deleteDto.getId());
+            log.info("标记单条消息为已读: id={}, result={}", deleteDto.getId(), result);
+            return ResultUtils.success(result);
+        } catch (Exception e) {
+            log.error("标记单条消息为已读失败: id={}, error={}", 
+                    deleteDto.getId(), e.getMessage(), e);
+        }
+        return ResultUtils.success(false);
+    }
+
+    /**
      * 批量标记消息为已读
      * @param batchDeleteDto 批量操作参数（复用，包含ids）
      * @return 标记结果
@@ -176,8 +194,12 @@ public class NotificationRecordController {
     /**
      * 标记用户所有未读消息为已读
      * @param userId 用户ID
-     * @param userRole 用户角色（0-普通用户，1-管理员，2-技工）
+     * @param userRole 用户角色（0-管理员，1-用户，2-技工）
      * @return 标记结果
+     * 
+     * 注意：
+     * - 如果是管理员（userRole=0），则标记所有发给管理员角色的通知为已读（不限于该userId）
+     * - 如果是普通用户或技工，则只标记该用户自己的所有未读消息为已读
      */
     @PostMapping("/markAllAsRead")
     public BaseResponse<Boolean> markAllAsRead(
