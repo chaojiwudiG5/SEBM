@@ -18,7 +18,7 @@ spring:
       username: default
       password: ekseulHMMJJMoAFIOLchTXsnRDbpMHff
 
-  # Mail configuration
+  # Mail configuration (SMTP - 用于本地开发)
   mail:
     host: smtp.gmail.com
     port: 587
@@ -34,6 +34,14 @@ spring:
             required: true
           ssl:
             trust: smtp.gmail.com
+
+# SendGrid配置（用于云部署，绕过SMTP端口限制）
+sendgrid:
+  api:
+    key: ${SENDGRID_API_KEY:P9VUTFHBERA884FSADBLKQ4J}
+  from:
+    email: ${SENDGRID_FROM_EMAIL:sebm.notifications@gmail.com}
+    name: ${SENDGRID_FROM_NAME:SEBM Notification System}
 
   # RabbitMQ configuration for Railway deployment
   rabbitmq:
