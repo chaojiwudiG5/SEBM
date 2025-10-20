@@ -14,14 +14,14 @@ import java.util.Objects;
 /**
  * 邮件发送器实现类
  * 实现邮件渠道的消息发送
- * 优先使用SendGrid API（云部署），回退到SMTP（本地开发）
+ * 优先使用Resend API（云部署），回退到SMTP（本地开发）
  */
 @Slf4j
 @Component
 public class EmailSender extends ChannelMsgSender {
 
     @Autowired
-    private SendGridEmailService sendGridEmailService;
+    private ResendEmailService resendEmailService;
     
     @Autowired
     private JavaMailSender mailSender;
@@ -58,20 +58,20 @@ public class EmailSender extends ChannelMsgSender {
                 return false;
             }
             
-            // 优先使用SendGrid（云部署环境）
-            if (sendGridEmailService.isConfigured()) {
-                log.info("使用SendGrid API发送邮件");
-                boolean success = sendGridEmailService.sendEmail(
+            // 优先使用Resend（云部署环境）
+            if (resendEmailService.isConfigured()) {
+                log.info("使用Resend API发送邮件");
+                boolean success = resendEmailService.sendEmail(
                     email, 
                     subject != null ? subject : "系统通知", 
                     content
                 );
                 
                 if (success) {
-                    log.info("SendGrid邮件发送成功 - 用户ID: {}, 邮箱: {}", userId, email);
+                    log.info("Resend邮件发送成功 - 用户ID: {}, 邮箱: {}", userId, email);
                     return true;
                 } else {
-                    log.warn("SendGrid发送失败，尝试使用SMTP");
+                    log.warn("Resend发送失败，尝试使用SMTP");
                 }
             }
             

@@ -35,13 +35,15 @@ spring:
           ssl:
             trust: smtp.gmail.com
 
-# SendGrid配置（用于云部署，绕过SMTP端口限制）
-sendgrid:
+# Resend配置（用于云部署，绕过SMTP端口限制）
+resend:
   api:
-    key: ${SENDGRID_API_KEY:P9VUTFHBERA884FSADBLKQ4J}
+    key: ${RESEND_API_KEY:re_7tcg92BP_7HVbMYC4aAX5KgYUiTan3NDF}
   from:
-    email: ${SENDGRID_FROM_EMAIL:sebm.notifications@gmail.com}
-    name: ${SENDGRID_FROM_NAME:SEBM Notification System}
+    email: ${RESEND_FROM_EMAIL:onboarding@resend.dev}
+    name: ${RESEND_FROM_NAME:SEBM Notification System}
+  reply:
+    to: ${RESEND_REPLY_TO:sebm.notifications@gmail.com}
 
   # RabbitMQ configuration for Railway deployment
   rabbitmq:
