@@ -46,7 +46,7 @@ public class UserController {
     return ResultUtils.success(userVo); // 返回VO
   }
 
-  //TODO只有管理员能查看所有用户，需编写AOP进行权限控制
+
   @PostMapping("/admin/getUserList")
   @AuthCheck(mustRole = UserRoleEnum.ADMIN)
   public BaseResponse<Page<UserVo>> getAllUsers(@RequestBody @Valid PageDto pageDto) {
@@ -62,6 +62,17 @@ public class UserController {
     log.info("DeleteUser called with deleteDto: {}, isDelete: {}", deleteDto, isDelete);
     return ResultUtils.success(isDelete); // 返回Boolean
   }
+
+  @PostMapping("/admin/updateUser")
+  @AuthCheck(mustRole = UserRoleEnum.ADMIN)
+  public BaseResponse<Boolean> updateUser(@RequestBody @Valid UserVo userVo) {
+    Boolean isUpdate = managerService.updateBorrower(userVo);
+    log.info("UpdateUser called with userVo: {}, result: {}", userVo, isUpdate);
+    return ResultUtils.success(isUpdate); // 返回Boolean
+  }
+
+
+
   @PostMapping("/deactivateUser")
   public BaseResponse<Boolean> deactivateUser(@RequestBody @Valid DeleteDto deactivateUser) {
     Boolean isDeactivate = borrowerService.deactivateUser(deactivateUser);

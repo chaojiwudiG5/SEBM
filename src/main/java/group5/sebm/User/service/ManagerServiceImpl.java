@@ -84,5 +84,37 @@ public class ManagerServiceImpl extends UserServiceImpl implements ManagerServic
 
         return resultPage;
     }
+    /**
+     * 修改用户
+     *
+     * @param userVo 修改后的用户信息
+     * @return 是否修改成功
+     */
+    public Boolean updateBorrower(UserVo userVo) {
+        if (userVo == null || userVo.getId() == null) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "User id is required");
+        }
+
+        // 1. 先查是否存在
+        UserPo existingUser = baseMapper.selectById(userVo.getId());
+        ThrowUtils.throwIf(existingUser == null, ErrorCode.NOT_FOUND_ERROR, "User not exists");
+
+        // 2. 将 VO 转换成 PO（只覆盖要更新的字段）
+        UserPo updateUser = new UserPo();
+        BeanUtils.copyProperties(userVo, updateUser);
+
+        // 3. 执行更新
+        try {
+            int rows = baseMapper.updateById(updateUser);
+            if (rows <= 0) {
+                throw new BusinessException(ErrorCode.SYSTEM_ERROR, "Update failed");
+            }
+        } catch (Exception e) {
+            throw new BusinessException(ErrorCode.SYSTEM_ERROR, "Update failed: " + e.getMessage());
+        }
+
+        return true;
+    }
+
 
 }
