@@ -1,5 +1,7 @@
 package group5.sebm.User.service.bo;
 
+import group5.sebm.exception.BusinessException;
+import group5.sebm.exception.ErrorCode;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -58,7 +60,7 @@ public class Borrower extends User{
     }
     this.borrowedDeviceCount += delta;
     if (this.borrowedDeviceCount < 0) {
-      throw new IllegalStateException("Borrowed device count cannot be negative");
+      throw new BusinessException(ErrorCode.PARAMS_ERROR,"Borrowed device count cannot be negative");
     }
   }
 
