@@ -39,7 +39,6 @@ public class EmailSender extends ChannelMsgSender {
     public boolean sendNotification(Long userId, String subject, String content) {
         try {
             log.info("开始发送邮件通知 - 用户ID: {}, 主题: {}", userId, subject);
-            
             // 验证用户ID
             if (userId == null) {
                 log.error("用户ID不能为空");
