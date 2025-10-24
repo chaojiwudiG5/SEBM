@@ -59,14 +59,16 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
         run: |
-          mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
-          -Dsonar.projectKey=chaojiwudiG5_SEBM \
-          -Dsonar.organization=chaojiwudig5 \
-          -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }} \
-          -Dsonar.login=${{ secrets.SONAR_TOKEN }}
-          
-          
-     # 7. 运行 Snyk Code (源代码安全 lint)，过于严格，建议注释掉
+          mvn sonar:sonar \
+            -Dsonar.projectKey=chaojiwudiG5_SEBM \
+            -Dsonar.organization=chaojiwudig5 \
+            -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }} \
+            -Dsonar.login=${{ secrets.SONAR_TOKEN }}
+      
+      
+      
+
+      # 7. 运行 Snyk Code (源代码安全 lint)，过于严格，建议注释掉
       #      - name: Snyk Code Scan
       #        run: snyk code test
       #        env:
