@@ -1,7 +1,10 @@
 package group5.sebm.BorrowRecordServiceTest;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import group5.sebm.BorrowRecord.controller.dto.BorrowRecordAddDto;
+import group5.sebm.BorrowRecord.controller.dto.BorrowRecordQueryDto;
+import group5.sebm.BorrowRecord.controller.dto.BorrowRecordQueryWithStatusDto;
 import group5.sebm.BorrowRecord.controller.dto.BorrowRecordReturnDto;
 import group5.sebm.BorrowRecord.controller.vo.BorrowRecordVo;
 import group5.sebm.BorrowRecord.dao.BorrowRecordMapper;
@@ -21,6 +24,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.*;
 
 import java.sql.Timestamp;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -83,10 +87,9 @@ class BorrowRecordServiceTest {
     void testBorrowDevice_BorrowTimeTooEarly() {
         BorrowRecordAddDto dto = new BorrowRecordAddDto();
         // 设置借出时间为过去 10 秒，确保触发 Borrow time 检查
-        dto.setBorrowTime(new Timestamp(System.currentTimeMillis() - 10000));
-        // 设置应还时间为未来，避免触发 dueTime 检查
-        dto.setDueTime(new Timestamp(System.currentTimeMillis() + 3600 * 1000));
-
+        long fixedTime = 1609459200000L; // 2021-01-01 00:00:00
+        dto.setBorrowTime(new Timestamp(fixedTime - 10000)); // 明确的过去时间
+        dto.setDueTime(new Timestamp(fixedTime + 3600 * 1000)); // 明确的未来时间
         // 模拟用户信息，确保不触发借用次数限制
         UserDto mockUser = new UserDto();
         mockUser.setId(10L);
@@ -110,7 +113,6 @@ class BorrowRecordServiceTest {
         assertEquals(ErrorCode.PARAMS_ERROR.getCode(), ex.getCode());
         assertTrue(ex.getMessage().contains("Borrow time cannot be earlier"));
     }
-
 
     @Test
     void testBorrowDevice_DeviceNotFound() {
@@ -185,6 +187,71 @@ class BorrowRecordServiceTest {
 
         assertEquals(ErrorCode.FORBIDDEN_ERROR.getCode(), ex.getCode());
         assertTrue(ex.getMessage().contains("Out of geofence"));
+    }
+    @Test
+    void testGetBorrowRecordList_Success() {
+        BorrowRecordQueryDto queryDto = new BorrowRecordQueryDto();
+        queryDto.setUserId(1L);
+        queryDto.setPageNumber(1);
+        queryDto.setPageSize(5);
+
+        BorrowRecordPo record1 = new BorrowRecordPo();
+        record1.setDeviceId(101L);
+        BorrowRecordPo record2 = new BorrowRecordPo();
+        record2.setDeviceId(102L);
+
+        Page<BorrowRecordPo> mockPage = new Page<>(1, 5);
+        mockPage.setRecords(List.of(record1, record2));
+
+        when(borrowRecordMapper.selectPage(any(Page.class), any(QueryWrapper.class))).thenReturn(mockPage);
+
+        DevicePo device1 = new DevicePo();
+        device1.setId(101L);
+        device1.setDeviceName("Camera");
+        device1.setImage("camera.png");
+
+        DevicePo device2 = new DevicePo();
+        device2.setId(102L);
+        device2.setDeviceName("Drone");
+        device2.setImage("drone.png");
+
+        when(deviceService.listByIds(any())).thenReturn(List.of(device1, device2));
+
+        Page<BorrowRecordVo> result = borrowRecordService.getBorrowRecordList(queryDto);
+
+        assertEquals(2, result.getRecords().size());
+        assertEquals("Camera", result.getRecords().get(0).getDeviceName());
+        assertEquals("Drone", result.getRecords().get(1).getDeviceName());
+    }
+
+    @Test
+    void testGetBorrowRecordListWithStatus_Success() {
+        BorrowRecordQueryWithStatusDto queryDto = new BorrowRecordQueryWithStatusDto();
+        queryDto.setUserId(1L);
+        queryDto.setStatus(1);
+        queryDto.setPageNumber(1);
+        queryDto.setPageSize(5);
+
+        BorrowRecordPo record1 = new BorrowRecordPo();
+        record1.setDeviceId(101L);
+        record1.setStatus(1);
+
+        Page<BorrowRecordPo> mockPage = new Page<>(1, 5);
+        mockPage.setRecords(List.of(record1));
+
+        when(borrowRecordMapper.selectPage(any(Page.class), any(QueryWrapper.class))).thenReturn(mockPage);
+
+        DevicePo device1 = new DevicePo();
+        device1.setId(101L);
+        device1.setDeviceName("VR Headset");
+        device1.setImage("vr.png");
+
+        when(deviceService.listByIds(any())).thenReturn(List.of(device1));
+
+        Page<BorrowRecordVo> result = borrowRecordService.getBorrowRecordListWithStatus(queryDto);
+
+        assertEquals(1, result.getRecords().size());
+        assertEquals("VR Headset", result.getRecords().get(0).getDeviceName());
     }
 
 }
