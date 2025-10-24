@@ -51,8 +51,8 @@ jobs:
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
       # 6. 运行单元测试
-      - name: Run Unit Tests
-        run: mvn test
+      - name: Run Unit Tests and generate Jacoco report
+        run: mvn clean verify
 
       - name: Run SonarCloud Scan
         run: |
