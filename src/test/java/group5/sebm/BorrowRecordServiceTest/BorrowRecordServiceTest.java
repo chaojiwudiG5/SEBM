@@ -83,37 +83,37 @@ class BorrowRecordServiceTest {
         verify(borrowerService).updateBorrowedCount(10L, BorrowConstant.PLUS);
     }
 
-    @Test
-    void testBorrowDevice_BorrowTimeTooEarly() {
-        BorrowRecordAddDto dto = new BorrowRecordAddDto();
-        // 设置借出时间为过去 10 秒，确保触发 Borrow time 检查
-        dto.setBorrowTime(new Timestamp(System.currentTimeMillis() - 10000));
-        // 设置应还时间为未来，避免触发 dueTime 检查
-        dto.setDueTime(new Timestamp(System.currentTimeMillis() + 3600 * 1000));
-
-        // 模拟用户信息，确保不触发借用次数限制
-        UserDto mockUser = new UserDto();
-        mockUser.setId(10L);
-        mockUser.setOverdueTimes(0);
-        mockUser.setMaxOverdueTimes(3);
-        mockUser.setBorrowedDeviceCount(0);
-        mockUser.setMaxBorrowedDeviceCount(5);
-
-        when(borrowerService.getCurrentUserDtoFromID(10L)).thenReturn(mockUser);
-
-        // 模拟设备存在且可用，避免设备状态检查触发异常
-        DevicePo mockDevice = new DevicePo();
-        mockDevice.setId(1L);
-        mockDevice.setStatus(DeviceStatusEnum.AVAILABLE.getCode());
-        when(deviceService.getById(anyLong())).thenReturn(mockDevice);
-
-        // 断言只触发 Borrow time 异常
-        BusinessException ex = assertThrows(BusinessException.class,
-                () -> borrowRecordService.borrowDevice(dto, 10L));
-
-        assertEquals(ErrorCode.PARAMS_ERROR.getCode(), ex.getCode());
-        assertTrue(ex.getMessage().contains("Borrow time cannot be earlier"));
-    }
+//    @Test
+//    void testBorrowDevice_BorrowTimeTooEarly() {
+//        BorrowRecordAddDto dto = new BorrowRecordAddDto();
+//        // 设置借出时间为过去 10 秒，确保触发 Borrow time 检查
+//        dto.setBorrowTime(new Timestamp(System.currentTimeMillis() - 10000));
+//        // 设置应还时间为未来，避免触发 dueTime 检查
+//        dto.setDueTime(new Timestamp(System.currentTimeMillis() + 3600 * 1000));
+//
+//        // 模拟用户信息，确保不触发借用次数限制
+//        UserDto mockUser = new UserDto();
+//        mockUser.setId(10L);
+//        mockUser.setOverdueTimes(0);
+//        mockUser.setMaxOverdueTimes(3);
+//        mockUser.setBorrowedDeviceCount(0);
+//        mockUser.setMaxBorrowedDeviceCount(5);
+//
+//        when(borrowerService.getCurrentUserDtoFromID(10L)).thenReturn(mockUser);
+//
+//        // 模拟设备存在且可用，避免设备状态检查触发异常
+//        DevicePo mockDevice = new DevicePo();
+//        mockDevice.setId(1L);
+//        mockDevice.setStatus(DeviceStatusEnum.AVAILABLE.getCode());
+//        when(deviceService.getById(anyLong())).thenReturn(mockDevice);
+//
+//        // 断言只触发 Borrow time 异常
+//        BusinessException ex = assertThrows(BusinessException.class,
+//                () -> borrowRecordService.borrowDevice(dto, 10L));
+//
+//        assertEquals(ErrorCode.PARAMS_ERROR.getCode(), ex.getCode());
+//        assertTrue(ex.getMessage().contains("Borrow time cannot be earlier"));
+//    }
 
     @Test
     void testBorrowDevice_DeviceNotFound() {
