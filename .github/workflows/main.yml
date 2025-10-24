@@ -61,7 +61,7 @@ jobs:
         run: |
           mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
           -Dsonar.projectKey=chaojiwudiG5_SEBM \
-          -Dsonar.organization=chaojiwudiG5 \
+          -Dsonar.organization=chaojiwudig5 \
           -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }} \
           -Dsonar.login=${{ secrets.SONAR_TOKEN }}
           
