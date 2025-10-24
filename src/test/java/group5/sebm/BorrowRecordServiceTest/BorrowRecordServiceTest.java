@@ -115,7 +115,6 @@ class BorrowRecordServiceTest {
         assertTrue(ex.getMessage().contains("Borrow time cannot be earlier"));
     }
 
-
     @Test
     void testBorrowDevice_DeviceNotFound() {
         BorrowRecordAddDto dto = new BorrowRecordAddDto();
