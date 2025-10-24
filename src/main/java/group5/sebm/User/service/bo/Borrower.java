@@ -44,9 +44,6 @@ public class Borrower extends User{
   private Integer maxReserveDeviceCount;
 
 
-  public boolean isokforDiscount() {
-    return this.age <= 18;
-  }
     /**
      * 增加已借设备数
      * @param delta 增加的数量，可以为负数表示减少
