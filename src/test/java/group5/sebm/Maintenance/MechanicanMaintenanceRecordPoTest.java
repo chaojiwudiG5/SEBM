@@ -10,8 +10,10 @@ import static org.junit.jupiter.api.Assertions.*;
 class MechanicanMaintenanceRecordPoTest {
 
     @Test
-    void testGetterAndSetter() {
+    void testGetterSetterAndLombokMethods() {
         MechanicanMaintenanceRecordPo po = new MechanicanMaintenanceRecordPo();
+
+        Date now = new Date();
 
         po.setId(1L);
         po.setDeviceId(100L);
@@ -20,11 +22,11 @@ class MechanicanMaintenanceRecordPoTest {
         po.setImage("http://image.url");
         po.setStatus(1);
         po.setIsDelete(0);
-        Date now = new Date();
         po.setCreateTime(now);
         po.setUpdateTime(now);
         po.setUserMaintenanceRecordId(300L);
 
+        // getter
         assertEquals(1L, po.getId());
         assertEquals(100L, po.getDeviceId());
         assertEquals(200L, po.getUserId());
@@ -35,5 +37,24 @@ class MechanicanMaintenanceRecordPoTest {
         assertEquals(now, po.getCreateTime());
         assertEquals(now, po.getUpdateTime());
         assertEquals(300L, po.getUserMaintenanceRecordId());
+
+        // toString()
+        assertTrue(po.toString().contains("description"));
+
+        // equals() & hashCode()
+        MechanicanMaintenanceRecordPo po2 = new MechanicanMaintenanceRecordPo();
+        po2.setId(1L);
+        po2.setDeviceId(100L);
+        po2.setUserId(200L);
+        po2.setDescription("description");
+        po2.setImage("http://image.url");
+        po2.setStatus(1);
+        po2.setIsDelete(0);
+        po2.setCreateTime(now);
+        po2.setUpdateTime(now);
+        po2.setUserMaintenanceRecordId(300L);
+
+        assertEquals(po, po2);           // equals
+        assertEquals(po.hashCode(), po2.hashCode()); // hashCode
     }
 }
