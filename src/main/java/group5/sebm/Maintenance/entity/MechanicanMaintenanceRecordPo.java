@@ -60,4 +60,8 @@ public class MechanicanMaintenanceRecordPo {
      * 更新时间
      */
     private Date updateTime;
+    /**
+     * 维修记录ID，关联userMaintenanceRecord表
+     */
+    private Long userMaintenanceRecordId;
 }

@@ -21,6 +21,7 @@ import group5.sebm.utils.JwtUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.BeanUtils;
+import org.springframework.context.annotation.Primary;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -36,6 +37,7 @@ import java.util.function.Function;
  * @description 用户服务实现
  */
 @Service
+@Primary
 @AllArgsConstructor
 public class UserServiceImpl extends ServiceImpl<UserMapper, UserPo> implements UserService {
 

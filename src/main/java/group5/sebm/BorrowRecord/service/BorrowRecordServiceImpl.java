@@ -10,23 +10,31 @@ import group5.sebm.BorrowRecord.controller.dto.BorrowRecordReturnDto;
 import group5.sebm.BorrowRecord.controller.vo.BorrowRecordVo;
 import group5.sebm.BorrowRecord.dao.BorrowRecordMapper;
 import group5.sebm.BorrowRecord.entity.BorrowRecordPo;
+import group5.sebm.BorrowRecord.service.services.BorrowRecordService;
 import group5.sebm.Device.entity.DevicePo;
+import group5.sebm.Device.service.services.DeviceService;
 import group5.sebm.User.service.UserServiceInterface.BorrowerService;
 import group5.sebm.common.constant.BorrowConstant;
+import group5.sebm.common.dto.BorrowRecordDto;
 import group5.sebm.common.dto.UserDto;
 import group5.sebm.common.enums.BorrowStatusEnum;
-import group5.sebm.BorrowRecord.service.services.BorrowRecordService;
-import group5.sebm.Device.service.services.DeviceService;
 import group5.sebm.common.enums.DeviceStatusEnum;
+import group5.sebm.exception.BusinessException;
 import group5.sebm.exception.ErrorCode;
 import group5.sebm.exception.ThrowUtils;
+import group5.sebm.notifiation.controller.dto.SendNotificationDto;
+import group5.sebm.notifiation.enums.NotificationEventEnum;
+import group5.sebm.notifiation.service.NotificationService;
 import group5.sebm.utils.GeoFenceUtils;
-import group5.sebm.exception.BusinessException;
-import java.util.List;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -36,6 +44,7 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Service
 @AllArgsConstructor
+@Slf4j
 public class BorrowRecordServiceImpl extends ServiceImpl<BorrowRecordMapper, BorrowRecordPo>
     implements BorrowRecordService {
 
@@ -44,6 +53,18 @@ public class BorrowRecordServiceImpl extends ServiceImpl<BorrowRecordMapper, Bor
   private final BorrowerService borrowerService;
 
   private final DeviceService deviceService;
+
+  private final NotificationService notificationService;
+
+  @Override
+  public BorrowRecordDto getBorrowRecordById(Long borrowRecordId) {
+    BorrowRecordPo borrowRecordPo = borrowRecordMapper.selectById(borrowRecordId);
+    ThrowUtils.throwIf(borrowRecordPo == null, ErrorCode.NOT_FOUND_ERROR,
+        "Borrow record not found");
+    BorrowRecordDto borrowRecordDto = new BorrowRecordDto();
+    BeanUtils.copyProperties(borrowRecordPo, borrowRecordDto);
+    return borrowRecordDto;
+  }
 
   @Override
   @Transactional(rollbackFor = BusinessException.class)
@@ -85,9 +106,10 @@ public class BorrowRecordServiceImpl extends ServiceImpl<BorrowRecordMapper, Bor
     borrowRecordMapper.insert(borrowRecord);
     //6. 增加用户借用设备数量
     borrowerService.updateBorrowedCount(currentUser.getId(), BorrowConstant.PLUS);
-    //7. 返回结果
     BorrowRecordVo borrowRecordVo = new BorrowRecordVo();
     BeanUtils.copyProperties(borrowRecord, borrowRecordVo);
+    //7. 发送通知
+    sendBorrowSuccessNotification(borrowRecord, device, currentUser);
     return borrowRecordVo;
   }
 
@@ -161,20 +183,18 @@ public class BorrowRecordServiceImpl extends ServiceImpl<BorrowRecordMapper, Bor
   public BorrowRecordVo returnDevice(BorrowRecordReturnDto borrowRecordReturnDto,
       Long userId) {
     //1. 校验参数
+    ThrowUtils.throwIf(userId == null, ErrorCode.PARAMS_ERROR, "User ID cannot be null");
     UserDto currentUser = borrowerService.getCurrentUserDtoFromID(userId);
     ThrowUtils.throwIf(currentUser == null, ErrorCode.NOT_FOUND_ERROR, "No user");
     boolean inGeofence = GeoFenceUtils.isInGeofence(borrowRecordReturnDto.getLongitude(),
         borrowRecordReturnDto.getLatitude(), BorrowConstant.CENTER_LONGITUDE_HOME,
-        BorrowConstant.CENTER_LATITUDE_HOME, BorrowConstant.RADIUS) ||
-        GeoFenceUtils.isInGeofence(borrowRecordReturnDto.getLongitude(),
-            borrowRecordReturnDto.getLatitude(),
-            BorrowConstant.CENTER_LONGITUDE_SCHOOL, BorrowConstant.CENTER_LATITUDE_SCHOOL,
-            BorrowConstant.RADIUS);
-    ;
+        BorrowConstant.CENTER_LATITUDE_HOME, BorrowConstant.RADIUS);
     ThrowUtils.throwIf(!inGeofence, ErrorCode.FORBIDDEN_ERROR,
         "Out of geofence,please return in the storeroom");
     //2. 更新记录
     BorrowRecordPo borrowRecord = borrowRecordMapper.selectById(borrowRecordReturnDto.getId());
+    ThrowUtils.throwIf(userId.longValue() != borrowRecord.getUserId().longValue(),
+        ErrorCode.FORBIDDEN_ERROR, "No permission");
     ThrowUtils.throwIf(borrowRecord == null, ErrorCode.NOT_FOUND_ERROR, "No borrow record");
     borrowRecord.setReturnTime(borrowRecordReturnDto.getReturnTime());
     borrowRecord.setStatus(BorrowStatusEnum.RETURNED.getCode());
@@ -184,17 +204,124 @@ public class BorrowRecordServiceImpl extends ServiceImpl<BorrowRecordMapper, Bor
     borrowRecordMapper.updateById(borrowRecord);
     //3. 更新设备状态
     DevicePo device = deviceService.getById(borrowRecord.getDeviceId());
-    ThrowUtils.throwIf(device == null, ErrorCode.NOT_FOUND_ERROR, "No device");
     ThrowUtils.throwIf(device.getStatus() != DeviceStatusEnum.BORROWED.getCode(),
         ErrorCode.PARAMS_ERROR, "Device is not borrowed");
+    ThrowUtils.throwIf(device == null, ErrorCode.NOT_FOUND_ERROR, "No device");
     deviceService.updateDeviceStatus(borrowRecord.getDeviceId(),
         DeviceStatusEnum.AVAILABLE.getCode());
     //4. 减少用户借用设备数量
     borrowerService.updateBorrowedCount(currentUser.getId(), BorrowConstant.MINUS);
-    //4. 返回结果
     BorrowRecordVo borrowRecordVo = new BorrowRecordVo();
     BeanUtils.copyProperties(borrowRecord, borrowRecordVo);
+    //5. 发送通知
+    sendReturnSuccessNotification(borrowRecord, device, currentUser);
     return borrowRecordVo;
+  }
+
+  /**
+   * 延迟发送即将到期通知
+   */
+  private void sendDelayNotification(BorrowRecordPo borrowRecord, DevicePo device, UserDto user) {
+    try {
+      // 构建模板变量
+      Map<String, Object> templateVars = new HashMap<>();
+      templateVars.put("userName", user.getUsername());
+      templateVars.put("deviceName", device.getDeviceName());
+      templateVars.put("deviceId", device.getId());
+      templateVars.put("borrowTime", borrowRecord.getBorrowTime());
+      templateVars.put("dueTime", borrowRecord.getDueTime());
+      templateVars.put("borrowRecordId", borrowRecord.getId());
+
+      // 构建发送通知DTO
+      SendNotificationDto sendNotificationDto = SendNotificationDto.builder()
+          .notificationEvent(
+              NotificationEventEnum.UPCOMING_OVERDUE_NOTICE.getCode()) // 使用借用即将到期提醒事件
+          .userId(user.getId())
+          .templateVars(templateVars)
+              // 即时消息无需设置时间戳
+          //.nodeTimestamp(System.currentTimeMillis() / 1000) // 当前时间戳（秒）
+          .build();
+      // 发送通知
+      Boolean success = notificationService.sendNotification(sendNotificationDto);
+      log.info("即将到期通知发送结果: {}, userId: {}, deviceId: {}, borrowRecordId: {}",
+          success, user.getId(), device.getId(), borrowRecord.getId());
+
+    } catch (Exception e) {
+      log.error("发送即将到期通知失败: userId={}, deviceId={}, borrowRecordId={}, error={}",
+          user.getId(), device.getId(), borrowRecord.getId(), e.getMessage(), e);
+      // 通知发送失败不影响主业务流程，只记录日志
+    }
+  }
+
+  /**
+   * 发送借用成功通知
+   */
+  private void sendBorrowSuccessNotification(BorrowRecordPo borrowRecord, DevicePo device,
+      UserDto user) {
+    try {
+      // 构建模板变量
+      Map<String, Object> templateVars = new HashMap<>();
+      templateVars.put("userName", user.getUsername());
+      templateVars.put("deviceName", device.getDeviceName());
+      templateVars.put("deviceId", device.getId());
+      templateVars.put("borrowTime", borrowRecord.getBorrowTime());
+      templateVars.put("dueTime", borrowRecord.getDueTime());
+      templateVars.put("borrowRecordId", borrowRecord.getId());
+
+      // 构建发送通知DTO
+      SendNotificationDto sendNotificationDto = SendNotificationDto.builder()
+          .notificationEvent(
+              NotificationEventEnum.BORROW_APPLICATION_APPROVED.getCode()) // 使用借用申请提交成功事件
+          .userId(user.getId())
+          .templateVars(templateVars)
+          //.nodeTimestamp(System.currentTimeMillis() / 1000) // 当前时间戳（秒）
+          .build();
+
+      // 发送通知
+      Boolean success = notificationService.sendNotification(sendNotificationDto);
+      log.info("借用成功通知发送结果: {}, userId: {}, deviceId: {}, borrowRecordId: {}",
+          success, user.getId(), device.getId(), borrowRecord.getId());
+
+    } catch (Exception e) {
+      log.error("发送借用成功通知失败: userId={}, deviceId={}, error={}",
+          user.getId(), device.getId(), e.getMessage(), e);
+      throw new BusinessException(ErrorCode.SYSTEM_ERROR, "发送借用成功通知失败");
+    }
+  }
+
+  /**
+   * 发送归还成功通知
+   */
+  private void sendReturnSuccessNotification(BorrowRecordPo borrowRecord, DevicePo device,
+      UserDto user) {
+    try {
+      // 构建模板变量
+      Map<String, Object> templateVars = new HashMap<>();
+      templateVars.put("userName", user.getUsername());
+      templateVars.put("deviceName", device.getDeviceName());
+      templateVars.put("deviceId", device.getId());
+      templateVars.put("borrowTime", borrowRecord.getBorrowTime());
+      templateVars.put("returnTime", borrowRecord.getReturnTime());
+      templateVars.put("borrowRecordId", borrowRecord.getId());
+
+      // 构建发送通知DTO - 这里可以创建一个新的归还成功事件
+      SendNotificationDto sendNotificationDto = SendNotificationDto.builder()
+          .notificationEvent(
+              NotificationEventEnum.RETURN_SUCCESS_NOTICE.getCode()) // 暂时使用审批通过事件
+          .userId(user.getId())
+          .templateVars(templateVars)
+          //.nodeTimestamp(System.currentTimeMillis() / 1000)
+          .build();
+
+      // 发送通知
+      Boolean success = notificationService.sendNotification(sendNotificationDto);
+      log.info("归还成功通知发送结果: {}, userId: {}, deviceId: {}, borrowRecordId: {}",
+          success, user.getId(), device.getId(), borrowRecord.getId());
+
+    } catch (Exception e) {
+      log.error("发送归还成功通知失败, userId: {}, deviceId: {}, borrowRecordId: {}, error: {}",
+          user.getId(), device.getId(), borrowRecord.getId(), e.getMessage());
+    }
   }
 }
 

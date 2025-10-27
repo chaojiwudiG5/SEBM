@@ -51,14 +51,29 @@ jobs:
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
       # 6. 运行单元测试
-      - name: Run Unit Tests
-        run: mvn test
-      #      # 7. 运行 Snyk Code (源代码安全 lint)，过于严格，建议注释掉
+      - name: Run Unit Tests and generate Jacoco report
+        run: mvn clean verify
+
+      - name: Run Tests with Coverage and Sonar Scan
+        run: |
+          mvn clean verify sonar:sonar \
+            -Dsonar.projectKey=chaojiwudiG5_SEBM \
+            -Dsonar.organization=chaojiwudig5 \
+            -Dsonar.host.url=https://sonarcloud.io \
+            -Dsonar.login=${{ secrets.SONAR_TOKEN }}
+      
+      
+      
+      
+
+      # 7. 运行 Snyk Code (源代码安全 lint)，过于严格，建议注释掉
       #      - name: Snyk Code Scan
       #        run: snyk code test
       #        env:
       #          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
       # 8. 可选：上传结果到 Snyk 平台
+
+
       - name: Monitor project in Snyk
         run: snyk monitor --all-projects
         env:
