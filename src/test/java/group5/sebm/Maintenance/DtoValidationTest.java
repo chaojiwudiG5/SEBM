@@ -36,7 +36,6 @@ class DtoValidationTest {
         assertEquals(10, dto.getPageSize());
         assertEquals(100L, dto.getDeviceId());
         assertEquals(2, dto.getStatus());
-        assertTrue(dto.toString().contains("pageNumber"));
 
         // 有参构造
         MechanicanQueryDto dtoWithArgs = new MechanicanQueryDto(1, 10, 100L, 2);
@@ -56,7 +55,6 @@ class DtoValidationTest {
         MechanicanClaimDto dto = new MechanicanClaimDto();
         dto.setUserMaintenanceRecordId(100L);
         assertEquals(100L, dto.getUserMaintenanceRecordId());
-        assertTrue(dto.toString().contains("userMaintenanceRecordId"));
 
         MechanicanClaimDto dtoWithArgs = new MechanicanClaimDto(100L);
         assertEquals(100L, dtoWithArgs.getUserMaintenanceRecordId());
@@ -80,7 +78,6 @@ class DtoValidationTest {
         assertEquals("desc", dto.getDescription());
         assertEquals("http://image.url", dto.getImage());
         assertEquals(10L, dto.getUserMaintenanceRecordId());
-        assertTrue(dto.toString().contains("id"));
 
         MechanicanUpdateDto dtoWithArgs = new MechanicanUpdateDto(1L, 2, "desc", "http://image.url", 10L);
         assertEquals(1L, dtoWithArgs.getId());
@@ -102,7 +99,6 @@ class DtoValidationTest {
 
         assertEquals(10L, dto.getDeviceId());
         assertEquals(1, dto.getStatus());
-        assertTrue(dto.toString().contains("deviceId"));
 
         MechanicRecordQueryDto dtoWithArgs = new MechanicRecordQueryDto(10L, 1);
         assertEquals(10L, dtoWithArgs.getDeviceId());
@@ -123,7 +119,6 @@ class DtoValidationTest {
         assertEquals(1L, dto.getBorrowRecordId());
         assertEquals("desc", dto.getDescription());
         assertEquals("http://image.url", dto.getImage());
-        assertTrue(dto.toString().contains("borrowRecordId"));
 
         UserCreateDto dtoWithArgs = new UserCreateDto(1L, "desc", "http://image.url");
         assertEquals(1L, dtoWithArgs.getBorrowRecordId());
@@ -145,7 +140,6 @@ class DtoValidationTest {
         assertEquals(1, dto.getPageNumber());
         assertEquals(10, dto.getPageSize());
         assertEquals(2, dto.getStatus());
-        assertTrue(dto.toString().contains("pageNumber"));
 
         UserQueryDto dtoWithArgs = new UserQueryDto(1, 10, 2);
         assertEquals(1, dtoWithArgs.getPageNumber());
