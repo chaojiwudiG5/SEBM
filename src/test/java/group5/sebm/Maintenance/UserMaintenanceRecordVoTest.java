@@ -31,4 +31,34 @@ class UserMaintenanceRecordVoTest {
         assertEquals(now, vo.getCreateTime());
         assertEquals(now, vo.getUpdateTime());
     }
+    @Test
+    void testGetterSetterAndAllArgsConstructor() {
+        Date now = new Date();
+
+        // 使用有参构造函数
+        UserMaintenanceRecordVo vo = new UserMaintenanceRecordVo(
+            1L,            // id
+            "Device A",    // deviceName
+            10L,           // userId
+            "description", // description
+            "http://image.url", // image
+            0,             // status
+            now,           // createTime
+            now            // updateTime
+        );
+
+        // 验证 getter
+        assertEquals(1L, vo.getId());
+        assertEquals("Device A", vo.getDeviceName());
+        assertEquals(10L, vo.getUserId());
+        assertEquals("description", vo.getDescription());
+        assertEquals("http://image.url", vo.getImage());
+        assertEquals(0, vo.getStatus());
+        assertEquals(now, vo.getCreateTime());
+        assertEquals(now, vo.getUpdateTime());
+
+        // 验证 setter
+        vo.setStatus(1);
+        assertEquals(1, vo.getStatus());
+    }
 }
