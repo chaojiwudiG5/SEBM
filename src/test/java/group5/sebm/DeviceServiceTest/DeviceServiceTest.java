@@ -30,7 +30,6 @@ import static org.mockito.Mockito.*;
 /**
  * 单元测试：DeviceServiceImpl
  */
-@SpringBootTest
 class DeviceServiceTest {
 
     @Mock
