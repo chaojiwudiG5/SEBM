@@ -1,12 +1,19 @@
 package group5.sebm.Maintenance.controller.vo;
 
 import java.util.Date;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 /**
  * 技工维修单响应体
  */
-@Data
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class MechanicanMaintenanceRecordVo {
 
     private Long id;
