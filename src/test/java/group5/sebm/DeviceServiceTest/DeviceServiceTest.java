@@ -21,6 +21,7 @@ import org.mockito.MockitoAnnotations;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import org.springframework.boot.test.context.SpringBootTest;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
@@ -29,6 +30,7 @@ import static org.mockito.Mockito.*;
 /**
  * 单元测试：DeviceServiceImpl
  */
+@SpringBootTest
 class DeviceServiceTest {
 
     @Mock

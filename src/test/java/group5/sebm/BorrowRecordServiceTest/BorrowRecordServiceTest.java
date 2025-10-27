@@ -1,30 +1,32 @@
 package group5.sebm.BorrowRecordServiceTest;
 
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import group5.sebm.BorrowRecord.controller.dto.BorrowRecordAddDto;
 import group5.sebm.BorrowRecord.controller.dto.BorrowRecordReturnDto;
 import group5.sebm.BorrowRecord.controller.vo.BorrowRecordVo;
 import group5.sebm.BorrowRecord.dao.BorrowRecordMapper;
 import group5.sebm.BorrowRecord.entity.BorrowRecordPo;
 import group5.sebm.BorrowRecord.service.BorrowRecordServiceImpl;
-import group5.sebm.Device.controller.vo.DeviceVo;
 import group5.sebm.Device.entity.DevicePo;
 import group5.sebm.Device.service.services.DeviceService;
 import group5.sebm.User.service.UserServiceInterface.BorrowerService;
 import group5.sebm.common.constant.BorrowConstant;
 import group5.sebm.common.dto.UserDto;
 import group5.sebm.common.enums.DeviceStatusEnum;
+import group5.sebm.Device.controller.vo.DeviceVo;
 import group5.sebm.exception.BusinessException;
 import group5.sebm.exception.ErrorCode;
+import group5.sebm.notifiation.service.NotificationService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.*;
 
 import java.sql.Timestamp;
+import org.springframework.boot.test.context.SpringBootTest;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+@SpringBootTest
 class BorrowRecordServiceTest {
 
     @Mock
@@ -35,6 +37,9 @@ class BorrowRecordServiceTest {
 
     @Mock
     private DeviceService deviceService;
+
+    @Mock
+    private NotificationService notificationService;
 
     @InjectMocks
     private BorrowRecordServiceImpl borrowRecordService;
@@ -150,6 +155,7 @@ class BorrowRecordServiceTest {
         BorrowRecordPo recordPo = new BorrowRecordPo();
         recordPo.setId(1L);
         recordPo.setDeviceId(2L);
+        recordPo.setUserId(10L);
 
         DevicePo devicePo = new DevicePo();
         devicePo.setId(2L);
