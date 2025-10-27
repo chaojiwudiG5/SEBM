@@ -73,6 +73,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserPo> implements 
       ThrowUtils.throwIf(true, ErrorCode.NOT_LOGIN_ERROR, "Not login");
     }
     UserPo userPo = baseMapper.selectById(userId);
+    if (userPo == null) {
+      ThrowUtils.throwIf(true, ErrorCode.NOT_FOUND_ERROR, "User not found");
+    }
+
     UserDto userDto = new UserDto();
     BeanUtils.copyProperties(userPo, userDto);
     return userDto;
@@ -208,41 +212,5 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserPo> implements 
     }
 
     return true;
-  }
-
-
-  @Override
-  public boolean updateBatchById(Collection<UserPo> entityList, int batchSize) {
-    return false;
-  }
-
-  @Override
-  public boolean saveOrUpdate(UserPo entity) {
-    return false;
-  }
-
-  @Override
-  public UserPo getOne(Wrapper<UserPo> queryWrapper, boolean throwEx) {
-    return null;
-  }
-
-  @Override
-  public Optional<UserPo> getOneOpt(Wrapper<UserPo> queryWrapper, boolean throwEx) {
-    return Optional.empty();
-  }
-
-  @Override
-  public Map<String, Object> getMap(Wrapper<UserPo> queryWrapper) {
-    return Map.of();
-  }
-
-  @Override
-  public <V> V getObj(Wrapper<UserPo> queryWrapper, Function<? super Object, V> mapper) {
-    return null;
-  }
-
-  @Override
-  public Class<UserPo> getEntityClass() {
-    return null;
   }
 }

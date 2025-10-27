@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import group5.sebm.User.controller.dto.DeleteDto;
 import group5.sebm.User.controller.dto.PageDto;
 import group5.sebm.User.controller.vo.UserVo;
+import group5.sebm.User.dao.UserMapper;
 import group5.sebm.User.entity.UserPo;
 import group5.sebm.User.service.UserServiceInterface.ManagerService;
 import group5.sebm.exception.BusinessException;
@@ -117,4 +118,16 @@ public class ManagerServiceImpl extends UserServiceImpl implements ManagerServic
     }
 
 
+        // 3. 执行更新
+        try {
+            int rows = baseMapper.updateById(updateUser);
+            if (rows <= 0) {
+                throw new BusinessException(ErrorCode.SYSTEM_ERROR, "Update failed");
+            }
+        } catch (Exception e) {
+            throw new BusinessException(ErrorCode.SYSTEM_ERROR, "Update failed: " + e.getMessage());
+        }
+
+        return true;
+    }
 }
