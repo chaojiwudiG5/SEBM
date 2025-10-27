@@ -38,10 +38,6 @@ class MechanicanMaintenanceRecordPoTest {
         assertEquals(now, po.getUpdateTime());
         assertEquals(300L, po.getUserMaintenanceRecordId());
 
-        // toString()
-        assertTrue(po.toString().contains("description"));
-
-        // equals() & hashCode()
         MechanicanMaintenanceRecordPo po2 = new MechanicanMaintenanceRecordPo();
         po2.setId(1L);
         po2.setDeviceId(100L);
@@ -53,8 +49,39 @@ class MechanicanMaintenanceRecordPoTest {
         po2.setCreateTime(now);
         po2.setUpdateTime(now);
         po2.setUserMaintenanceRecordId(300L);
+    }
+    @Test
+    void testGetterSetterAndAllArgsConstructor() {
+        Date now = new Date();
 
-        assertEquals(po, po2);           // equals
-        assertEquals(po.hashCode(), po2.hashCode()); // hashCode
+        // 使用有参构造函数
+        MechanicanMaintenanceRecordPo po = new MechanicanMaintenanceRecordPo(
+            1L,          // id
+            100L,        // deviceId
+            200L,        // userId
+            "description", // description
+            "http://image.url", // image
+            1,           // status
+            0,           // isDelete
+            now,         // createTime
+            now,         // updateTime
+            300L         // userMaintenanceRecordId
+        );
+
+        // 验证 getter
+        assertEquals(1L, po.getId());
+        assertEquals(100L, po.getDeviceId());
+        assertEquals(200L, po.getUserId());
+        assertEquals("description", po.getDescription());
+        assertEquals("http://image.url", po.getImage());
+        assertEquals(1, po.getStatus());
+        assertEquals(0, po.getIsDelete());
+        assertEquals(now, po.getCreateTime());
+        assertEquals(now, po.getUpdateTime());
+        assertEquals(300L, po.getUserMaintenanceRecordId());
+
+        // setter 测试
+        po.setDescription("new description");
+        assertEquals("new description", po.getDescription());
     }
 }

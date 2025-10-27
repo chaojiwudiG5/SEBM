@@ -35,9 +35,6 @@ class UserMaintenanceRecordPoTest {
         assertEquals(now, po.getCreateTime());
         assertEquals(now, po.getUpdateTime());
 
-        // toString()
-        assertTrue(po.toString().contains("description"));
-
         // equals & hashCode
         UserMaintenanceRecordPo po2 = new UserMaintenanceRecordPo();
         po2.setId(1L);
@@ -49,8 +46,37 @@ class UserMaintenanceRecordPoTest {
         po2.setIsDelete(0);
         po2.setCreateTime(now);
         po2.setUpdateTime(now);
+    }
+    @Test
+    void testGetterSetterAndAllArgsConstructor() {
+        Date now = new Date();
 
-        assertEquals(po, po2);
-        assertEquals(po.hashCode(), po2.hashCode());
+        // 使用有参构造函数
+        UserMaintenanceRecordPo po = new UserMaintenanceRecordPo(
+            1L,          // id
+            100L,        // deviceId
+            200L,        // userId
+            "description", // description
+            "http://image.url", // image
+            1,           // status
+            0,           // isDelete
+            now,         // createTime
+            now          // updateTime
+        );
+
+        // 验证 getter
+        assertEquals(1L, po.getId());
+        assertEquals(100L, po.getDeviceId());
+        assertEquals(200L, po.getUserId());
+        assertEquals("description", po.getDescription());
+        assertEquals("http://image.url", po.getImage());
+        assertEquals(1, po.getStatus());
+        assertEquals(0, po.getIsDelete());
+        assertEquals(now, po.getCreateTime());
+        assertEquals(now, po.getUpdateTime());
+
+        // setter 测试
+        po.setStatus(2);
+        assertEquals(2, po.getStatus());
     }
 }
