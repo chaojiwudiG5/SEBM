@@ -269,6 +269,24 @@
                     <goals>
                         <goal>report</goal>
                     </goals>
+                    <configuration>
+                        <!-- 只统计特定类 -->
+                        <includes>
+                            <include>group5/sebm/User/service/UserServiceImpl.class</include>
+                            <include>group5/sebm/User/service/BorrowerServiceImpl.class</include>
+                            <include>group5/sebm/User/service/ManagerServiceImpl.class</include>
+                            <include>group5/sebm/User/controller/UserController.class</include>
+                            <include>group5/sebm/BorrowRecord/controller/BorrowRecordController.class</include>
+                            <include>group5/sebm/Device/controller/DeviceController.class</include>
+                            <include>group5/sebm/Device/service/DeviceServiceImpl.class</include>
+                            <include>group5/sebm/Maintenance/controller/MechanicanMaintenanceRecordController.class</include>
+                            <include>group5/sebm/Maintenance/controller/UserMaintenanceRecordController.class</include>
+                            <include>group5/sebm/Maintenance/service/MechanicanMaintenanceRecordServiceImpl.class</include>
+                            <include>group5/sebm/Maintenance/service/UserMaintenanceRecordServiceImpl.class</include>
+                            <include>group5/sebm/notifiation/service/MessageSenderService.class</include>
+                            <include>group5/sebm/notifiation/service/NotificationRateLimiter.class</include>
+                        </includes>
+                    </configuration>
                 </execution>
             </executions>
         </plugin>
