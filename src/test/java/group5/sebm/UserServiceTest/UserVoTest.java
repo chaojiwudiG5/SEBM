@@ -1,6 +1,6 @@
 package group5.sebm.UserServiceTest;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import group5.sebm.User.controller.vo.UserVo;
 import org.junit.jupiter.api.Test;
 
@@ -11,76 +11,90 @@ import static org.junit.jupiter.api.Assertions.*;
 class UserVoTest {
 
     @Test
-    void testAllFieldsSettersAndGetters() {
-        UserVo userVo = new UserVo();
+    void testGetterSetter() {
+        UserVo user = new UserVo();
 
-        userVo.setId(1L);
-        userVo.setUsername("testUser");
-        userVo.setPassword("secret");
-        userVo.setEmail("test@example.com");
-        userVo.setPhone("1234567890");
-        userVo.setGender(1);
-        userVo.setAvatarUrl("avatar.png");
-        userVo.setUserRole(0);
-        userVo.setUserStatus(0);
-        userVo.setIsDelete(1);
-        userVo.setAge(25);
-        userVo.setLevel(2);
-        userVo.setOverdueTimes(0);
-        userVo.setBorrowedDeviceCount(1);
-        userVo.setMaxBorrowedDeviceCount(5);
-        userVo.setMaxOverdueTimes(3);
-        userVo.setCreateTime(new Date());
-        userVo.setUpdateTime(new Date());
-        userVo.setActive(true);
-        userVo.setToken("token123");
+        user.setId(1L);
+        user.setUsername("tommy");
+        user.setPassword("secret");
+        user.setEmail("tommy@example.com");
+        user.setPhone("123456789");
+        user.setGender(1);
+        user.setAvatarUrl("http://avatar.com/img.png");
+        user.setUserRole(2);
+        user.setUserStatus(1);
+        user.setIsDelete(0);
+        user.setAge(25);
+        user.setLevel(3);
+        user.setOverdueTimes(1);
+        user.setBorrowedDeviceCount(2);
+        user.setMaxBorrowedDeviceCount(5);
+        user.setMaxOverdueTimes(3);
+        user.setCreateTime(new Date());
+        user.setUpdateTime(new Date());
+        user.setToken("abc123");
 
-        assertEquals(1L, userVo.getId());
-        assertEquals("testUser", userVo.getUsername());
-        assertEquals("secret", userVo.getPassword());
-        assertEquals("test@example.com", userVo.getEmail());
-        assertEquals("1234567890", userVo.getPhone());
-        assertEquals(1, userVo.getGender());
-        assertEquals("avatar.png", userVo.getAvatarUrl());
-        assertEquals(0, userVo.getUserRole());
-        assertEquals(0, userVo.getUserStatus());
-        assertEquals(1, userVo.getIsDelete());
-        assertEquals(25, userVo.getAge());
-        assertEquals(2, userVo.getLevel());
-        assertEquals(0, userVo.getOverdueTimes());
-        assertEquals(1, userVo.getBorrowedDeviceCount());
-        assertEquals(5, userVo.getMaxBorrowedDeviceCount());
-        assertEquals(3, userVo.getMaxOverdueTimes());
-        assertTrue(userVo.isActive());
-        assertEquals("token123", userVo.getToken());
+        assertEquals(1L, user.getId());
+        assertEquals("tommy", user.getUsername());
+        assertEquals("secret", user.getPassword());
+        assertEquals("tommy@example.com", user.getEmail());
+        assertEquals("123456789", user.getPhone());
+        assertEquals(1, user.getGender());
+        assertEquals("http://avatar.com/img.png", user.getAvatarUrl());
+        assertEquals(2, user.getUserRole());
+        assertEquals(1, user.getUserStatus());
+        assertEquals(0, user.getIsDelete());
+        assertEquals(25, user.getAge());
+        assertEquals(3, user.getLevel());
+        assertEquals(1, user.getOverdueTimes());
+        assertEquals(2, user.getBorrowedDeviceCount());
+        assertEquals(5, user.getMaxBorrowedDeviceCount());
+        assertEquals(3, user.getMaxOverdueTimes());
+        assertEquals("abc123", user.getToken());
     }
 
     @Test
-    void testBuilder() {
+    void testAllArgsConstructor() {
         Date now = new Date();
-        UserVo userVo = UserVo.builder()
-                .id(2L)
-                .username("builderUser")
-                .password("builderSecret")
-                .createTime(now)
-                .updateTime(now)
-                .isActive(false)
-                .token("builderToken")
-                .build();
+        UserVo user = new UserVo(
+                1L,
+                "tommy",
+                "secret",
+                "tommy@example.com",
+                "123456789",
+                1,
+                "http://avatar.com/img.png",
+                2,
+                1,
+                0,
+                25,
+                3,
+                1,
+                2,
+                5,
+                3,
+                now,
+                now,
+                true,
+                "abc123"
+        );
 
-        assertEquals(2L, userVo.getId());
-        assertEquals("builderUser", userVo.getUsername());
-        assertEquals("builderSecret", userVo.getPassword());
-        assertEquals(now, userVo.getCreateTime());
-        assertEquals(now, userVo.getUpdateTime());
-        assertFalse(userVo.isActive());
-        assertEquals("builderToken", userVo.getToken());
+        assertEquals("tommy", user.getUsername());
+        assertEquals("secret", user.getPassword());
+        assertTrue(user.isActive());
     }
 
     @Test
-    void testJsonIgnoreAnnotation() throws NoSuchFieldException {
-        // 验证 password 和 isDelete 字段标记了 @JsonIgnore
-        assertTrue(UserVo.class.getDeclaredField("password").isAnnotationPresent(JsonIgnore.class));
-        assertTrue(UserVo.class.getDeclaredField("isDelete").isAnnotationPresent(JsonIgnore.class));
+    void testJsonIgnore() throws Exception {
+        UserVo user = new UserVo();
+        user.setPassword("secret");
+        user.setIsDelete(1);
+
+        ObjectMapper mapper = new ObjectMapper();
+        String json = mapper.writeValueAsString(user);
+
+        // password 和 isDelete 应该被忽略
+        assertFalse(json.contains("password"));
+        assertFalse(json.contains("isDelete"));
     }
 }
