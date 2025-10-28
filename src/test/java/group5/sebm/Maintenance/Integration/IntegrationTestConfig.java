@@ -11,6 +11,9 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.mockito.Mockito;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+
 /**
  * 集成测试配置类
  * 用于配置测试环境中的特殊Bean
@@ -45,19 +48,20 @@ public class IntegrationTestConfig {
     }
 
     /**
-     * 提供一个不进行权限验证的AOP拦截器，用于测试环境
+     * 提供一个Mock的AOP拦截器，用于测试环境
      * 直接放行所有带@AuthCheck注解的方法
      */
     @Bean
     @Primary
-    public AuthInterceptor authInterceptor() {
-        return new AuthInterceptor(null) {
-            @Override
-            public Object doInterceptor(ProceedingJoinPoint joinPoint, group5.sebm.annotation.AuthCheck authCheck) throws Throwable {
-                // 在测试环境中，不进行权限验证，直接放行
+    public AuthInterceptor authInterceptor() throws Throwable {
+        AuthInterceptor mockInterceptor = Mockito.mock(AuthInterceptor.class);
+        // 配置Mock：当调用doInterceptor时，直接执行原方法（放行）
+        when(mockInterceptor.doInterceptor(any(ProceedingJoinPoint.class), any()))
+            .thenAnswer(invocation -> {
+                ProceedingJoinPoint joinPoint = invocation.getArgument(0);
                 return joinPoint.proceed();
-            }
-        };
+            });
+        return mockInterceptor;
     }
 }
 

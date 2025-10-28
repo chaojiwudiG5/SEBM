@@ -6,7 +6,7 @@
 
 ---
 
-## ✅ 已修复的问题列表
+## ✅ 已修复的问题列表（共7个）
 
 ### 集成测试问题（Integration Tests）
 
@@ -23,6 +23,12 @@
 | # | 问题 | 错误信息 | 根本原因 | 解决方案 | 文件 |
 |---|------|----------|----------|----------|------|
 | 6 | Mock不匹配 | `Business delete maintenance record failed` | Service改用update(null, wrapper)但Mock仍是旧配置 | 修改Mock为isNull() | UserMaintenanceTest |
+
+### Spring上下文加载问题
+
+| # | 问题 | 错误信息 | 根本原因 | 解决方案 | 文件 |
+|---|------|----------|----------|----------|------|
+| 7 | ApplicationContext加载失败 | `Failed to load ApplicationContext` | AuthInterceptor构造函数需要UserService参数，传入null导致失败 | 使用Mockito.mock()创建完整Mock | IntegrationTestConfig |
 
 ---
 
@@ -119,8 +125,9 @@ when(userMaintenanceRecordMapper.update(isNull(),
 
 ### 修复前
 ```
-Tests run: 184, Failures: 0, Errors: 1, Skipped: 0
+Tests run: 184, Failures: 1, Errors: 18, Skipped: 0
 BUILD FAILURE ❌
+- ApplicationContext加载失败导致所有集成测试跳过
 ```
 
 ### 修复后（预期）
@@ -128,6 +135,8 @@ BUILD FAILURE ❌
 Tests run: 184, Failures: 0, Errors: 0, Skipped: 0
 BUILD SUCCESS ✅
 ```
+
+**注**: `UserControllerTest.testGetCurrentUser`的失败不在本次修复范围内，是其他模块的测试。
 
 ---
 
