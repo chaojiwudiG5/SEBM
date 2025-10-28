@@ -5,7 +5,6 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import group5.sebm.User.controller.dto.DeleteDto;
 import group5.sebm.User.controller.dto.PageDto;
 import group5.sebm.User.controller.vo.UserVo;
-import group5.sebm.User.dao.UserMapper;
 import group5.sebm.User.entity.UserPo;
 import group5.sebm.User.service.UserServiceInterface.ManagerService;
 import group5.sebm.exception.BusinessException;

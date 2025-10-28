@@ -8,6 +8,7 @@ import group5.sebm.notifiation.mq.MessageProducer;
 import group5.sebm.notifiation.mq.NotificationMessage;
 import group5.sebm.notifiation.service.NotificationService;
 import group5.sebm.notifiation.service.TemplateService;
+import group5.sebm.notifiation.service.UnsubscribeService;
 import group5.sebm.notifiation.service.dto.TemplateDto;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,12 +20,26 @@ public class NotificationServiceImpl implements NotificationService {
     @Autowired
     private TemplateService templateService;
     @Autowired
+    private UnsubscribeService unsubscribeService;
+    @Autowired
     private MessageProducer messageProducer;
     @Autowired
     private NotificationConverter notificationConverter;
 
     @Override
     public Boolean sendNotification(SendNotificationDto sendNotificationDto) {
+        // 如果用户已退订该事件，则跳过发送
+        try {
+            if (sendNotificationDto.getUserId() != null && sendNotificationDto.getNotificationEvent() != null) {
+                boolean unsub = unsubscribeService.isUnsubscribed(sendNotificationDto.getUserId(), sendNotificationDto.getNotificationEvent());
+                if (unsub) {
+                    log.info("用户已退订该事件，跳过发送: userId={}, event={}", sendNotificationDto.getUserId(), sendNotificationDto.getNotificationEvent());
+                    return true; // 返回 true 表示处理成功但未发送
+                }
+            }
+        } catch (Exception e) {
+            log.warn("检查退订状态失败，继续发送: error={}", e.getMessage());
+        }
         TemplateDto templateDto = templateService.findTemplateByParams(sendNotificationDto.getNotificationEvent());
         if (templateDto == null) {
             log.info("Template not found, request:{}", JSON.toJSONString(sendNotificationDto));

@@ -110,10 +110,10 @@ public class InternalMsgSender extends ChannelMsgSender {
     private boolean pushToUserViaWebSocket(String userId, String subject, String content) {
         try {
             // 检查用户是否在线
-            if (!webSocketHandler.isUserOnline(userId)) {
-                log.info("用户 {} 不在线，跳过WebSocket推送", userId);
-                return false;
-            }
+//            if (!webSocketHandler.isUserOnline(userId)) {
+//                log.info("用户 {} 不在线，跳过WebSocket推送", userId);
+//                return false;
+//            }
 
             // 通过WebSocket发送通知消息
             boolean success = webSocketHandler.sendNotificationToUser(userId, subject, content, "internal");

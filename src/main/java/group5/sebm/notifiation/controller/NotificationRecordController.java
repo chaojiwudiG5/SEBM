@@ -11,6 +11,7 @@ import group5.sebm.notifiation.controller.dto.NotificationRecordQueryDto;
 import group5.sebm.notifiation.controller.vo.NotificationRecordVo;
 import group5.sebm.notifiation.entity.NotificationRecordPo;
 import group5.sebm.notifiation.service.NotificationRecordService;
+import group5.sebm.notifiation.service.UnsubscribeService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,7 +27,8 @@ import org.springframework.web.bind.annotation.*;
 public class NotificationRecordController {
     
     private final NotificationRecordService notificationRecordService;
-    
+    private final UnsubscribeService unsubscribeService;
+
     /**
      * 分页查询通知记录
      * @param queryDto 查询条件
@@ -233,5 +235,26 @@ public class NotificationRecordController {
             log.error("管理员查询所有已发送通知失败: queryDto={}, error={}", queryDto, e.getMessage(), e);
         }
         return ResultUtils.success(null);
+    }
+
+    /**
+     * 一键退订（针对某个 notificationEvent）
+     * 前端可以在消息详情中展示一个退订链接，调用此接口即可退订该事件
+     * @param userId 用户ID
+     * @param notificationEvent 通知事件编码
+     * @return 退订结果
+     */
+    @PostMapping("/unsubscribe")
+    public BaseResponse<Boolean> unsubscribe(
+            @RequestParam Long userId,
+            @RequestParam Integer notificationEvent) {
+        try {
+            boolean result = unsubscribeService.unsubscribe(userId, notificationEvent);
+            log.info("用户退订: userId={}, event={}, result={}", userId, notificationEvent, result);
+            return ResultUtils.success(result);
+        } catch (Exception e) {
+            log.error("用户退订失败: userId={}, event={}, error={}", userId, notificationEvent, e.getMessage(), e);
+            return ResultUtils.success(false);
+        }
     }
 }

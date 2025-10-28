@@ -72,8 +72,6 @@ public class UserController {
     return ResultUtils.success(isUpdate); // 返回Boolean
   }
 
-
-
   @PostMapping("/deactivateUser")
   public BaseResponse<Boolean> deactivateUser(@RequestBody @Valid DeleteDto deactivateUser) {
     Boolean isDeactivate = borrowerService.deactivateUser(deactivateUser);
