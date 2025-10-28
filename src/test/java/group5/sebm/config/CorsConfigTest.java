@@ -21,7 +21,7 @@ class CorsConfigTest {
 
         // 验证允许的 origins
         assertArrayEquals(
-            new String[]{"http://localhost:5173", "https://sebm-fe-production.up.railway.app"},
+            new String[]{"http://localhost:5173", "https://sebm-fe-production.up.railway.app","https://sebm-fe-admin-production.up.railway.app"},
             registry.allowedOrigins
         );
 
