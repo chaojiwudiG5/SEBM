@@ -18,10 +18,10 @@ spring:
 
   # RabbitMQ配置 - 测试环境
   rabbitmq:
-    host: localhost
-    port: 5672
-    username: guest
-    password: guest
+    host: hopper.proxy.rlwy.net
+    port: 50343
+    username: test
+    password: test
     virtual-host: /
     ssl:
       enabled: false

@@ -41,12 +41,12 @@ import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest
 @AutoConfigureMockMvc
 @Import(IntegrationTestConfig.class)
-@TestPropertySource(properties = {
-    "spring.rabbitmq.host=hopper.proxy.rlwy.net",
-    "spring.rabbitmq.port=50343",
-    "spring.rabbitmq.username=test",
-    "spring.rabbitmq.password=test"
-})
+//@TestPropertySource(properties = {
+//    "spring.rabbitmq.host=hopper.proxy.rlwy.net",
+//    "spring.rabbitmq.port=50343",
+//    "spring.rabbitmq.username=test",
+//    "spring.rabbitmq.password=test"
+//})
 public class MechanicanMaintenanceRecordIntegrationTest {
 
     @Autowired
