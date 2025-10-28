@@ -1,0 +1,18 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="UserMaintenanceRecordIntegrationTest" type="JUnit" factoryName="JUnit" nameIsGenerated="true">
+    <module name="SEBM" />
+    <extension name="coverage">
+      <pattern>
+        <option name="PATTERN" value="group5.sebm.Maintenance.Integration.*" />
+        <option name="ENABLED" value="false" />
+      </pattern>
+    </extension>
+    <option name="PACKAGE_NAME" value="group5.sebm.Maintenance.Integration" />
+    <option name="MAIN_CLASS_NAME" value="group5.sebm.Maintenance.Integration.UserMaintenanceRecordIntegrationTest" />
+    <option name="METHOD_NAME" value="" />
+    <option name="TEST_OBJECT" value="class" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>

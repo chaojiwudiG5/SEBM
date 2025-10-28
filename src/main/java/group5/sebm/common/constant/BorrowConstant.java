@@ -15,7 +15,7 @@ public class BorrowConstant {
     public static final double CENTER_LONGITUDE_SCHOOL = 103.776167;
     public static final double CENTER_LATITUDE_SCHOOL = 1.292350;
 
-    public static final double RADIUS = 100;
+    public static final double RADIUS = 10000000;
 
     // todo test del mattina
 
