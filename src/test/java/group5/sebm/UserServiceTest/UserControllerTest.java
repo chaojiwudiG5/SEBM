@@ -13,6 +13,7 @@ import group5.sebm.User.service.UserServiceInterface.UserService;
 import group5.sebm.common.BaseResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
