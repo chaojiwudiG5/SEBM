@@ -42,10 +42,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @AutoConfigureMockMvc
 @Import(IntegrationTestConfig.class)
 @TestPropertySource(properties = {
-    "spring.rabbitmq.host=localhost",
-    "spring.rabbitmq.port=5672",
-    "spring.rabbitmq.username=guest",
-    "spring.rabbitmq.password=guest"
+    "spring.autoconfigure.exclude=org.springframework.boot.autoconfigure.amqp.RabbitAutoConfiguration"
 })
 public class MechanicanMaintenanceRecordIntegrationTest {
 
