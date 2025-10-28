@@ -108,7 +108,9 @@ public class UserMaintenanceRecordServiceImpl extends
       UserQueryDto queryDto) {
     //1.分页查询报修单
     QueryWrapper<UserMaintenanceRecordPo> queryWrapper = new QueryWrapper<>();
-    queryWrapper.eq("userId", userId);
+    if (userId != null){
+      queryWrapper.eq("userId", userId);
+    }
     if (queryDto.getStatus() != null) {
       queryWrapper.eq("status", queryDto.getStatus());
     }
