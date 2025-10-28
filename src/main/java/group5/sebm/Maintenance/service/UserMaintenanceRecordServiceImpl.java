@@ -6,12 +6,11 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import group5.sebm.BorrowRecord.controller.vo.BorrowRecordVo;
 import group5.sebm.BorrowRecord.service.services.BorrowRecordService;
 import group5.sebm.common.dto.BorrowRecordDto;
 import group5.sebm.common.dto.UserMaintenanceRecordDto;
 import group5.sebm.common.enums.DeviceStatusEnum;
-import group5.sebm.common.vo.DeviceVo;
+import group5.sebm.Device.controller.vo.DeviceVo;
 import group5.sebm.Device.service.services.DeviceService;
 import group5.sebm.Maintenance.controller.dto.UserCreateDto;
 import group5.sebm.Maintenance.controller.dto.UserQueryDto;
@@ -40,6 +39,8 @@ public class UserMaintenanceRecordServiceImpl extends
     ServiceImpl<UserMaintenanceRecordMapper, UserMaintenanceRecordPo>
     implements UserMaintenanceRecordService {
 
+  private final UserMaintenanceRecordMapper userMaintenanceRecordMapper;
+
   private final DeviceService deviceService;
 
   private final BorrowRecordService borrowRecordService;
@@ -47,7 +48,7 @@ public class UserMaintenanceRecordServiceImpl extends
   @Override
   public UserMaintenanceRecordDto updateStatus(Long recordId, Integer status) {
     //1.查询报修单
-    UserMaintenanceRecordPo record = this.getById(recordId);
+    UserMaintenanceRecordPo record = userMaintenanceRecordMapper.selectById(recordId);
     ThrowUtils.throwIf(record == null, ErrorCode.NOT_FOUND_ERROR,
         "user maintenance record not found");
     //2.校验状态是否合法
@@ -56,9 +57,8 @@ public class UserMaintenanceRecordServiceImpl extends
     //3.修改状态
     record.setStatus(status);
     record.setUpdateTime(new Date());
-    boolean success = this.updateById(record);
-    ThrowUtils.throwIf(!success, ErrorCode.OPERATION_ERROR,
-        "update maintenance record status failed");
+    int success = userMaintenanceRecordMapper.updateById(record);
+    ThrowUtils.throwIf(success != 1, ErrorCode.OPERATION_ERROR, "update maintenance record status failed");
     //4.返回DTO
     UserMaintenanceRecordDto dto = new UserMaintenanceRecordDto();
     BeanUtils.copyProperties(record, dto);
@@ -68,7 +68,7 @@ public class UserMaintenanceRecordServiceImpl extends
   @Override
   public UserMaintenanceRecordDto getUserMaintenanceRecordDto(Long recordId) {
     //1.查询报修单
-    UserMaintenanceRecordPo record = this.getById(recordId);
+    UserMaintenanceRecordPo record = userMaintenanceRecordMapper.selectById(recordId);
     ThrowUtils.throwIf(record == null, ErrorCode.NOT_FOUND_ERROR,
         "user maintenance record not found");
     //2.转换成DTO
@@ -92,8 +92,8 @@ public class UserMaintenanceRecordServiceImpl extends
     record.setUserId(userId);
     record.setDeviceId(borrowRecordDto.getDeviceId());
     //4.保存报修单
-    boolean success = this.save(record);
-    ThrowUtils.throwIf(!success, ErrorCode.OPERATION_ERROR, "create maintenance record failed");
+    int success = userMaintenanceRecordMapper.insert(record);
+    ThrowUtils.throwIf(success != 1, ErrorCode.OPERATION_ERROR, "create maintenance record failed");
     //5.修改设备状态为维修中
     deviceService.updateDeviceStatus(borrowRecordDto.getDeviceId(),
         DeviceStatusEnum.MAINTENANCE.getCode());
@@ -112,7 +112,7 @@ public class UserMaintenanceRecordServiceImpl extends
     if (queryDto.getStatus() != null) {
       queryWrapper.eq("status", queryDto.getStatus());
     }
-    Page<UserMaintenanceRecordPo> page = this.page(
+    Page<UserMaintenanceRecordPo> page = userMaintenanceRecordMapper.selectPage(
         new Page<>(queryDto.getPageNumber(), queryDto.getPageSize()), queryWrapper);
     //2.转换成VO
     Page<UserMaintenanceRecordVo> voPage = new Page<>();
@@ -133,7 +133,7 @@ public class UserMaintenanceRecordServiceImpl extends
     wrapper.eq(UserMaintenanceRecordPo::getId, recordId)
         .eq(UserMaintenanceRecordPo::getUserId, userId)
         .eq(UserMaintenanceRecordPo::getIsDelete, 0);
-    UserMaintenanceRecordPo record = this.getOne(wrapper);
+    UserMaintenanceRecordPo record = userMaintenanceRecordMapper.selectOne(wrapper);
     ThrowUtils.throwIf(record == null, ErrorCode.NOT_FOUND_ERROR,
         "user maintenance record not found");
     UserMaintenanceRecordVo vo = new UserMaintenanceRecordVo();
@@ -147,7 +147,7 @@ public class UserMaintenanceRecordServiceImpl extends
     queryWrapper.eq(UserMaintenanceRecordPo::getId, recordId)
         .eq(UserMaintenanceRecordPo::getUserId, userId)
         .eq(UserMaintenanceRecordPo::getIsDelete, 0);
-    UserMaintenanceRecordPo record = this.getOne(queryWrapper);
+    UserMaintenanceRecordPo record = userMaintenanceRecordMapper.selectOne(queryWrapper);
     ThrowUtils.throwIf(record == null, ErrorCode.NOT_FOUND_ERROR,
         "user maintenance record not found");
     ThrowUtils.throwIf(!Objects.equals(record.getStatus(), 0), ErrorCode.OPERATION_ERROR,
@@ -160,7 +160,7 @@ public class UserMaintenanceRecordServiceImpl extends
     UserMaintenanceRecordPo update = new UserMaintenanceRecordPo();
     update.setIsDelete(1);
     update.setUpdateTime(new Date());
-    boolean success = this.update(update, updateWrapper);
+    boolean success = userMaintenanceRecordMapper.update(update, updateWrapper) == 1;
     //3.修改设备状态为可用
     success = success && (deviceService.updateDeviceStatus(record.getDeviceId(), 0) != null);
     ThrowUtils.throwIf(!success, ErrorCode.OPERATION_ERROR, "delete maintenance record failed");

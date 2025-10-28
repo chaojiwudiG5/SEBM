@@ -47,6 +47,7 @@ public class MechanicanMaintenanceRecordServiceImpl extends
     ServiceImpl<MechanicanMaintenanceRecordMapper, MechanicanMaintenanceRecordPo>
     implements MechanicanMaintenanceRecordService {
 
+  private final MechanicanMaintenanceRecordMapper mechanicanMaintenanceRecordMapper;
   private final DeviceService deviceService;
   private final UserMaintenanceRecordService userMaintenanceRecordService;
 
@@ -75,7 +76,7 @@ public class MechanicanMaintenanceRecordServiceImpl extends
     record.setUserMaintenanceRecordId(userMaintenanceRecordId);
     record.setStatus(1);
     //5. 保存 record
-    this.save(record);
+    mechanicanMaintenanceRecordMapper.insert(record);
     //6. 返回 recordId
     return record.getId();
   }
@@ -95,7 +96,7 @@ public class MechanicanMaintenanceRecordServiceImpl extends
     if (queryDto.getStatus() != null) {
       wrapper.eq(MechanicanMaintenanceRecordPo::getStatus, queryDto.getStatus());
     }
-    Page<MechanicanMaintenanceRecordPo> poPage = this.page(page, wrapper);
+    Page<MechanicanMaintenanceRecordPo> poPage = mechanicanMaintenanceRecordMapper.selectPage(page,wrapper);
     var voList = poPage.getRecords().stream()
         .map(po -> {
           MechanicanMaintenanceRecordVo vo = new MechanicanMaintenanceRecordVo();
@@ -118,7 +119,7 @@ public class MechanicanMaintenanceRecordServiceImpl extends
     QueryWrapper<MechanicanMaintenanceRecordPo> wrapper = new QueryWrapper<>();
     wrapper.eq("deviceId", queryDto.getDeviceId());
     wrapper.eq("status", queryDto.getStatus());
-    MechanicanMaintenanceRecordPo record = this.getOne(wrapper);
+    MechanicanMaintenanceRecordPo record = mechanicanMaintenanceRecordMapper.selectOne(wrapper);
     //2. 组装返回值
     ThrowUtils.throwIf(record == null, ErrorCode.NOT_FOUND_ERROR,
         "mechanicMaintenanceRecord not found");
@@ -132,7 +133,7 @@ public class MechanicanMaintenanceRecordServiceImpl extends
   @Transactional(rollbackFor = BusinessException.class)
   public Boolean updateMechanicMaintenanceRecord(Long mechanicId, MechanicanUpdateDto updateDto) {
     //1. 校验参数
-    MechanicanMaintenanceRecordPo record = this.getById(updateDto.getId());
+    MechanicanMaintenanceRecordPo record = mechanicanMaintenanceRecordMapper.selectById(updateDto.getId());
     ThrowUtils.throwIf(record == null, ErrorCode.NOT_FOUND_ERROR,
         "mechanicanMaintenanceRecord not found");
     ThrowUtils.throwIf(record.getUserId().longValue() != mechanicId.longValue(),
@@ -143,7 +144,7 @@ public class MechanicanMaintenanceRecordServiceImpl extends
     record.setUpdateTime(new Date());
     record.setImage(updateDto.getImage());
     record.setDescription(updateDto.getDescription());
-    this.updateById(record);
+    mechanicanMaintenanceRecordMapper.updateById(record);
     //3. 更新 userMaintenanceRecord 状态
     userMaintenanceRecordService.updateStatus(updateDto.getUserMaintenanceRecordId(),
         1);
