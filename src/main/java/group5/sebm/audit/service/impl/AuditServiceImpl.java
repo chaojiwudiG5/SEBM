@@ -229,19 +229,76 @@ public class AuditServiceImpl implements AuditService {
 
     @Override
     public List<MaintenanceStatsItemDto> getMaintenanceStats(String start, String end, String groupBy) {
-        List<UserMaintenanceRecordPo> all = userMaintenanceRecordMapper.selectList(new QueryWrapper<>());
-        Map<String, List<UserMaintenanceRecordPo>> grouped = all.stream().collect(Collectors.groupingBy(m -> {
-            DevicePo d = m.getDeviceId() == null ? null : deviceService.getById(m.getDeviceId());
-            return d == null ? "unknown" : (d.getDeviceType() == null ? "unknown" : d.getDeviceType());
-        }));
+        // Fetch all maintenance records (user + mechanic)
+        List<UserMaintenanceRecordPo> userMaint = userMaintenanceRecordMapper.selectList(new QueryWrapper<>());
+        List<MechanicanMaintenanceRecordPo> mechMaint = mechanicanMaintenanceRecordMapper.selectList(new QueryWrapper<>());
+
+        // Map deviceType -> [totalRecords, totalMinutesSum, completedCount]
+        Map<String, long[]> agg = new HashMap<>();
+
+        // helper to add record
+        java.util.function.BiConsumer<String, Long> addDuration = (deviceType, minutes) -> {
+            long[] a = agg.computeIfAbsent(deviceType == null ? "unknown" : deviceType, k -> new long[3]);
+            a[1] += (minutes == null ? 0L : minutes);
+            if (minutes != null) a[2] += 1;
+        };
+
+        // process user maintenance records
+        for (UserMaintenanceRecordPo m : userMaint) {
+            String deviceType = "unknown";
+            if (m.getDeviceId() != null) {
+                DevicePo d = deviceService.getById(m.getDeviceId());
+                if (d != null && d.getDeviceType() != null) deviceType = d.getDeviceType();
+            }
+            long[] a = agg.computeIfAbsent(deviceType, k -> new long[3]);
+            a[0] += 1; // total records
+            if (m.getCreateTime() != null && m.getUpdateTime() != null) {
+                long diffMs = m.getUpdateTime().getTime() - m.getCreateTime().getTime();
+                if (diffMs > 0) {
+                    long minutes = diffMs / 60000L;
+                    a[1] += minutes;
+                    a[2] += 1; // completed count
+                }
+            }
+        }
+
+        // process mechanic maintenance records
+        for (MechanicanMaintenanceRecordPo m : mechMaint) {
+            String deviceType = "unknown";
+            if (m.getDeviceId() != null) {
+                DevicePo d = deviceService.getById(m.getDeviceId());
+                if (d != null && d.getDeviceType() != null) deviceType = d.getDeviceType();
+            }
+            long[] a = agg.computeIfAbsent(deviceType, k -> new long[3]);
+            a[0] += 1; // total records
+            if (m.getCreateTime() != null && m.getUpdateTime() != null) {
+                long diffMs = m.getUpdateTime().getTime() - m.getCreateTime().getTime();
+                if (diffMs > 0) {
+                    long minutes = diffMs / 60000L;
+                    a[1] += minutes;
+                    a[2] += 1;
+                }
+            }
+        }
+
+        // build DTOs
         List<MaintenanceStatsItemDto> stats = new ArrayList<>();
-        for (Map.Entry<String, List<UserMaintenanceRecordPo>> e : grouped.entrySet()) {
+        for (Map.Entry<String, long[]> e : agg.entrySet()) {
+            String deviceType = e.getKey();
+            long[] a = e.getValue();
             MaintenanceStatsItemDto it = new MaintenanceStatsItemDto();
-            it.deviceType = e.getKey();
-            it.maintenanceCount = e.getValue().size();
-            it.avgMaintenanceMinutes = null;
+            it.deviceType = deviceType;
+            it.maintenanceCount = (int) a[0];
+            if (a[2] > 0) {
+                it.avgMaintenanceMinutes = a[1] / (double) a[2];
+            } else {
+                it.avgMaintenanceMinutes = null;
+            }
             stats.add(it);
         }
+
+        // sort by maintenanceCount desc
+        stats.sort((x, y) -> Integer.compare(y.maintenanceCount == null ? 0 : y.maintenanceCount, x.maintenanceCount == null ? 0 : x.maintenanceCount));
         return stats;
     }
 
