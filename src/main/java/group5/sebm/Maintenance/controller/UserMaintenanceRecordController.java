@@ -53,6 +53,16 @@ public class UserMaintenanceRecordController {
         return ResultUtils.success(page.getRecords());
     }
 
+    @PostMapping("/getAllList")
+    public BaseResponse<List<UserMaintenanceRecordVo>> getAllRecords(@RequestBody @Valid UserQueryDto queryDto, HttpServletRequest request)
+    {
+        Page<UserMaintenanceRecordVo> page = userMaintenanceRecordService
+                .listUserMaintenanceRecords(null, queryDto);
+        log.info("Query all maintenance records page {}", page);
+        return ResultUtils.success(page.getRecords());
+    }
+
+
     @GetMapping("/{id}")
     public BaseResponse<UserMaintenanceRecordVo> getRecordDetail(@PathVariable("id") Long id, HttpServletRequest request)
     {
