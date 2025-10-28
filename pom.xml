@@ -31,6 +31,10 @@
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <mapstruct.version>1.5.5.Final</mapstruct.version>
+        <sonar.organization>chaojiwudig5</sonar.organization>
+        <sonar.projectKey>chaojiwudiG5_SEBM</sonar.projectKey>
+        <sonar.host.url>https://sonarcloud.io</sonar.host.url>
+        <sonar.coverage.jacoco.xmlReportPaths>${project.basedir}/target/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
     </properties>
     <dependencies>
         <dependency>
@@ -265,6 +269,24 @@
                     <goals>
                         <goal>report</goal>
                     </goals>
+                    <configuration>
+                        <!-- 只统计特定类 -->
+                        <includes>
+                            <include>group5/sebm/User/service/UserServiceImpl.class</include>
+                            <include>group5/sebm/User/service/BorrowerServiceImpl.class</include>
+                            <include>group5/sebm/User/service/ManagerServiceImpl.class</include>
+                            <include>group5/sebm/User/controller/UserController.class</include>
+                            <include>group5/sebm/BorrowRecord/controller/BorrowRecordController.class</include>
+                            <include>group5/sebm/Device/controller/DeviceController.class</include>
+                            <include>group5/sebm/Device/service/DeviceServiceImpl.class</include>
+                            <include>group5/sebm/Maintenance/controller/MechanicanMaintenanceRecordController.class</include>
+                            <include>group5/sebm/Maintenance/controller/UserMaintenanceRecordController.class</include>
+                            <include>group5/sebm/Maintenance/service/MechanicanMaintenanceRecordServiceImpl.class</include>
+                            <include>group5/sebm/Maintenance/service/UserMaintenanceRecordServiceImpl.class</include>
+                            <include>group5/sebm/notifiation/service/MessageSenderService.class</include>
+                            <include>group5/sebm/notifiation/service/NotificationRateLimiter.class</include>
+                        </includes>
+                    </configuration>
                 </execution>
             </executions>
         </plugin>
