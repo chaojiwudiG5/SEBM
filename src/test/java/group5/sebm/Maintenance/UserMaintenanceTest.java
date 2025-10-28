@@ -161,8 +161,9 @@ class UserMaintenanceTest {
 
     // ✅ mock selectOne
     when(userMaintenanceRecordMapper.selectOne(any(LambdaQueryWrapper.class))).thenReturn(po);
-    // ✅ mock update - 注意：Service改为update(null, wrapper)，所以这里也要匹配
-    when(userMaintenanceRecordMapper.update(isNull(), any(LambdaUpdateWrapper.class))).thenReturn(1);
+    // ✅ mock update - 注意第一个参数可以是null（Service层使用wrapper.set()方式更新）
+    when(userMaintenanceRecordMapper.update(any(),
+        any(LambdaUpdateWrapper.class))).thenReturn(1);
     // ✅ mock deviceService
     when(deviceService.updateDeviceStatus(anyLong(), anyInt())).thenReturn(new DeviceVo());
     Boolean result = maintenanceService.cancelMaintenanceRecord(10L, 1L);
