@@ -1,7 +1,6 @@
-package group5.sebm.CommonTest;
+package group5.sebm.aop;
 
 import group5.sebm.annotation.AuthCheck;
-import group5.sebm.aop.AuthInterceptor;
 import group5.sebm.common.dto.UserDto;
 import group5.sebm.common.enums.UserRoleEnum;
 import group5.sebm.exception.BusinessException;
