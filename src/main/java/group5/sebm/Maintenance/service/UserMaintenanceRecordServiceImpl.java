@@ -91,6 +91,9 @@ public class UserMaintenanceRecordServiceImpl extends
     BeanUtils.copyProperties(createDto, record);
     record.setUserId(userId);
     record.setDeviceId(borrowRecordDto.getDeviceId());
+    record.setStatus(0);  // 设置默认状态：待处理
+    record.setCreateTime(new Date());
+    record.setUpdateTime(new Date());
     //4.保存报修单
     int success = userMaintenanceRecordMapper.insert(record);
     ThrowUtils.throwIf(success != 1, ErrorCode.OPERATION_ERROR, "create maintenance record failed");
@@ -154,15 +157,14 @@ public class UserMaintenanceRecordServiceImpl extends
         "user maintenance record not found");
     ThrowUtils.throwIf(!Objects.equals(record.getStatus(), 0), ErrorCode.OPERATION_ERROR,
         "maintenance record cannot be cancelled");
-    //1.构建更新条件
+    //1.构建更新条件并设置要更新的字段
     LambdaUpdateWrapper<UserMaintenanceRecordPo> updateWrapper = new LambdaUpdateWrapper<>();
     updateWrapper.eq(UserMaintenanceRecordPo::getId, recordId)
-        .eq(UserMaintenanceRecordPo::getUserId, userId);
+        .eq(UserMaintenanceRecordPo::getUserId, userId)
+        .set(UserMaintenanceRecordPo::getIsDelete, 1)  // 显式设置isDelete字段
+        .set(UserMaintenanceRecordPo::getUpdateTime, new Date());
     //2.逻辑删除报修单
-    UserMaintenanceRecordPo update = new UserMaintenanceRecordPo();
-    update.setIsDelete(1);
-    update.setUpdateTime(new Date());
-    boolean success = userMaintenanceRecordMapper.update(update, updateWrapper) == 1;
+    boolean success = userMaintenanceRecordMapper.update(null, updateWrapper) == 1;
     //3.修改设备状态为可用
     success = success && (deviceService.updateDeviceStatus(record.getDeviceId(), 0) != null);
     ThrowUtils.throwIf(!success, ErrorCode.OPERATION_ERROR, "delete maintenance record failed");

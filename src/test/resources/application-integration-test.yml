@@ -1,0 +1,65 @@
+spring:
+  application:
+    name: SEBM-Integration-Test
+
+  # 使用主配置文件中的数据库配置
+  datasource:
+    url: ${spring.datasource.url}
+    username: ${spring.datasource.username}
+    password: ${spring.datasource.password}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  # Redis配置 - 测试环境
+  data:
+    redis:
+      host: ${spring.data.redis.host:localhost}
+      port: ${spring.data.redis.port:6379}
+      password: ${spring.data.redis.password:}
+
+  # RabbitMQ配置 - 测试环境
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+    virtual-host: /
+    ssl:
+      enabled: false
+    connection-timeout: 15000
+    publisher-confirm-type: correlated
+    publisher-returns: true
+
+  # Mail configuration for testing
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${MAIL_USERNAME:test@example.com}
+    password: ${MAIL_PASSWORD:testpassword}
+    default-encoding: UTF-8
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+# 日志配置
+logging:
+  level:
+    group5.sebm: DEBUG
+    org.springframework.web: INFO
+    org.springframework.test: INFO
+
+# MyBatis Plus配置
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: false
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  global-config:
+    db-config:
+      id-type: auto
+
+# 测试服务器端口
+server:
+  port: 0  # 使用随机端口避免冲突
+
