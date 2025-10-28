@@ -38,6 +38,7 @@ class UserMaintenanceRecordVoTest {
         // 使用有参构造函数
         UserMaintenanceRecordVo vo = new UserMaintenanceRecordVo(
             1L,            // id
+            1L,            // deviceId
             "Device A",    // deviceName
             10L,           // userId
             "description", // description
