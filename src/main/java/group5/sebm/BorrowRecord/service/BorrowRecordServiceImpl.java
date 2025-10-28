@@ -185,11 +185,11 @@ public class BorrowRecordServiceImpl extends ServiceImpl<BorrowRecordMapper, Bor
     //1. 校验参数
     ThrowUtils.throwIf(userId == null, ErrorCode.PARAMS_ERROR, "User ID cannot be null");
     UserDto currentUser = borrowerService.getCurrentUserDtoFromID(userId);
-//    boolean inGeofence = GeoFenceUtils.isInGeofence(borrowRecordReturnDto.getLongitude(),
-//        borrowRecordReturnDto.getLatitude(), BorrowConstant.CENTER_LONGITUDE_HOME,
-//        BorrowConstant.CENTER_LATITUDE_HOME, BorrowConstant.RADIUS);
-//    ThrowUtils.throwIf(!inGeofence, ErrorCode.FORBIDDEN_ERROR,
-//        "Out of geofence,please return in the storeroom");
+    boolean inGeofence = GeoFenceUtils.isInGeofence(borrowRecordReturnDto.getLongitude(),
+        borrowRecordReturnDto.getLatitude(), BorrowConstant.CENTER_LONGITUDE_HOME,
+        BorrowConstant.CENTER_LATITUDE_HOME, BorrowConstant.RADIUS);
+    ThrowUtils.throwIf(!inGeofence, ErrorCode.FORBIDDEN_ERROR,
+        "Out of geofence,please return in the storeroom");
     //2. 更新记录
     BorrowRecordPo borrowRecord = borrowRecordMapper.selectById(borrowRecordReturnDto.getId());
     ThrowUtils.throwIf(userId.longValue() != borrowRecord.getUserId().longValue(),
