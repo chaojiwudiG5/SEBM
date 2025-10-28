@@ -19,6 +19,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 @Slf4j
@@ -70,8 +71,6 @@ public class UserController {
     log.info("UpdateUser called with userVo: {}, result: {}", userVo, isUpdate);
     return ResultUtils.success(isUpdate); // 返回Boolean
   }
-
-
 
   @PostMapping("/deactivateUser")
   public BaseResponse<Boolean> deactivateUser(@RequestBody @Valid DeleteDto deactivateUser) {
