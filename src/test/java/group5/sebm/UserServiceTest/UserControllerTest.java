@@ -13,6 +13,7 @@ import group5.sebm.User.service.UserServiceInterface.UserService;
 import group5.sebm.common.BaseResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -30,7 +31,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.*;
 
+
 public class UserControllerTest {
+    @InjectMocks
+    private UserController userController;
 
     @Mock
     private BorrowerService borrowerService;
@@ -41,15 +45,13 @@ public class UserControllerTest {
     @Mock
     private UserService userServiceImpl;
 
-    @InjectMocks
-    private UserController userController;
-
     @Mock
     private HttpServletRequest request;
 
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.openMocks(this);
+        userController=new UserController(borrowerService,managerService,userServiceImpl);
     }
 
     @Test
@@ -117,12 +119,24 @@ public class UserControllerTest {
     public void testGetCurrentUser() {
         UserVo vo = new UserVo();
         vo.setId(1L);
+        vo.setUsername("testUser");
 
-        when(userServiceImpl.getCurrentUser(any(HttpServletRequest.class))).thenReturn(vo);
+        // 验证 Mock 设置
+        when(userServiceImpl.getCurrentUser(request)).thenReturn(vo);
+
+        // 测试 Mock 是否工作
+        UserVo testResult = userServiceImpl.getCurrentUser(request);
+        System.out.println("Mock result: " + testResult); // 应该输出非 null
 
         BaseResponse<UserVo> response = userController.getCurrentUser(request);
 
-        assertNotNull(response.getData()); // 先确保 data 不为 null
+        System.out.println("Controller response: " + response);
+        if (response != null) {
+            System.out.println("Response data: " + response.getData());
+        }
+
+        assertNotNull(response, "Response should not be null");
+        assertNotNull(response.getData(), "User data should not be null");
         assertEquals(1L, response.getData().getId());
     }
 
