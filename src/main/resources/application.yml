@@ -59,13 +59,9 @@ server:
   port: 29578
 # Resend配置（用于云部署，绕过SMTP端口限制）
 resend:
-  api:
-    key: ${RESEND_API_KEY:re_7tcg92BP_7HVbMYC4aAX5KgYUiTan3NDF}
-  from:
-    email: ${RESEND_FROM_EMAIL:onboarding@resend.dev}
-    name: ${RESEND_FROM_NAME:SEBM Notification System}
-  reply:
-    to: ${RESEND_REPLY_TO:sebm.notifications@gmail.com}
+  api-key: ${RESEND_API_KEY:re_eZiYFxTN_DZMychBGRpAR2qDv5N9x7hB8}
+  from-email: ${RESEND_FROM_EMAIL:onboarding@resend.dev}
+  from-name: ${RESEND_FROM_NAME:SEBM Notification System}
 
 # springdoc-openapi
 springdoc:
