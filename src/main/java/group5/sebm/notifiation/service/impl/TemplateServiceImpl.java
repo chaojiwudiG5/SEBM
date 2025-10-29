@@ -144,7 +144,7 @@ public class TemplateServiceImpl extends ServiceImpl<TemplateMapper, TemplatePo>
         ThrowUtils.throwIf(existingTemplate == null, ErrorCode.NOT_FOUND_ERROR, "模版不存在");
         
         // 2. 检查模版是否已被删除
-        ThrowUtils.throwIf(NotificationConstant.NOT_DELETED != existingTemplate.getIsDelete(), 
+        ThrowUtils.throwIf(!NotificationConstant.NOT_DELETED.equals(existingTemplate.getIsDelete()),
                 ErrorCode.NOT_FOUND_ERROR, "模版已被删除");
         
         // 3. DTO 转 PO，只更新需要更新的字段

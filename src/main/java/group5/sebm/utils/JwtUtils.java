@@ -17,7 +17,7 @@ public class JwtUtils {
     private static final Key SECRET_KEY = Keys.secretKeyFor(SignatureAlgorithm.HS256);
 
     // token 有效期：1小时
-    private static final long EXPIRATION = 1000 * 60 * 60;
+    private static final long EXPIRATION = 1000L * 60L * 60L;
 
     /**
      * 生成 JWT token

@@ -93,6 +93,10 @@ public class ResendEmailService {
                 return false;
             }
             
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt(); // 保留中断状态
+            log.error("线程被中断: {}", e.getMessage(), e);
+            return false;
         } catch (Exception e) {
             log.error("Resend邮件发送异常 - 收件人: {}, 错误: {}", toEmail, e.getMessage(), e);
             return false;
