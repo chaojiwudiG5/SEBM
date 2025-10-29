@@ -9,12 +9,16 @@
 ### 1. `.github/workflows/main.yml`
 添加了新的CI作业 `dast-scan`，包含以下步骤：
 - ✅ 构建应用并打包JAR
-- ✅ 使用H2内存数据库启动应用（端口8080）
-- ✅ 等待应用就绪（健康检查）
-- ✅ 运行OWASP ZAP Baseline扫描（快速扫描）
-- ✅ 运行OWASP ZAP Full扫描（深度扫描）
+- ✅ 使用DAST专用配置启动应用（`application-dast.yml`）
+  - 自动切换到H2内存数据库
+  - 禁用Redis、RabbitMQ、邮件等外部依赖
+  - 监听端口29578（应用默认端口）
+- ✅ 智能健康检查（尝试多个端点，详细日志）
+- ✅ 运行OWASP ZAP Baseline扫描（快速扫描，10分钟超时）
+- ✅ 运行OWASP ZAP Full扫描（深度扫描，15分钟超时）
 - ✅ 生成并上传扫描报告（HTML/JSON/Markdown格式）
 - ✅ 在GitHub Actions Summary中显示结果
+- ✅ 所有扫描步骤设置宽松模式，不会导致CI失败
 
 ### 2. `.zap/rules.tsv`（运行时生成）
 配置了40+条安全扫描规则，包括：
@@ -43,6 +47,16 @@ API扫描配置模板，定义了：
 ### 5. `.gitignore`
 添加了ZAP扫描报告文件的忽略规则
 
+### 6. `src/main/resources/application-dast.yml`（新建）
+DAST测试专用配置文件，特点：
+- ✅ 使用H2内存数据库替代MySQL
+- ✅ 禁用Redis缓存
+- ✅ 禁用RabbitMQ消息队列
+- ✅ 禁用邮件发送功能
+- ✅ 禁用阿里云OSS
+- ✅ 最小化日志输出
+- ✅ 完全独立运行，无外部依赖
+
 ## 🚀 如何使用
 
 ### 自动运行（推荐）
@@ -53,12 +67,12 @@ API扫描配置模板，定义了：
 
 ### 本地运行
 ```bash
-# 启动应用
-mvn spring-boot:run
+# 启动应用（使用DAST配置）
+java -jar target/*.jar --spring.profiles.active=dast
 
 # 在另一个终端运行ZAP扫描
 docker run -v $(pwd)/.zap:/zap/wrk/:rw -t owasp/zap2docker-stable zap-baseline.py \
-  -t http://host.docker.internal:8080 \
+  -t http://host.docker.internal:29578 \
   -r report.html
 ```
 
@@ -95,18 +109,37 @@ DAST测试会检测以下安全问题：
 
 ## ⚙️ 配置说明
 
+### ⭐ 宽松模式（当前配置）
+
+**当前配置采用宽松模式，确保DAST扫描不会导致CI失败：**
+
+✅ **所有扫描步骤都设置了 `continue-on-error: true`**
+✅ **所有扫描规则的严重级别最高为 WARN（警告）**
+✅ **没有任何规则会导致构建失败（无FAIL级别）**
+✅ **添加了超时限制，防止扫描时间过长**
+
 ### 调整扫描严格度
-修改 `.github/workflows/main.yml` 中的 `fail_action` 参数：
+
+修改 `.github/workflows/main.yml` 中的配置：
+
+**1. 调整失败行为：**
 ```yaml
-fail_action: false  # true = 发现漏洞时失败构建
+fail_action: false        # true = 发现漏洞时失败构建
+continue-on-error: true   # 即使步骤失败也继续执行
 ```
 
-### 自定义扫描规则
+**2. 自定义扫描规则阈值：**
 编辑工作流中的 `rules.tsv` 内容，调整规则阈值：
-- `IGNORE` - 忽略
-- `INFO` - 信息
-- `WARN` - 警告
-- `FAIL` - 失败
+- `IGNORE` - 完全忽略此规则
+- `INFO` - 仅作信息提示（当前大部分规则）
+- `WARN` - 警告级别（当前严重问题规则）
+- `FAIL` - 失败级别（会导致构建失败，**当前未使用**）
+
+**3. 调整超时时间：**
+```yaml
+timeout-minutes: 10  # Baseline扫描超时
+timeout-minutes: 15  # Full扫描超时
+```
 
 ### 添加API端点
 编辑 `.zap/api-scan.yaml`，在 `endpoints` 部分添加新端点。
@@ -198,9 +231,73 @@ DAST扫描后，建议采取以下措施：
 4. ✅ 调整扫描配置以适应项目需求
 5. ✅ 定期审查扫描报告
 
+## 🔧 故障排查
+
+### 问题1：应用启动失败或卡住
+
+**症状**：健康检查一直失败，应用无法响应
+
+**解决方案**：
+1. 检查应用日志（在GitHub Actions日志中查看）
+2. 确认 `application-dast.yml` 配置正确
+3. 验证H2数据库依赖已添加到 `pom.xml`
+4. 检查是否有必须的外部服务未正确禁用
+
+### 问题2：DAST扫描超时
+
+**症状**：扫描运行时间过长被强制终止
+
+**解决方案**：
+```yaml
+# 调整超时时间
+timeout-minutes: 20  # 增加到20分钟
+```
+
+### 问题3：扫描报告显示大量误报
+
+**症状**：报告中有许多不适用的安全问题
+
+**解决方案**：
+1. 调整扫描规则，将误报规则设为 `IGNORE`
+2. 在 `api-scan.yaml` 中添加排除路径
+3. 使用 `-m 3` 限制扫描深度（当前为5）
+
+### 问题4：CI因为DAST失败
+
+**症状**：DAST扫描失败导致整个CI流程失败
+
+**解决方案**：
+当前配置已经设置了宽松模式，不应该出现此问题。如果仍然失败：
+1. 确认所有DAST步骤都有 `continue-on-error: true`
+2. 确认 `fail_action: false` 已设置
+3. 检查是否是应用启动失败（非扫描失败）
+
+### 问题5：本地无法复现CI中的问题
+
+**症状**：本地运行正常，CI中失败
+
+**解决方案**：
+```bash
+# 在本地使用相同的配置测试
+mvn clean package -DskipTests
+java -jar target/*.jar --spring.profiles.active=dast
+
+# 在另一个终端测试
+curl http://localhost:29578
+```
+
+### 获取帮助
+
+如果遇到问题：
+1. 查看GitHub Actions的完整日志
+2. 检查应用日志（app.log）
+3. 查看 [OWASP ZAP文档](https://www.zaproxy.org/docs/)
+4. 在项目Issues中提问
+
 ---
 
 **配置完成时间**: 2025-10-29  
 **测试工具**: OWASP ZAP  
-**集成方式**: GitHub Actions
+**集成方式**: GitHub Actions  
+**扫描模式**: 宽松模式（不会导致CI失败）
 
