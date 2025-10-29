@@ -405,8 +405,193 @@ class AuditServiceImplTest {
 
         // Assert
         assertNotNull(result);
+        assertTrue(result.size() <= 10, "结果数量应该不超过top参数");
         
         verify(borrowRecordMapper, times(1)).selectList(any(QueryWrapper.class));
+    }
+
+    @Test
+    @DisplayName("测试获取人员借用排行 - 用户不存在")
+    void testGetPersonnelTop_UserNotFound() {
+        // Arrange
+        List<BorrowRecordPo> records = Arrays.asList(mockBorrowRecord);
+        when(borrowRecordMapper.selectList(any(QueryWrapper.class))).thenReturn(records);
+        when(userMapper.selectById(anyLong())).thenReturn(null);
+
+        // Act
+        List<PersonnelTopItemDto> result = auditService.getPersonnelTop(null, null, 5);
+
+        // Assert
+        assertNotNull(result);
+        if (!result.isEmpty()) {
+            // 用户不存在时应该显示用户ID
+            assertNotNull(result.get(0).user, "用户字段不应为null");
+        }
+    }
+
+    @Test
+    @DisplayName("测试获取人员借用排行 - 空记录")
+    void testGetPersonnelTop_EmptyRecords() {
+        // Arrange
+        when(borrowRecordMapper.selectList(any(QueryWrapper.class))).thenReturn(Collections.emptyList());
+
+        // Act
+        List<PersonnelTopItemDto> result = auditService.getPersonnelTop(null, null, 10);
+
+        // Assert
+        assertNotNull(result);
+        assertTrue(result.isEmpty(), "空记录应返回空列表");
+    }
+
+    @Test
+    @DisplayName("测试获取维护统计 - 包含技师维护记录")
+    void testGetMaintenanceStats_WithMechanicRecords() {
+        // Arrange
+        List<UserMaintenanceRecordPo> userMaints = Arrays.asList(mockUserMaintenance);
+        MechanicanMaintenanceRecordPo mechMaint = new MechanicanMaintenanceRecordPo();
+        mechMaint.setId(2L);
+        mechMaint.setDeviceId(1L);
+        mechMaint.setCreateTime(new Date(System.currentTimeMillis() - 3600000));
+        mechMaint.setUpdateTime(new Date());
+        
+        when(userMaintenanceRecordMapper.selectList(any(QueryWrapper.class))).thenReturn(userMaints);
+        when(mechanicanMaintenanceRecordMapper.selectList(any(QueryWrapper.class))).thenReturn(Arrays.asList(mechMaint));
+        when(deviceService.getById(anyLong())).thenReturn(mockDevice);
+
+        // Act
+        List<MaintenanceStatsItemDto> result = auditService.getMaintenanceStats(null, null, "deviceType");
+
+        // Assert
+        assertNotNull(result);
+        
+        verify(userMaintenanceRecordMapper, times(1)).selectList(any(QueryWrapper.class));
+        verify(mechanicanMaintenanceRecordMapper, times(1)).selectList(any(QueryWrapper.class));
+    }
+
+    @Test
+    @DisplayName("测试获取维护统计 - 设备类型为null")
+    void testGetMaintenanceStats_NullDeviceType() {
+        // Arrange
+        mockDevice.setDeviceType(null);
+        List<UserMaintenanceRecordPo> userMaints = Arrays.asList(mockUserMaintenance);
+        
+        when(userMaintenanceRecordMapper.selectList(any(QueryWrapper.class))).thenReturn(userMaints);
+        when(mechanicanMaintenanceRecordMapper.selectList(any(QueryWrapper.class))).thenReturn(Collections.emptyList());
+        when(deviceService.getById(anyLong())).thenReturn(mockDevice);
+
+        // Act
+        List<MaintenanceStatsItemDto> result = auditService.getMaintenanceStats(null, null, "deviceType");
+
+        // Assert
+        assertNotNull(result);
+        if (!result.isEmpty()) {
+            // 应该有"unknown"类型的记录
+            assertTrue(result.stream().anyMatch(s -> "unknown".equals(s.deviceType)), 
+                      "应该包含unknown类型");
+        }
+    }
+
+    @Test
+    @DisplayName("测试获取设备列表 - 包含逾期设备")
+    void testListDevices_WithOverdueDevice() {
+        // Arrange
+        BorrowRecordPo overdueRecord = new BorrowRecordPo();
+        overdueRecord.setId(2L);
+        overdueRecord.setDeviceId(1L);
+        overdueRecord.setUserId(100L);
+        overdueRecord.setBorrowTime(new Date(System.currentTimeMillis() - 86400000 * 10));
+        overdueRecord.setDueTime(new Date(System.currentTimeMillis() - 86400000 * 3)); // 3天前到期
+        overdueRecord.setReturnTime(null); // 未归还
+        overdueRecord.setStatus(1);
+        
+        Page<BorrowRecordPo> mockPage = new Page<>(1, 20);
+        mockPage.setRecords(Arrays.asList(overdueRecord));
+        mockPage.setTotal(1);
+        
+        when(borrowRecordMapper.selectPage(any(Page.class), any(QueryWrapper.class))).thenReturn(mockPage);
+        when(deviceService.getById(anyLong())).thenReturn(mockDevice);
+        when(userMapper.selectById(anyLong())).thenReturn(mockUser);
+
+        // Act
+        PagedResponse result = auditService.listDevices(1, 20);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(1, result.total);
+        // 验证逾期计算逻辑
+        AuditDeviceDto device = (AuditDeviceDto) result.items.get(0);
+        assertTrue(device.isOverdue, "应该被标记为逾期");
+        assertTrue(device.overdueDays >= 3, "逾期天数应该至少为3天");
+    }
+
+    @Test
+    @DisplayName("测试获取单个设备 - NumberFormatException")
+    void testGetDevice_InvalidIdFormat() {
+        // Act
+        AuditDeviceDto result = auditService.getDevice("invalid_id");
+
+        // Assert
+        assertNull(result, "无效ID格式应返回null");
+        verify(deviceService, never()).getById(anyLong());
+    }
+
+    @Test
+    @DisplayName("测试提交借用请求 - 无效设备ID")
+    void testSubmitBorrowRequest_InvalidDeviceId() {
+        // Arrange
+        BorrowRequestDto requestDto = new BorrowRequestDto();
+        requestDto.deviceId = "invalid";
+        requestDto.user = "测试用户";
+        
+        when(userMapper.selectOne(any(QueryWrapper.class))).thenReturn(mockUser);
+        when(borrowRecordMapper.insert(any(BorrowRecordPo.class))).thenReturn(1);
+
+        // Act
+        Map<String, Object> result = auditService.submitBorrowRequest(requestDto);
+
+        // Assert
+        assertNotNull(result);
+        assertTrue((Boolean) result.get("success"));
+        // NumberFormatException会被捕获，deviceId会保持为null
+    }
+
+    @Test
+    @DisplayName("测试提交借用请求 - deviceId为null")
+    void testSubmitBorrowRequest_NullDeviceId() {
+        // Arrange
+        BorrowRequestDto requestDto = new BorrowRequestDto();
+        requestDto.deviceId = null;
+        requestDto.user = "测试用户";
+        
+        when(userMapper.selectOne(any(QueryWrapper.class))).thenReturn(mockUser);
+        when(borrowRecordMapper.insert(any(BorrowRecordPo.class))).thenReturn(1);
+
+        // Act
+        Map<String, Object> result = auditService.submitBorrowRequest(requestDto);
+
+        // Assert
+        assertNotNull(result);
+        assertTrue((Boolean) result.get("success"));
+    }
+
+    @Test
+    @DisplayName("测试获取单个设备 - 无借用记录")
+    void testGetDevice_NoBorrowRecord() {
+        // Arrange
+        String deviceId = "1";
+        when(deviceService.getById(1L)).thenReturn(mockDevice);
+        when(borrowRecordMapper.selectOne(any(QueryWrapper.class))).thenReturn(null);
+        when(userMaintenanceRecordMapper.selectList(any(QueryWrapper.class))).thenReturn(Collections.emptyList());
+        when(mechanicanMaintenanceRecordMapper.selectList(any(QueryWrapper.class))).thenReturn(Collections.emptyList());
+
+        // Act
+        AuditDeviceDto result = auditService.getDevice(deviceId);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals("1", result.deviceId);
+        assertNull(result.user, "无借用记录时用户应为null");
+        assertNotNull(result.maintenanceRecords);
     }
 
     @Test

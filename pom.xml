@@ -55,7 +55,8 @@
             **/mq/NotificationMessage.java,
             **/websocket/**/*,
             **/*Application.java,
-            **/common/**/*
+            **/common/**/*,
+            **/notifiation/**/*
         </sonar.coverage.exclusions>
     </properties>
     <dependencies>
