@@ -76,7 +76,7 @@ jobs:
           
           
           
-          # 7. 运行 Snyk Code (源代码安全 lint)，过于严格，建议注释掉
+      # 7. 运行 Snyk Code (源代码安全 lint)，过于严格，建议注释掉
       #      - name: Snyk Code Scan
       #        run: snyk code test
       #        env:
