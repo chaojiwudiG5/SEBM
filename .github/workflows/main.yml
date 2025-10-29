@@ -56,12 +56,13 @@ jobs:
 
       - name: Upload Test Results (JUnit + Jacoco)
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: test-results
           path: |
             **/target/surefire-reports/
             **/target/site/jacoco/
+            
       
 
       #      - name: Run Tests with Coverage and Sonar Scan
