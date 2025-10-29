@@ -50,6 +50,7 @@ jobs:
         run: snyk code test --severity-threshold=high
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+
       # 6. 运行单元测试
       - name: Run Unit Tests and generate Jacoco report
         run: mvn clean verify
@@ -63,18 +64,19 @@ jobs:
             **/target/surefire-reports/
             **/target/site/jacoco/
             
-      
 
-      - name: Run Tests with Coverage and Sonar Scan
+      - name: SonarQube Scan
         run: |
-          mvn clean verify sonar:sonar \
+          mvn sonar:sonar \
             -Dsonar.projectKey=chaojiwudiG5_SEBM \
             -Dsonar.organization=chaojiwudig5 \
             -Dsonar.host.url=https://sonarcloud.io \
-            -Dsonar.login=${{ secrets.SONAR_TOKEN }}
-      
-      
-         # 7. 运行 Snyk Code (源代码安全 lint)，过于严格，建议注释掉
+            -Dsonar.login=${{ secrets.SONAR_TOKEN }} \
+            -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
+          
+          
+          
+          # 7. 运行 Snyk Code (源代码安全 lint)，过于严格，建议注释掉
       #      - name: Snyk Code Scan
       #        run: snyk code test
       #        env:
