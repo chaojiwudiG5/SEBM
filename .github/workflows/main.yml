@@ -54,7 +54,17 @@ jobs:
       - name: Run Unit Tests and generate Jacoco report
         run: mvn clean verify
 
-#      - name: Run Tests with Coverage and Sonar Scan
+      - name: Upload Test Results (JUnit + Jacoco)
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-results
+          path: |
+            **/target/surefire-reports/
+            **/target/site/jacoco/
+      
+
+      #      - name: Run Tests with Coverage and Sonar Scan
 #        run: |
 #          mvn clean verify sonar:sonar \
 #            -Dsonar.projectKey=chaojiwudiG5_SEBM \
@@ -63,10 +73,7 @@ jobs:
 #            -Dsonar.login=${{ secrets.SONAR_TOKEN }}
       
       
-      
-      
-
-      # 7. 运行 Snyk Code (源代码安全 lint)，过于严格，建议注释掉
+         # 7. 运行 Snyk Code (源代码安全 lint)，过于严格，建议注释掉
       #      - name: Snyk Code Scan
       #        run: snyk code test
       #        env:
