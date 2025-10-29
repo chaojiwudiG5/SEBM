@@ -65,13 +65,13 @@ jobs:
             
       
 
-      #      - name: Run Tests with Coverage and Sonar Scan
-#        run: |
-#          mvn clean verify sonar:sonar \
-#            -Dsonar.projectKey=chaojiwudiG5_SEBM \
-#            -Dsonar.organization=chaojiwudig5 \
-#            -Dsonar.host.url=https://sonarcloud.io \
-#            -Dsonar.login=${{ secrets.SONAR_TOKEN }}
+      - name: Run Tests with Coverage and Sonar Scan
+        run: |
+          mvn clean verify sonar:sonar \
+            -Dsonar.projectKey=chaojiwudiG5_SEBM \
+            -Dsonar.organization=chaojiwudig5 \
+            -Dsonar.host.url=https://sonarcloud.io \
+            -Dsonar.login=${{ secrets.SONAR_TOKEN }}
       
       
          # 7. 运行 Snyk Code (源代码安全 lint)，过于严格，建议注释掉
