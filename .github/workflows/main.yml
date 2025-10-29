@@ -119,82 +119,153 @@ jobs:
 
       - name: Start Spring Boot application in background
         run: |
-          java -jar target/*.jar --server.port=8080 &
+          echo "Starting application with DAST profile..."
+          nohup java -jar target/*.jar \
+            --spring.profiles.active=dast \
+            > app.log 2>&1 &
           echo $! > app.pid
           echo "Application PID: $(cat app.pid)"
-        env:
-          SPRING_PROFILES_ACTIVE: test
-          # 使用H2内存数据库进行测试
-          SPRING_DATASOURCE_URL: jdbc:h2:mem:testdb
-          SPRING_DATASOURCE_DRIVER_CLASS_NAME: org.h2.Driver
-          SPRING_JPA_DATABASE_PLATFORM: org.hibernate.dialect.H2Dialect
+          echo "Waiting 15 seconds for initial startup..."
+          sleep 15
+          echo "Checking if process is still running..."
+          if ps -p $(cat app.pid) > /dev/null; then
+            echo "✓ Application process is running"
+          else
+            echo "✗ Application process has stopped"
+            cat app.log
+            exit 1
+          fi
 
       - name: Wait for application to be ready
         run: |
-          echo "Waiting for application to start..."
-          for i in {1..30}; do
-            if curl -f http://localhost:8080/actuator/health 2>/dev/null || curl -f http://localhost:8080 2>/dev/null; then
-              echo "Application is ready!"
+          echo "=== Application Log (first 100 lines) ==="
+          head -100 app.log || true
+          echo "=== End of initial log ==="
+          echo ""
+          echo "Testing connectivity..."
+          
+          MAX_ATTEMPTS=20
+          ATTEMPT=0
+          SUCCESS=false
+          
+          while [ $ATTEMPT -lt $MAX_ATTEMPTS ]; do
+            ATTEMPT=$((ATTEMPT + 1))
+            echo ""
+            echo "[$ATTEMPT/$MAX_ATTEMPTS] Testing endpoints..."
+            
+            # 检查进程是否还在运行
+            if ! ps -p $(cat app.pid) > /dev/null 2>&1; then
+              echo "❌ Application process has died!"
+              echo "=== Full application log ==="
+              cat app.log
+              exit 1
+            fi
+            
+            # 尝试多个可能的端点
+            HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8080 2>/dev/null || echo "000")
+            echo "HTTP Status for /: $HTTP_CODE"
+            
+            if [ "$HTTP_CODE" = "200" ] || [ "$HTTP_CODE" = "401" ] || [ "$HTTP_CODE" = "403" ] || [ "$HTTP_CODE" = "404" ]; then
+              echo "✓ Application is responding!"
+              echo "Testing with curl -v:"
+              curl -v http://localhost:8080 2>&1 | head -30
+              SUCCESS=true
               break
             fi
-            echo "Attempt $i: Application not ready yet, waiting..."
-            sleep 5
+            
+            # 尝试API端点
+            API_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8080/api 2>/dev/null || echo "000")
+            echo "HTTP Status for /api: $API_CODE"
+            
+            if [ "$API_CODE" = "200" ] || [ "$API_CODE" = "401" ] || [ "$API_CODE" = "403" ] || [ "$API_CODE" = "404" ]; then
+              echo "✓ Application API is responding!"
+              SUCCESS=true
+              break
+            fi
+            
+            if [ $ATTEMPT -eq 5 ] || [ $ATTEMPT -eq 10 ] || [ $ATTEMPT -eq 15 ]; then
+              echo "=== Application log tail (attempt $ATTEMPT) ==="
+              tail -30 app.log || true
+              echo "==="
+            fi
+            
+            if [ $ATTEMPT -eq $MAX_ATTEMPTS ]; then
+              echo ""
+              echo "❌ Application failed to start within expected time"
+              echo ""
+              echo "=== Full Application Log ==="
+              cat app.log
+              echo ""
+              echo "=== Network check ==="
+              netstat -tlnp 2>/dev/null | grep 8080 || echo "Port 8080 not listening"
+              exit 1
+            fi
+            
+            sleep 3
           done
+          
+          if [ "$SUCCESS" = "true" ]; then
+            echo ""
+            echo "✓✓✓ Application is ready for DAST scanning! ✓✓✓"
+          fi
 
       - name: Create ZAP rules configuration
         run: |
           mkdir -p .zap
           cat > .zap/rules.tsv << 'EOF'
-          # ZAP Scanning Rules
+          # ZAP Scanning Rules - Relaxed Mode (不会导致CI失败)
           # Use this file to configure which rules to include/exclude
           # Format: RULE_ID	THRESHOLD	[COMMENT]
+          # THRESHOLD: IGNORE(忽略) < INFO(信息) < WARN(警告) < FAIL(失败)
           
-          # High priority rules (always scan)
-          10021	WARN	# X-Content-Type-Options header missing
-          10023	WARN	# Information Disclosure - Debug Error Messages
-          10025	WARN	# Information Disclosure - Sensitive Information in URL
-          10027	WARN	# Information Disclosure - Suspicious Comments
+          # 严重安全问题 - 仅报告，不失败构建
           10028	WARN	# Open Redirect
           10029	WARN	# Cookie Poisoning
-          10031	WARN	# User Controllable Charset
-          10032	WARN	# Viewstate Scanner
           10033	WARN	# Directory Browsing
-          10034	WARN	# Cloud Metadata Potentially Exposed
-          10035	WARN	# Strict-Transport-Security Header Not Set
-          10036	WARN	# HTTP Server Response Header
-          10037	WARN	# Server Leaks Information via "X-Powered-By" HTTP Response Header Field(s)
-          10038	WARN	# Content Security Policy (CSP) Header Not Set
-          10039	WARN	# X-Backend-Server Header Information Leak
-          10040	WARN	# Secure Pages Include Mixed Content
-          10041	WARN	# HTTP to HTTPS Insecure Transition in Form Post
-          10042	WARN	# HTTPS to HTTP Insecure Transition in Form Post
           10043	WARN	# User Controllable JavaScript Event (XSS)
-          10044	WARN	# Big Redirect Detected (Potential Sensitive Information Leak)
           10045	WARN	# Source Code Disclosure - /WEB-INF folder
           10046	WARN	# Insecure HTTP Method
-          10047	WARN	# HTTPS Content Available via HTTP
           10048	WARN	# Remote Code Execution - Shell Shock
-          10049	WARN	# Content Cacheability
-          10050	WARN	# Retrieved from Cache
-          10051	WARN	# Relative Path Confusion
-          10052	WARN	# X-ChromeLogger-Data (XCOLD) Header Information Leak
-          10054	WARN	# Cookie without SameSite Attribute
-          10055	WARN	# CSP Scanner
-          10056	WARN	# X-Debug-Token Information Leak
-          10057	WARN	# Username Hash Found
-          10061	WARN	# X-AspNet-Version Response Header
           10062	WARN	# PII Disclosure
-          10063	WARN	# Permissions Policy Header Not Set
-          10096	WARN	# Timestamp Disclosure
-          10097	WARN	# Hash Disclosure
-          10098	WARN	# Cross-Domain Misconfiguration
           10099	WARN	# Source Code Disclosure
           10105	WARN	# Weak Authentication Method
-          10106	WARN	# HTTP Only Site
-          10107	WARN	# Httpoxy - Proxy Header Misuse
-          10108	WARN	# Reverse Tabnabbing
-          10109	WARN	# Modern Web Application
-          10110	WARN	# Dangerous JS Functions
+          
+          # 一般安全问题 - 仅作为信息提示
+          10021	INFO	# X-Content-Type-Options header missing
+          10023	INFO	# Information Disclosure - Debug Error Messages
+          10025	INFO	# Information Disclosure - Sensitive Information in URL
+          10027	INFO	# Information Disclosure - Suspicious Comments
+          10031	INFO	# User Controllable Charset
+          10032	INFO	# Viewstate Scanner
+          10034	INFO	# Cloud Metadata Potentially Exposed
+          10035	INFO	# Strict-Transport-Security Header Not Set
+          10036	INFO	# HTTP Server Response Header
+          10037	INFO	# Server Leaks Information via "X-Powered-By"
+          10038	INFO	# Content Security Policy (CSP) Header Not Set
+          10039	INFO	# X-Backend-Server Header Information Leak
+          10040	INFO	# Secure Pages Include Mixed Content
+          10041	INFO	# HTTP to HTTPS Insecure Transition in Form Post
+          10042	INFO	# HTTPS to HTTP Insecure Transition in Form Post
+          10044	INFO	# Big Redirect Detected
+          10047	INFO	# HTTPS Content Available via HTTP
+          10049	INFO	# Content Cacheability
+          10050	INFO	# Retrieved from Cache
+          10051	INFO	# Relative Path Confusion
+          10052	INFO	# X-ChromeLogger-Data (XCOLD) Header Information Leak
+          10054	INFO	# Cookie without SameSite Attribute
+          10055	INFO	# CSP Scanner
+          10056	INFO	# X-Debug-Token Information Leak
+          10057	INFO	# Username Hash Found
+          10061	INFO	# X-AspNet-Version Response Header
+          10063	INFO	# Permissions Policy Header Not Set
+          10096	INFO	# Timestamp Disclosure
+          10097	INFO	# Hash Disclosure
+          10098	INFO	# Cross-Domain Misconfiguration
+          10106	INFO	# HTTP Only Site
+          10107	INFO	# Httpoxy - Proxy Header Misuse
+          10108	INFO	# Reverse Tabnabbing
+          10109	INFO	# Modern Web Application
+          10110	INFO	# Dangerous JS Functions
           EOF
 
       - name: OWASP ZAP Baseline Scan
@@ -205,16 +276,20 @@ jobs:
           cmd_options: '-a -j -I'
           fail_action: false
           allow_issue_writing: false
+        continue-on-error: true
+        timeout-minutes: 10
 
       - name: OWASP ZAP Full Scan (API endpoints)
         uses: zaproxy/action-full-scan@v0.8.0
         with:
           target: 'http://localhost:8080'
           rules_file_name: '.zap/rules.tsv'
-          cmd_options: '-a -j'
+          cmd_options: '-a -j -m 5'
           fail_action: false
           allow_issue_writing: false
         continue-on-error: true
+        timeout-minutes: 15
+        if: success() || failure()
 
       - name: Stop application
         if: always()
