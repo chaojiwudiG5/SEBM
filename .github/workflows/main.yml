@@ -118,6 +118,15 @@ jobs:
             **/target/surefire-reports/
             **/target/site/jacoco/
             **/target/site/checkstyle.html
+
+      - name: SonarQube Scan
+        run: |
+          mvn sonar:sonar \
+            -Dsonar.projectKey=chaojiwudiG5_SEBM \
+            -Dsonar.organization=chaojiwudig5 \
+            -Dsonar.host.url=https://sonarcloud.io \
+            -Dsonar.login=${{ secrets.SONAR_TOKEN }} \
+            -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
   dast-scan:
     name: DAST Security Scan (OWASP ZAP)
     runs-on: ubuntu-latest
