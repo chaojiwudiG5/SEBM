@@ -83,7 +83,7 @@ docker run -v $(pwd)/.zap:/zap/wrk/:rw -t owasp/zap2docker-stable zap-baseline.p
 - `report_md.md` - Markdown格式，适合GitHub显示
 - `report_json.json` - JSON格式，适合程序化处理
 
-在GitHub Actions中，报告会作为artifacts上传，可在Actions运行页面下载。
+在GitHub Actions中，报告会作为artifacts上传（名称：`dast-zap-reports`），可在Actions运行页面下载，保留30天。
 
 ## 🔍 扫描内容
 
