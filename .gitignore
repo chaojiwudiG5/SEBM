@@ -32,3 +32,17 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### OWASP ZAP DAST Reports ###
+report_html.html
+report_md.md
+report_json.json
+**/*.zap
+.zap/**/*.log
+.zap/**/*.db
+.zap/**/session/
+# 保留配置文件
+!.zap/*.yaml
+!.zap/*.yml
+!.zap/*.md
+!.zap/README.md
