@@ -1,0 +1,127 @@
+# OWASP ZAP API Scan Configuration
+# 用于定义API扫描的目标和规则
+
+# 目标应用信息
+target:
+  url: http://localhost:29578
+  
+# API端点定义（根据您的应用调整）
+endpoints:
+  # 用户管理 API
+  - path: /api/user/login
+    method: POST
+  - path: /api/user/register
+    method: POST
+  - path: /api/user/current
+    method: GET
+  - path: /api/user/update
+    method: PUT
+  - path: /api/user/list
+    method: GET
+    
+  # 设备管理 API
+  - path: /api/device/list
+    method: GET
+  - path: /api/device/{id}
+    method: GET
+  - path: /api/device/add
+    method: POST
+  - path: /api/device/update
+    method: PUT
+  - path: /api/device/delete/{id}
+    method: DELETE
+    
+  # 借用记录 API
+  - path: /api/borrow/request
+    method: POST
+  - path: /api/borrow/list
+    method: GET
+  - path: /api/borrow/approve
+    method: PUT
+  - path: /api/borrow/return
+    method: PUT
+    
+  # 维护管理 API
+  - path: /api/maintenance/list
+    method: GET
+  - path: /api/maintenance/record
+    method: POST
+  - path: /api/maintenance/update
+    method: PUT
+    
+  # 通知 API
+  - path: /api/notification/list
+    method: GET
+  - path: /api/notification/read
+    method: PUT
+  - path: /api/notification/settings
+    method: GET
+    
+  # 审计 API
+  - path: /api/audit/devices
+    method: GET
+  - path: /api/audit/maintenance-stats
+    method: GET
+  - path: /api/audit/borrow-stats
+    method: GET
+  - path: /api/audit/personnel-top
+    method: GET
+
+# 扫描策略
+scan:
+  # 扫描强度 (LOW, MEDIUM, HIGH)
+  level: MEDIUM
+  
+  # 是否进行主动扫描
+  active: true
+  
+  # 是否进行被动扫描
+  passive: true
+  
+  # 超时时间（秒）
+  timeout: 300
+
+# 需要特别关注的安全问题
+security-checks:
+  - SQL Injection
+  - Cross Site Scripting (XSS)
+  - Path Traversal
+  - Remote File Inclusion
+  - Server Side Include
+  - Script Active Scan Rules
+  - Server Side Code Injection
+  - Remote OS Command Injection
+  - External Redirect
+  - CRLF Injection
+  - Parameter Tampering
+  - Generic Padding Oracle
+  - Expression Language Injection
+  - Insecure HTTP Methods
+  - XML External Entity Attack
+
+# 认证配置（如需要）
+# authentication:
+#   type: form-based
+#   loginUrl: /api/user/login
+#   username: test_user
+#   password: test_password
+#   usernameField: username
+#   passwordField: password
+
+# 排除的路径（不扫描）
+exclude:
+  - /actuator/.*
+  - /swagger-ui/.*
+  - /v3/api-docs/.*
+  - /webjars/.*
+  - /static/.*
+
+# 报告配置
+reporting:
+  format:
+    - html
+    - json
+    - md
+  includePassedTests: false
+  minRiskLevel: INFO
+

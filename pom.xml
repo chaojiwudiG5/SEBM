@@ -35,20 +35,28 @@
         <sonar.projectKey>chaojiwudiG5_SEBM</sonar.projectKey>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
         <sonar.coverage.jacoco.xmlReportPaths>${project.basedir}/target/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
+        <!-- 只检查 Controller 和 Service 层的覆盖率 -->
         <sonar.coverage.exclusions>
-            **/group5/sebm/**, !**/group5/sebm/User/service/UserServiceImpl.class,
-            !**/group5/sebm/User/service/BorrowerServiceImpl.class,
-            !**/group5/sebm/User/service/ManagerServiceImpl.class,
-            !**/group5/sebm/User/controller/UserController.class,
-            !**/group5/sebm/BorrowRecord/controller/BorrowRecordController.class,
-            !**/group5/sebm/Device/controller/DeviceController.class,
-            !**/group5/sebm/Device/service/DeviceServiceImpl.class,
-            !**/group5/sebm/Maintenance/controller/MechanicanMaintenanceRecordController.class,
-            !**/group5/sebm/Maintenance/controller/UserMaintenanceRecordController.class,
-            !**/group5/sebm/Maintenance/service/MechanicanMaintenanceRecordServiceImpl.class,
-            !**/group5/sebm/Maintenance/service/UserMaintenanceRecordServiceImpl.class,
-            !**/group5/sebm/notifiation/service/MessageSenderService.class,
-            !**/group5/sebm/notifiation/service/NotificationRateLimiter.class
+            **/dto/**/*,
+            **/vo/**/*,
+            **/entity/**/*,
+            **/po/**/*,
+            **/dao/**/*,
+            **/mapper/**/*,
+            **/config/**/*,
+            **/exception/**/*,
+            **/constant/**/*,
+            **/utils/**/*,
+            **/enums/**/*,
+            **/aop/**/*,
+            **/interceptors/**/*,
+            **/annotation/**/*,
+            **/converter/**/*,
+            **/mq/NotificationMessage.java,
+            **/websocket/**/*,
+            **/*Application.java,
+            **/common/**/*,
+            **/notifiation/**/*
         </sonar.coverage.exclusions>
     </properties>
     <dependencies>
@@ -82,6 +90,11 @@
         <dependency>
             <groupId>com.mysql</groupId>
             <artifactId>mysql-connector-j</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
             <scope>runtime</scope>
         </dependency>
         <dependency>
@@ -270,40 +283,64 @@
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
                 <version>0.8.10</version>
-            <executions>
-                <execution>
-                    <id>default-prepare-agent</id>
-                    <goals>
-                        <goal>prepare-agent</goal>
-                    </goals>
-                </execution>
-                <execution>
-                    <id>report</id>
-                    <phase>verify</phase>
-                    <goals>
-                        <goal>report</goal>
-                    </goals>
-                    <configuration>
-                        <!-- 只统计特定类 -->
-                        <includes>
-                            <include>group5/sebm/User/service/UserServiceImpl.class</include>
-                            <include>group5/sebm/User/service/BorrowerServiceImpl.class</include>
-                            <include>group5/sebm/User/service/ManagerServiceImpl.class</include>
-                            <include>group5/sebm/User/controller/UserController.class</include>
-                            <include>group5/sebm/BorrowRecord/controller/BorrowRecordController.class</include>
-                            <include>group5/sebm/Device/controller/DeviceController.class</include>
-                            <include>group5/sebm/Device/service/DeviceServiceImpl.class</include>
-                            <include>group5/sebm/Maintenance/controller/MechanicanMaintenanceRecordController.class</include>
-                            <include>group5/sebm/Maintenance/controller/UserMaintenanceRecordController.class</include>
-                            <include>group5/sebm/Maintenance/service/MechanicanMaintenanceRecordServiceImpl.class</include>
-                            <include>group5/sebm/Maintenance/service/UserMaintenanceRecordServiceImpl.class</include>
-                            <include>group5/sebm/notifiation/service/MessageSenderService.class</include>
-                            <include>group5/sebm/notifiation/service/NotificationRateLimiter.class</include>
-                        </includes>
-                    </configuration>
-                </execution>
-            </executions>
-        </plugin>
+                <executions>
+                    <execution>
+                        <id>default-prepare-agent</id>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>report</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                        <configuration>
+                            <!-- 排除不需要统计覆盖率的类 -->
+                            <excludes>
+                                <!-- 排除 DTO/VO/Entity 等数据类 -->
+                                <exclude>**/dto/**/*</exclude>
+                                <exclude>**/vo/**/*</exclude>
+                                <exclude>**/entity/**/*</exclude>
+                                <exclude>**/po/**/*</exclude>
+                                <exclude>**/bo/**/*</exclude>
+                                <!-- 排除 Mapper/DAO 层 -->
+                                <exclude>**/dao/**/*</exclude>
+                                <exclude>**/mapper/**/*</exclude>
+                                <!-- 排除配置类 -->
+                                <exclude>**/config/**/*</exclude>
+                                <!-- 排除异常类 -->
+                                <exclude>**/exception/**/*</exclude>
+                                <!-- 排除常量类 -->
+                                <exclude>**/constant/**/*</exclude>
+                                <!-- 排除工具类 -->
+                                <exclude>**/utils/**/*</exclude>
+                                <!-- 排除枚举类 -->
+                                <exclude>**/enums/**/*</exclude>
+                                <!-- 排除切面类 -->
+                                <exclude>**/aop/**/*</exclude>
+                                <!-- 排除拦截器 -->
+                                <exclude>**/interceptors/**/*</exclude>
+                                <!-- 排除注解 -->
+                                <exclude>**/annotation/**/*</exclude>
+                                <!-- 排除转换器 -->
+                                <exclude>**/converter/**/*</exclude>
+                                <!-- 排除消息类 -->
+                                <exclude>**/mq/NotificationMessage.class</exclude>
+                                <exclude>**/mq/MessageProducer.class</exclude>
+                                <exclude>**/mq/MessageConsumer.class</exclude>
+                                <!-- 排除 WebSocket -->
+                                <exclude>**/websocket/**/*</exclude>
+                                <!-- 排除启动类 -->
+                                <exclude>**/*Application.class</exclude>
+                                <!-- 排除通用类 -->
+                                <exclude>**/common/**/*</exclude>
+                            </excludes>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
 
         <!-- SonarQube Maven 插件 -->
         <plugin>

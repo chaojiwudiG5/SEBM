@@ -1,0 +1,112 @@
+# DAST测试专用配置 - 禁用所有外部依赖
+spring:
+  application:
+    name: SEBM-DAST
+  
+  # 禁用Spring Security（允许DAST扫描访问所有端点）
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration
+      - org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration
+  
+  # 使用H2内存数据库
+  datasource:
+    url: jdbc:h2:mem:dastdb;MODE=MySQL;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: 
+    
+  h2:
+    console:
+      enabled: false
+  
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: false
+    
+  # 禁用缓存
+  cache:
+    type: none
+    
+  # 禁用Redis
+  data:
+    redis:
+      repositories:
+        enabled: false
+  
+  # 禁用RabbitMQ
+  rabbitmq:
+    listener:
+      simple:
+        auto-startup: false
+    template:
+      retry:
+        enabled: false
+  
+  # 禁用邮件
+  mail:
+    host: localhost
+    port: 25
+    username: test@example.com
+    password: test
+    properties:
+      mail:
+        smtp:
+          auth: false
+          starttls:
+            enable: false
+
+server:
+  port: 29578
+  error:
+    include-message: always
+    include-binding-errors: always
+
+# 禁用Resend
+resend:
+  api-key: test_key
+  from-email: test@example.com
+  from-name: Test System
+
+# SpringDoc配置
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true
+
+# Knife4j
+knife4j:
+  enable: true
+  setting:
+    language: zh_cn
+
+# MyBatis-Plus
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: false
+    log-impl: org.apache.ibatis.logging.nologging.NoLoggingImpl
+  global-config:
+    db-config:
+      id-type: auto
+
+# 日志配置
+logging:
+  level:
+    root: WARN
+    group5.sebm: INFO
+    org.springframework: WARN
+    org.hibernate: WARN
+    com.zaxxer.hikari: WARN
+    org.mybatis: WARN
+
+# 禁用阿里云OSS
+aliyun:
+  oss:
+    endpoint: disabled
+    accessKeyId: disabled
+    accessKeySecret: disabled
+    bucketName: disabled
+
