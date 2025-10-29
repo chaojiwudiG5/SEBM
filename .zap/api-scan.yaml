@@ -3,7 +3,7 @@
 
 # 目标应用信息
 target:
-  url: http://localhost:8080
+  url: http://localhost:29578
   
 # API端点定义（根据您的应用调整）
 endpoints:

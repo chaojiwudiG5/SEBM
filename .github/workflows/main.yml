@@ -119,7 +119,7 @@ jobs:
 
       - name: Start Spring Boot application in background
         run: |
-          echo "Starting application with DAST profile..."
+          echo "Starting application with DAST profile on port 29578..."
           nohup java -jar target/*.jar \
             --spring.profiles.active=dast \
             > app.log 2>&1 &
@@ -162,19 +162,19 @@ jobs:
             fi
             
             # 尝试多个可能的端点
-            HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8080 2>/dev/null || echo "000")
+            HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:29578 2>/dev/null || echo "000")
             echo "HTTP Status for /: $HTTP_CODE"
             
             if [ "$HTTP_CODE" = "200" ] || [ "$HTTP_CODE" = "401" ] || [ "$HTTP_CODE" = "403" ] || [ "$HTTP_CODE" = "404" ]; then
               echo "✓ Application is responding!"
               echo "Testing with curl -v:"
-              curl -v http://localhost:8080 2>&1 | head -30
+              curl -v http://localhost:29578 2>&1 | head -30
               SUCCESS=true
               break
             fi
             
             # 尝试API端点
-            API_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8080/api 2>/dev/null || echo "000")
+            API_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:29578/api 2>/dev/null || echo "000")
             echo "HTTP Status for /api: $API_CODE"
             
             if [ "$API_CODE" = "200" ] || [ "$API_CODE" = "401" ] || [ "$API_CODE" = "403" ] || [ "$API_CODE" = "404" ]; then
@@ -197,7 +197,7 @@ jobs:
               cat app.log
               echo ""
               echo "=== Network check ==="
-              netstat -tlnp 2>/dev/null | grep 8080 || echo "Port 8080 not listening"
+              netstat -tlnp 2>/dev/null | grep 29578 || echo "Port 29578 not listening"
               exit 1
             fi
             
@@ -271,7 +271,7 @@ jobs:
       - name: OWASP ZAP Baseline Scan
         uses: zaproxy/action-baseline@v0.10.0
         with:
-          target: 'http://localhost:8080'
+          target: 'http://localhost:29578'
           rules_file_name: '.zap/rules.tsv'
           cmd_options: '-a -j -I'
           fail_action: false
@@ -282,7 +282,7 @@ jobs:
       - name: OWASP ZAP Full Scan (API endpoints)
         uses: zaproxy/action-full-scan@v0.8.0
         with:
-          target: 'http://localhost:8080'
+          target: 'http://localhost:29578'
           rules_file_name: '.zap/rules.tsv'
           cmd_options: '-a -j -m 5'
           fail_action: false
@@ -316,7 +316,7 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "## OWASP ZAP Scan Results" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "Target: http://localhost:8080" >> $GITHUB_STEP_SUMMARY
+          echo "Target: http://localhost:29578" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           if [ -f report_md.md ]; then
             cat report_md.md >> $GITHUB_STEP_SUMMARY

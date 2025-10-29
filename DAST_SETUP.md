@@ -12,7 +12,7 @@
 - ✅ 使用DAST专用配置启动应用（`application-dast.yml`）
   - 自动切换到H2内存数据库
   - 禁用Redis、RabbitMQ、邮件等外部依赖
-  - 监听端口8080
+  - 监听端口29578（应用默认端口）
 - ✅ 智能健康检查（尝试多个端点，详细日志）
 - ✅ 运行OWASP ZAP Baseline扫描（快速扫描，10分钟超时）
 - ✅ 运行OWASP ZAP Full扫描（深度扫描，15分钟超时）
@@ -67,12 +67,12 @@ DAST测试专用配置文件，特点：
 
 ### 本地运行
 ```bash
-# 启动应用
-mvn spring-boot:run
+# 启动应用（使用DAST配置）
+java -jar target/*.jar --spring.profiles.active=dast
 
 # 在另一个终端运行ZAP扫描
 docker run -v $(pwd)/.zap:/zap/wrk/:rw -t owasp/zap2docker-stable zap-baseline.py \
-  -t http://host.docker.internal:8080 \
+  -t http://host.docker.internal:29578 \
   -r report.html
 ```
 
@@ -283,7 +283,7 @@ mvn clean package -DskipTests
 java -jar target/*.jar --spring.profiles.active=dast
 
 # 在另一个终端测试
-curl http://localhost:8080
+curl http://localhost:29578
 ```
 
 ### 获取帮助

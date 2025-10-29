@@ -39,12 +39,12 @@ DAST测试已集成到GitHub Actions工作流中，每次推送到`main`分支�
 #### 使用Docker运行ZAP扫描
 
 ```bash
-# 1. 启动您的应用
-mvn spring-boot:run
+# 1. 启动您的应用（使用DAST配置）
+java -jar target/*.jar --spring.profiles.active=dast
 
 # 2. 在新终端运行ZAP扫描
 docker run -v $(pwd)/.zap:/zap/wrk/:rw -t owasp/zap2docker-stable zap-baseline.py \
-  -t http://host.docker.internal:8080 \
+  -t http://host.docker.internal:29578 \
   -g gen.conf \
   -r report.html
 
@@ -56,7 +56,7 @@ open .zap/report.html
 
 1. 下载并安装 [OWASP ZAP](https://www.zaproxy.org/download/)
 2. 启动ZAP
-3. 配置目标URL：`http://localhost:8080`
+3. 配置目标URL：`http://localhost:29578`
 4. 运行自动扫描
 5. 查看扫描结果
 

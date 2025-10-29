@@ -53,7 +53,7 @@ spring:
             enable: false
 
 server:
-  port: 8080
+  port: 29578
   error:
     include-message: always
     include-binding-errors: always
