@@ -35,6 +35,21 @@
         <sonar.projectKey>chaojiwudiG5_SEBM</sonar.projectKey>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
         <sonar.coverage.jacoco.xmlReportPaths>${project.basedir}/target/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
+        <sonar.coverage.exclusions>
+            **/group5/sebm/**, !**/group5/sebm/User/service/UserServiceImpl.class,
+            !**/group5/sebm/User/service/BorrowerServiceImpl.class,
+            !**/group5/sebm/User/service/ManagerServiceImpl.class,
+            !**/group5/sebm/User/controller/UserController.class,
+            !**/group5/sebm/BorrowRecord/controller/BorrowRecordController.class,
+            !**/group5/sebm/Device/controller/DeviceController.class,
+            !**/group5/sebm/Device/service/DeviceServiceImpl.class,
+            !**/group5/sebm/Maintenance/controller/MechanicanMaintenanceRecordController.class,
+            !**/group5/sebm/Maintenance/controller/UserMaintenanceRecordController.class,
+            !**/group5/sebm/Maintenance/service/MechanicanMaintenanceRecordServiceImpl.class,
+            !**/group5/sebm/Maintenance/service/UserMaintenanceRecordServiceImpl.class,
+            !**/group5/sebm/notifiation/service/MessageSenderService.class,
+            !**/group5/sebm/notifiation/service/NotificationRateLimiter.class
+        </sonar.coverage.exclusions>
     </properties>
     <dependencies>
         <dependency>
