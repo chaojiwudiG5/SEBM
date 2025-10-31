@@ -21,7 +21,7 @@ import java.util.Map;
 @Service
 public class ResendEmailService {
 
-    @Value("${resend.api.key:re_eZiYFxTN_DZMychBGRpAR2qDv5N9x7hB8}")
+    @Value("${resend.api.key:re_7tcg92BP_7HVbMYC4aAX5KgYUiTan3NDF}")
     private String resendApiKey;
 
     @Value("${resend.from.email:onboarding@resend.dev}")
